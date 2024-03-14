@@ -111,11 +111,11 @@ function onResize() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-function animate() {
-    requestAnimationFrame(animate);
+function mainLoop() {
+    requestAnimationFrame(mainLoop);
     renderer.render(scene, camera);
 }
 
 setUpThree();
 addGeometries();
-animate();
+mainLoop();
