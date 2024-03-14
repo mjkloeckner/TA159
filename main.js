@@ -5,11 +5,18 @@ const castleW = 10;
 const castleD = 10;
 const castleH =  4;
 
+const gateW = 2.5;
+const gateH = 3;
+const gateD = 0.5;
+
 const towerR =  1.5;
 const towerH =  castleH + 2;
 
 const towerSpireR = towerR + 0.5;
 const towerSpireH = 6;
+
+const lakeR = 6;
+const treeLogH = 4;
 
 let scene, camera, renderer, container;
 
@@ -21,8 +28,7 @@ function setUpThree() {
         window.innerWidth / window.innerHeight,
         0.1,
         1000);
-    camera.position.set(30, 25, 25);
-    camera.lookAt(0, 0, 0);
+    camera.position.set(40, 35, 30);
     camera.up.set(0, 0, 1); // Set Z axis facing up 
 
     renderer = new t.WebGLRenderer();
@@ -42,10 +48,10 @@ function setUpThree() {
 }
 
 function addGeometries() {
-    const floorGeometry = new t.BoxGeometry(80, 50, 0.1);
+    const floorGeometry = new t.BoxGeometry(90, 75, 0.1);
+    floorGeometry.translate(14,0,0);
     const floorMaterial = new t.MeshPhongMaterial();
     floorMaterial.color.set(0x086f09);
-    floorMaterial.emissive.set(0x000000);
 
     const floor = new t.Mesh(floorGeometry, floorMaterial); 
     scene.add(floor);
@@ -62,8 +68,14 @@ function addGeometries() {
     let towersGeometry = [];
     let towersSpireGeometry = [];
     for (let i = 0; i < 4; i++) {
-        towersGeometry[i] = new t.CylinderGeometry(towerR, towerR, towerH, 40, 40);
-        towersSpireGeometry[i] = new t.ConeGeometry(towerSpireR, towerSpireH, 40);
+        towersGeometry[i] = new t.CylinderGeometry(
+            towerR,
+            towerR,
+            towerH, 40, 40);
+        towersSpireGeometry[i] = new t.ConeGeometry(
+            towerSpireR,
+            towerSpireH,
+            40);
 
         // 0 -> 00
         // 1 -> 01
@@ -82,12 +94,10 @@ function addGeometries() {
 
     const towerMaterial = new t.MeshPhongMaterial();
     towerMaterial.color.set(0xfddde6);
-    towerMaterial.emissive.set(0x000000);
     towerMaterial.flatShading = true;
 
     const towerSpireMaterial = new t.MeshPhongMaterial();
     towerSpireMaterial.color.set(0x4d8dff);
-    towerSpireMaterial.emissive.set(0x000000);
     towerSpireMaterial.flatShading = true;
 
     let towersMesh = [];
@@ -96,12 +106,71 @@ function addGeometries() {
         towersMesh[i] = new t.Mesh(towersGeometry[i], towerMaterial); 
         towersMesh[i].rotation.x = Math.PI/2;
 
-        towersSpireMesh[i] = new t.Mesh(towersSpireGeometry[i], towerSpireMaterial); 
+        towersSpireMesh[i] = new t.Mesh(
+            towersSpireGeometry[i],
+            towerSpireMaterial); 
         towersSpireMesh[i].rotation.x = Math.PI/2;
 
         scene.add(towersMesh[i]);
         scene.add(towersSpireMesh[i]);
-    } 
+    }
+
+    const gateGeometry = new t.BoxGeometry(gateD, gateW, gateH);
+    // 0.01 previene un error visual
+    gateGeometry.translate((castleW-gateD)/2 + 0.01, 0, gateH/2);
+
+    const gateMaterial = new t.MeshPhongMaterial();
+    gateMaterial.color.set(0x7c3f00);
+    gateMaterial.flatShading = true;
+
+    const gate = new t.Mesh(gateGeometry, gateMaterial); 
+    scene.add(gate);
+
+    let lakeGeometries = [];
+    for (let i = 0; i < 2; ++i) {
+        lakeGeometries[i] = new t.CircleGeometry(lakeR, 40);
+        lakeGeometries[i].translate(24 + (i*lakeR*5/4),0,0.1);
+    }
+
+    const lakeMaterial = new t.MeshPhongMaterial();
+    lakeMaterial.color.set(0x62c4ff);
+    lakeMaterial.flatShading = true;
+
+    let lake = [];
+    for (let i = 0; i < 2; ++i) {
+        lake[i] = new t.Mesh(lakeGeometries[i], lakeMaterial); 
+        scene.add(lake[i]);
+    }
+
+    const treeLogGeometry = new t.CylinderGeometry(0.5, 0.5, treeLogH, 40, 40);
+    treeLogGeometry.translate(14,treeLogH/2,12);
+
+    const treeLogMaterial = new t.MeshPhongMaterial();
+    treeLogMaterial.color.set(0x7c3f00);
+    treeLogMaterial.flatShading = true;
+
+    const treeLog = new t.Mesh(treeLogGeometry, treeLogMaterial); 
+    treeLog.rotation.x = Math.PI/2;
+    scene.add(treeLog);
+
+    let treeLeavesGeometries = [];
+    for (let i = 0; i < 3; i++) {
+        treeLeavesGeometries[i] = new t.SphereGeometry(1.75,40,40);
+        treeLeavesGeometries[i].translate(
+            14,
+            -11-((0.5)*(1+((-1)**i))),
+            treeLogH+i);
+    }
+
+    const treeLeavesMaterial = new t.MeshPhongMaterial();
+    treeLeavesMaterial.color.set(0x00ff00);
+    treeLeavesMaterial.flatShading = true;
+
+    let treeLeaves = [];
+    for (let i = 0; i < 3; i++) {
+        treeLeaves[i] = new t.Mesh(treeLeavesGeometries[i], treeLeavesMaterial); 
+        scene.add(treeLeaves[i]);
+    }
 }
 
 function onResize() {
