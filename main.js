@@ -1,12 +1,12 @@
 import * as t from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
-const houseW = 10;
-const houseD = 10;
-const houseH =  4;
+const castleW = 10;
+const castleD = 10;
+const castleH =  4;
 
 const towerR =  1.5;
-const towerH =  houseH + 2;
+const towerH =  castleH + 2;
 
 const towerSpireR = towerR + 0.5;
 const towerSpireH = 6;
@@ -50,15 +50,14 @@ function addGeometries() {
     const floor = new t.Mesh(floorGeometry, floorMaterial); 
     scene.add(floor);
 
-    const houseGeometry = new t.BoxGeometry(houseW, houseD, houseH);
-    houseGeometry.translate(0,0,houseH/2)
-    const houseMaterial = new t.MeshPhongMaterial();
-    houseMaterial.color.set(0xfddde6);
-    houseMaterial.emissive.set(0x000000);
-    houseMaterial.flatShading = true;
+    const castleGeometry = new t.BoxGeometry(castleW, castleD, castleH);
+    castleGeometry.translate(0,0,castleH/2)
+    const castleMaterial = new t.MeshPhongMaterial();
+    castleMaterial.color.set(0xfddde6);
+    castleMaterial.flatShading = true;
 
-    const house = new t.Mesh(houseGeometry, houseMaterial); 
-    scene.add(house);
+    const castle = new t.Mesh(castleGeometry, castleMaterial); 
+    scene.add(castle);
 
     let towersGeometry = [];
     let towersSpireGeometry = [];
@@ -71,14 +70,14 @@ function addGeometries() {
         // 2 -> 10
         // 3 -> 11
         towersGeometry[i].translate(
-            ((-1)**(i>>1))*(houseW/2-(towerR*2/3)),
+            ((-1)**(i>>1))*(castleW/2-(towerR*2/3)),
             towerH/2,
-             ((-1)**(i&1))*(houseD/2-towerR*2/3));
+             ((-1)**(i&1))*(castleD/2-towerR*2/3));
 
         towersSpireGeometry[i].translate(
-            ((-1)**(i>>1))*(houseW/2-towerR*2/3),
+            ((-1)**(i>>1))*(castleW/2-towerR*2/3),
             towerH + (towerSpireH/2),
-             ((-1)**(i&1))*(houseD/2-towerR*2/3));
+             ((-1)**(i&1))*(castleD/2-towerR*2/3));
     } 
 
     const towerMaterial = new t.MeshPhongMaterial();
