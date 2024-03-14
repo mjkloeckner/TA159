@@ -7,13 +7,13 @@
 Install node modules
 
 ```sh
-npm i
+$ npm i
 ```
 
 Then create a web server on curent directory with `vite`
 
 ```sh
-vite
+$ vite
 ```
 
 the go to the URL provided by vite
