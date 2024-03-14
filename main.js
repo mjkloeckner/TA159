@@ -66,50 +66,19 @@ function addGeometries() {
         towersGeometry[i] = new t.CylinderGeometry(towerR, towerR, towerH, 40, 40);
         towersSpireGeometry[i] = new t.ConeGeometry(towerSpireR, towerSpireH, 40);
 
-        switch(i) {
-            case 0:
-                towersGeometry[i].translate(
-                    houseW/2-(towerR*2/3),
-                    towerH/2,
-                    houseD/2-(towerR*2/3));
-                towersSpireGeometry[i].translate(
-                    houseW/2-(towerR*2/3),
-                    towerH + (towerSpireH/2),
-                    houseD/2-(towerR*2/3));
-                break;
-            case 1:
-                towersGeometry[i].translate(
-                    -(houseW/2-(towerR*2/3)),
-                    towerH/2,
-                      houseD/2-(towerR*2/3));
-                towersSpireGeometry[i].translate(
-                    -(houseW/2-(towerR*2/3)),
-                    towerH + (towerSpireH/2),
-                      houseD/2-(towerR*2/3));
-                break;
-            case 2:
-                towersGeometry[i].translate(
-                    -(houseW/2-(towerR*2/3)),
-                    towerH/2,
-                    -(houseD/2-(towerR*2/3)));
-                towersSpireGeometry[i].translate(
-                    -(houseW/2-(towerR*2/3)),
-                    towerH + (towerSpireH/2),
-                    -(houseD/2-(towerR*2/3)));
-                break;
-            case 3:
-                towersGeometry[i].translate(
-                      houseW/2-(towerR*2/3),
-                    towerH/2,
-                    -(houseD/2-(towerR*2/3)));
-                towersSpireGeometry[i].translate(
-                      houseW/2-(towerR*2/3),
-                    towerH + (towerSpireH/2),
-                    -(houseD/2-(towerR*2/3)));
-                break;
-            default:
-                console.log(`Out of bounds: towersGeometry[${expr}]`);
-        }
+        // 0 -> 00
+        // 1 -> 01
+        // 2 -> 10
+        // 3 -> 11
+        towersGeometry[i].translate(
+            ((-1)**(i>>1))*(houseW/2-(towerR*2/3)),
+            towerH/2,
+             ((-1)**(i&1))*(houseD/2-towerR*2/3));
+
+        towersSpireGeometry[i].translate(
+            ((-1)**(i>>1))*(houseW/2-towerR*2/3),
+            towerH + (towerSpireH/2),
+             ((-1)**(i&1))*(houseD/2-towerR*2/3));
     } 
 
     const towerMaterial = new t.MeshPhongMaterial();
