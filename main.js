@@ -49,111 +49,89 @@ function setUpThree() {
 
 function addGeometries() {
     const floorGeometry = new t.BoxGeometry(90, 75, 0.1);
-    floorGeometry.translate(14,0,0);
     const floorMaterial = new t.MeshPhongMaterial({color: 0x086f09});
     const floor = new t.Mesh(floorGeometry, floorMaterial); 
+    floor.position.set(10,0,0);
     scene.add(floor);
 
     const castleGeometry = new t.BoxGeometry(castleW, castleD, castleH);
-    castleGeometry.translate(0,0,castleH/2)
-
     const castleMaterial = new t.MeshPhongMaterial({color: 0xfddde6});
     const castle = new t.Mesh(castleGeometry, castleMaterial); 
+    castle.position.set(0,0,castleH/2)
     scene.add(castle);
 
-    let towersGeometry = [];
-    let towersSpireGeometry = [];
+    const towerGeometry = new t.CylinderGeometry(towerR, towerR, towerH, 40, 40);
+    const towerSpireGeometry = new t.ConeGeometry(towerSpireR, towerSpireH, 40);
     const towerMaterial = new t.MeshPhongMaterial({color: 0xfddde6});
     const towerSpireMaterial = new t.MeshPhongMaterial({color: 0x4d8dff});
+
+    let towersMesh = [];
+    let towersSpireMesh = [];
+    const towers = new t.Group();
     for (let i = 0; i < 4; i++) {
-        towersGeometry[i] = new t.CylinderGeometry(
-            towerR,
-            towerR,
-            towerH, 40, 40);
-        towersSpireGeometry[i] = new t.ConeGeometry(
-            towerSpireR,
-            towerSpireH,
-            40);
+        towersMesh[i] = new t.Mesh(towerGeometry, towerMaterial); 
+        towersSpireMesh[i] = new t.Mesh(towerSpireGeometry, towerSpireMaterial); 
 
         // 0 -> 00
         // 1 -> 01
         // 2 -> 10
         // 3 -> 11
-        towersGeometry[i].translate(
+        towersMesh[i].position.set(
             ((-1)**(i>>1))*(castleW/2-(towerR*2/3)),
             towerH/2,
-             ((-1)**(i&1))*(castleD/2-towerR*2/3));
+            ((-1)**(i&1))*(castleD/2-towerR*2/3));
 
-        towersSpireGeometry[i].translate(
+        towersSpireMesh[i].position.set(
             ((-1)**(i>>1))*(castleW/2-towerR*2/3),
             towerH + (towerSpireH/2),
-             ((-1)**(i&1))*(castleD/2-towerR*2/3));
-    } 
+            ((-1)**(i&1))*(castleD/2-towerR*2/3));
 
-
-    let towersMesh = [];
-    let towersSpireMesh = [];
-    for (let i = 0; i < 4; i++) {
-        towersMesh[i] = new t.Mesh(towersGeometry[i], towerMaterial); 
-        towersMesh[i].rotation.x = Math.PI/2;
-
-        towersSpireMesh[i] = new t.Mesh(
-            towersSpireGeometry[i],
-            towerSpireMaterial); 
-        towersSpireMesh[i].rotation.x = Math.PI/2;
-
-        scene.add(towersMesh[i]);
-        scene.add(towersSpireMesh[i]);
+        towers.add(towersMesh[i]);
+        towers.add(towersSpireMesh[i]);
     }
+
+    towers.rotation.x = Math.PI/2;
+    scene.add(towers);
 
     const gateGeometry = new t.BoxGeometry(gateD, gateW, gateH);
-    // 0.01 previene un error visual
-    gateGeometry.translate((castleW-gateD)/2 + 0.01, 0, gateH/2);
-
-
     const gateMaterial = new t.MeshPhongMaterial({color: 0x7c3f00});
     const gate = new t.Mesh(gateGeometry, gateMaterial); 
+
+    // 0.01 previene un error visual
+    gate.position.set((castleW-gateD)/2 + 0.01, 0, gateH/2);
     scene.add(gate);
 
-    let lakeGeometries = [];
-    for (let i = 0; i < 2; ++i) {
-        lakeGeometries[i] = new t.CircleGeometry(lakeR, 40);
-        lakeGeometries[i].translate(24 + (i*lakeR*5/4),0,0.1);
-    }
-
+    const lakeGeometry = new t.CircleGeometry(lakeR, 40);
     const lakeMaterial = new t.MeshPhongMaterial({color: 0x62c4ff});
 
     let lake = [];
     for (let i = 0; i < 2; ++i) {
-        lake[i] = new t.Mesh(lakeGeometries[i], lakeMaterial); 
+        lake[i] = new t.Mesh(lakeGeometry, lakeMaterial); 
+        lake[i].position.set(24 + (i*lakeR*5/4),0,0.1)
         scene.add(lake[i]);
     }
 
+    const Tree = new t.Group();
     const treeLogGeometry = new t.CylinderGeometry(0.5, 0.5, treeLogH, 40, 40);
-    treeLogGeometry.translate(14,treeLogH/2,12);
-
-
     const treeLogMaterial = new t.MeshPhongMaterial({color: 0x7c3f00});
     const treeLog = new t.Mesh(treeLogGeometry, treeLogMaterial); 
     treeLog.rotation.x = Math.PI/2;
-    scene.add(treeLog);
+    treeLog.position.set(14,-12,treeLogH/2)
+    Tree.add(treeLog);
 
-    let treeLeavesGeometries = [];
+    const treeLeavesGeometry = new t.SphereGeometry(1.75,40,40);
     const treeLeavesMaterial = new t.MeshPhongMaterial({color: 0x00ff00});
-    for (let i = 0; i < 3; i++) {
-        treeLeavesGeometries[i] = new t.SphereGeometry(1.75,40,40);
-        treeLeavesGeometries[i].translate(
-            14,
-            -11-((0.5)*(1+((-1)**i))),
-            treeLogH+i);
-    }
-
-
     let treeLeaves = [];
     for (let i = 0; i < 3; i++) {
-        treeLeaves[i] = new t.Mesh(treeLeavesGeometries[i], treeLeavesMaterial); 
-        scene.add(treeLeaves[i]);
+        treeLeaves[i] = new t.Mesh(treeLeavesGeometry, treeLeavesMaterial); 
+        treeLeaves[i].position.set(
+            14,
+            -11.5-((0.25)*(1+((-1)**i))),
+            treeLogH+i);
+        Tree.add(treeLeaves[i]);
     }
+
+    scene.add(Tree);
 }
 
 function onResize() {
