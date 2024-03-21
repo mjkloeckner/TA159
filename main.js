@@ -3,14 +3,14 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 const castleW = 10;
 const castleD = 10;
-const castleH =  4;
+const castleH =  5;
 
 const gateW = 2.5;
 const gateH = 3;
 const gateD = 0.5;
 
 const towerR =  1.5;
-const towerH =  castleH + 2;
+const towerH =  castleH + 2.5;
 
 const towerSpireR = towerR + 0.5;
 const towerSpireH = 6;
