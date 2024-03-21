@@ -22,7 +22,7 @@ let scene, camera, renderer, container;
 
 function setUpThree() {
     scene = new t.Scene();
-    scene.background = new t.Color(0x9FCFFB);
+    scene.background = new t.Color(0x9fcffb);
 
     camera = new t.PerspectiveCamera(50,
         window.innerWidth / window.innerHeight,
