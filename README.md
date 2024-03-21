@@ -6,14 +6,21 @@
 
 Install node modules
 
-```sh
+```console
 $ npm i
 ```
 
-Then create a web server on curent directory with `vite`
+Create local web server on current directory with `vite`
 
-```sh
+```console
 $ vite
 ```
 
-the go to the URL provided by vite
+Then go to the URL provided by `vite`
+
+> If you don't have `vite` installed you can install it system-wide with the
+> following command
+> 
+> ```console
+> # npm -g i vite
+> ```
