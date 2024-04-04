@@ -1,0 +1,3 @@
+[submodule "castle-scene"]
+	path = castle-scene
+	url = git@github.com:mjkloeckner/castle-scene.git
