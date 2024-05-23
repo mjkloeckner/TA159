@@ -15,7 +15,7 @@ Las etapas principales del Pipeline Gráfico son el procesamiento de vertices
 ("vertex shader"), la etapa de pasterización y la etapa de procesamiento de
 fragmentos ("fragment shader" o "pixel shader").
 
-![Diagrama de flujo completo del pipeline gráfico](./3D-Pipeline.png)[^1]
+![Diagrama de flujo completo del pipeline gráfico[^1]](./3D-Pipeline.png)
 
 [^1]: [Pipeline Flow Chart: Martin Wantke, Wikimedia Commons,
     2021.](https://commons.wikimedia.org/wiki/File:3D-Pipeline.svg)
