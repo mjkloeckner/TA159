@@ -119,15 +119,15 @@ shader".[^6]
 
 [^6]: ["Rendering Pipeline Overview" OpenGL Wiki, 2022.](https://www.khronos.org/opengl/wiki/Rendering_Pipeline_Overview)
 
-A fragment is a set of state that is used to compute the final data for a pixel
-(or sample if multisampling is enabled) in the output framebuffer. The state for
-a fragment includes its position in screen-space, the sample coverage if
-multisampling is enabled, and a list of arbitrary data that was output from the
-previous vertex or geometry shader.
+Un fragmento es un conjunto de estados que se utiliza para computar la salida de
+un pixel (o `sample` si se utiliza `multisampling`) en el `framebuffer`. Este
+conjunto de estados para un fragmento incluye la posicion en el espacio de
+pantalla y una lista de datos arbitrarios provenientes de etapas previas del
+pipeline grafico, como el "vertex shader". 
 
-This last set of data is computed by interpolating between the data values in
-the vertices for the fragment. The style of interpolation is defined by the
-shader that outputed those values.
+Este ultimo conjunto de datos se computa para cada fragmento mediante la
+interpolacion de los valores de los vertices. El metodo de interpolacion queda
+definido por el shader que procesó esos datos.
 
 > 11. ¿Cuál es la función principal de la GPU en el Pipeline Gráfico?
 
@@ -170,19 +170,48 @@ de estas variable es que sea interpolado automáticamente
 > 14. ¿Qué información se comparte entre el vertex shader y el fragment shader a
 >     través de las variables varying? 
 
+Como se menciono antes las variables de tipo `varying` son aquellas que se
+interpolan automaticamente a los largo de la superficie de una primitiva.
+Algunos ejemplos de datos que se pueden interpolar son colores, coordenadas
+de textura o coordenadas de vectores normales.
+
 > 15. ¿Cómo se realiza la interpolación de valores de los vértices en un
 >     fragment shader?
 
-
+En un fragment shader, la interpolación de valores de los vértices se realiza
+automáticamente por el hardware gráfico durante el proceso de rasterización.
 
 > 16. ¿Qué es la matriz de vista?
 
-> 17. ¿Qué es la matriz de modelado? 
+La matriz de vista se utiliza para transformar los objetos desde su sistema de
+coordenadas del mundo al sistema de coordenas de camara.
 
-> 18. ¿Qué es la matriz de proyección? 
+La matriz de vista se utiliza para definir la posición y orientación de la
+cámara en relación con los objetos en la escena, simulando así el punto de vista
+desde el cual se está observando la escena.
+
+> 17. ¿Qué es la matriz de modelado?
+
+La matriz de modelado se utiliza para transformar cada objeto desde sus sistema
+de coordenadas de modelado a un sistema de coordenadas de mundo.
+
+El sistema de coordenadas de modelado, o espacio de modelado, es un sistema en
+el cual el objeto esta posicionado en un cero arbitrario (definido por el
+diseñador). Cada objeto se modela por separado, por lo que cada objeto posee su
+propio espacio de modelado. Mediante la matriz de vista, se posiciona cada
+objeto con respecto a un sistema de coordenada común. 
+
+> 18. ¿Qué es la matriz de proyección?
+
+La matriz de proyección se utiliza para transformar los objetos de espacio de
+cámara a un espacio normalizado entre `(-1.0; 1.0)`
 
 > 19. ¿Cómo se crea la matriz de transformación de la vista a partir de la
 >     posición y orientación de la cámara?
+
+La matriz de vista es una combinación de traslaciones y rotaciones:
+
+$$\boxed{M_V = T\cdot R\cdot T}$$
 
 > 20. ¿Cómo se transforman las normales en un vertex shader para mantener su
 >     coherencia durante las transformaciones de modelo y vista?
