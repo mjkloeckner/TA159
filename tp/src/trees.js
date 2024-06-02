@@ -1,16 +1,8 @@
 import * as THREE from 'three';
 import * as dat from 'dat.gui';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { vertexShader, fragmentShader } from '/assets/shaders.js';
 
 let scene, camera, renderer, container, material;
-
-const textures = {
-	tierra: { url: '/assets/tierra.jpg', object: null },
-	roca: { url: '/assets/roca.jpg', object: null },
-	pasto: { url: '/assets/pasto.jpg', object: null },
-	elevationMap: { url: '/assets/elevation_map2.png', object: null },
-};
 
 function onResize() {
 	camera.aspect = container.offsetWidth / container.offsetHeight;
@@ -55,42 +47,13 @@ function setupThreeJs() {
 function buildScene() {
 	console.log('Building scene');
 
-	console.log('Generating water');
+	console.log('Generating terrain');
 	const terrainGeometry = new THREE.PlaneGeometry(50, 50);
 	const terrainMaterial = new THREE.MeshPhongMaterial( {color: 0x365829, side: THREE.DoubleSide} );
 	const terrain = new THREE.Mesh(terrainGeometry, terrainMaterial);
 	terrain.rotateX(Math.PI/2);
 	terrain.position.set(0, 0, 0);
 	scene.add(terrain);
-}
-
-function onTextureLoaded(key, texture) {
-	texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-	textures[key].object = texture;
-	console.log('Texture `' + key + '` loaded');
-}
-
-function loadTextures(callback) {
-	const loadingManager = new THREE.LoadingManager();
-
-	loadingManager.onLoad = () => {
-		console.log('All textures loaded');
-		callback();
-	};
-
-	for (const key in textures) {
-		console.log("Loading textures");
-		const loader = new THREE.TextureLoader(loadingManager);
-		const texture = textures[key];
-		texture.object = loader.load(
-			texture.url,
-			onTextureLoaded.bind(this, key),
-			null,
-			(error) => {
-				console.error(error);
-			}
-		);
-	}
 }
 
 function createMenu() {
