@@ -61,6 +61,37 @@ function setupThreeJs() {
 	onResize();
 }
 
+// obtiene una posicion aleatoria en el terreno, para obtener la altura del
+// terreno utiliza el mapa de elevacion
+function getRandomPositionInTerrain() {
+	let canvas = document.createElement('canvas');
+	let ctx = canvas.getContext('2d');
+	let img = textures.elevationMap.object.image;
+
+	canvas.width  = widthSegments;
+	canvas.height = heightSegments;
+
+	ctx.drawImage(img, 0, 0, widthSegments, heightSegments);
+	let imageData = ctx.getImageData(0, 0, widthSegments, heightSegments);
+	let data = imageData.data;
+	const quadsPerRow = widthSegments - 1;
+
+	const x = Math.random();
+	const z = Math.random();
+
+	const elevationMapData = Math.floor((x + z) * widthSegments);
+	const indexX = Math.floor(x * widthSegments);
+	const indexZ = Math.floor(z * heightSegments);
+	const y = data[(indexX + indexZ * widthSegments) * 4] / 255;
+
+	const position = new THREE.Vector3((
+		x - 0.5) * widthSegments,
+		y * amplitude,
+		(z - 0.5) * heightSegments);
+
+	return position;
+}
+
 function createInstancedTrees(count) {
 	console.log('Generating `' + count + '` instances of tree');
 
@@ -90,77 +121,32 @@ function createInstancedTrees(count) {
 	const treeLogMatrix     = new THREE.Matrix4();
 	const treeLeavesMatrix  = new THREE.Matrix4();
 
-	//let origin = new THREE.Vector3();
-	const RANGE = 100 - 4/2;
-
-	const positionAttribute = terrainGeometry.getAttribute('position');
-	const point = new THREE.Vector3();
-	//point.fromBufferAttribute(positionAttribute, i);
-
-	// Creamos un canvas para poder leer los valores de los píxeles de la textura
-	let canvas = document.createElement('canvas');
-	let ctx = canvas.getContext('2d');
-	let img = textures.elevationMap.object.image;
-
-	// Ajustamos el tamaño del canvas segun la cantidad de segmentos horizontales y verticales
-	canvas.width = widthSegments;
-	canvas.height = heightSegments;
-
-	// Dibujamos la textura en el canvas en la escala definida por widthSegments y heightSegments
-	ctx.drawImage(img, 0, 0, widthSegments, heightSegments);
-
-	// Obtenemos los valores de los píxeles de la textura
-	let imageData = ctx.getImageData(0, 0, widthSegments, heightSegments);
-	let data = imageData.data; // Este es un array con los valores de los píxeles
-	const quadsPerRow = widthSegments - 1;
-
 	for (let i = 0; i < count; i++) {
-		let treeX = (Math.random() - 0.5) * RANGE;
-		let treeZ = (Math.random() - 0.5) * RANGE;
+		let position = getRandomPositionInTerrain();
+		let j = 0;
+		while((position.y > 4.0) || (position.y < 2.5)) {
+			position = getRandomPositionInTerrain();
+			// console.log(position);
+			if(j++ == 100) {
+				break;
+			}
+		}
 
-		let treeY = amplitudeBottom;
-		// let treeY = (data[Math.floor(treeX + treeZ) * 4] / 255)*(amplitude+amplitudeBottom);
-		// console.log(treeY);
-
-		let position = new THREE.Vector3(treeX, 0, treeZ);
-
-		//let terrainPosition = getPositionFromMatrix()
-
+		position.y += amplitudeBottom;
 		translationMatrix.makeTranslation(position);
-
-		//rotMatrix.lookAt(0, 0, new THREE.Vector3(0, 1, 0));
 		treeLogMatrix.identity();
 		treeLeavesMatrix.identity();
 
 		let scale = 0.5 + (Math.random()*(logHeight/3));
-		console.log(scale);
 		treeLogMatrix.makeScale(1, scale, 1);
-		//matrix.premultiply(rotMatrix);
-
 		treeLogMatrix.premultiply(translationMatrix);
 
-		position.y = scale*logHeight;
+		position.y += scale * logHeight;
 		translationMatrix.makeTranslation(position);
 		treeLeavesMatrix.premultiply(translationMatrix);
 
 		instancedTreeLogs.setMatrixAt(i, treeLogMatrix);
 		instancedTreeLeaves.setMatrixAt(i, treeLeavesMatrix);
-
-	}
-	//
-	//const vertex = new THREE.Vector3();
-	//const terrainPositionAttribute = terrainGeometry.getAttribute('position');
-	//
-	//for(let i = 0; i < 100; i++) {
-	//	vertex.fromBufferAttribute(terrainPositionAttribute, i);
-	//	terrain.localToWorld(vertex);
-	//	console.log(vertex);
-	//}
-
-	// Recorremos los segmentos horizontales y verticales
-	for (let i = 0; i < widthSegments - 1; i++) {
-		for (let j = 0; j < heightSegments - 1; j++) {
-		}
 	}
 
 	return [instancedTreeLogs, instancedTreeLeaves];
@@ -210,6 +196,7 @@ function elevationGeometry(width, height, amplitude, widthSegments, heightSegmen
 			let yNext = undefined;
 
 			// Obtenemos el valor del pixel en la posicion i, j
+			// console.log('getting elevation map value at: (' + i + ',' + j + ')');
 			let z0 = data[(i + j * widthSegments) * 4] / 255;
 
 			// Obtenemos los valores de los píxeles adyacentes
@@ -325,10 +312,10 @@ function buildScene() {
 	const waterMaterial = new THREE.MeshPhongMaterial( {color: 0x12ABFF, side: THREE.DoubleSide} );
 	const water = new THREE.Mesh( waterGeometry, waterMaterial );
 	water.rotateX(Math.PI/2);
-	water.position.set(0, 0.85, 0);
+	water.position.set(0, 0.75, 0);
 	scene.add(water);
 
-	const [treeLogs, treeLeaves] = createInstancedTrees(50);
+	const [treeLogs, treeLeaves] = createInstancedTrees(100);
 	scene.add(treeLogs);
 	scene.add(treeLeaves);
 }
