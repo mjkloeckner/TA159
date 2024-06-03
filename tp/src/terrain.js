@@ -3,7 +3,12 @@ import * as dat from 'dat.gui';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { vertexShader, fragmentShader } from '/assets/shaders.js';
 
-let scene, camera, renderer, container, material;
+let scene, camera, renderer, container, terrainMaterial, terrainGeometry, terrain;
+
+const widthSegments = 100;
+const heightSegments = 100;
+const amplitude = 8;
+const amplitudeBottom = -1.00;
 
 const textures = {
 	tierra: { url: '/assets/tierra.jpg', object: null },
@@ -26,24 +31,28 @@ function setupThreeJs() {
 	renderer.setClearColor(0x606060);
 	container.appendChild(renderer.domElement);
 
-	camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 1000);
-	camera.position.set(-40, 50, 30);
+	camera = new THREE.PerspectiveCamera(
+		35, window.innerWidth/window.innerHeight, 0.1, 1000);
+	camera.position.set(100, 120, -100);
 	camera.lookAt(0, 0, 0);
 
 	const controls = new OrbitControls(camera, renderer.domElement);
 
 	const ambientLight = new THREE.AmbientLight(0xffffff);
-	//scene.add(ambientLight);
+	scene.add(ambientLight);
 
 	const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x000000, 0.25);
 	//scene.add(hemisphereLight);
 
 	const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-	directionalLight.position.set(1, 1, 1);
+	directionalLight.position.set(100, 100, 100);
 	scene.add(directionalLight);
 
-	const gridHelper = new THREE.GridHelper(50, 20);
-	scene.add(gridHelper);
+	const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 5);
+	scene.add(directionalLightHelper);
+
+	 const gridHelper = new THREE.GridHelper(150, 150);
+	 scene.add(gridHelper);
 
 	const axesHelper = new THREE.AxesHelper( 5 );
 	scene.add( axesHelper );
@@ -52,7 +61,109 @@ function setupThreeJs() {
 	onResize();
 }
 
-function elevationPlane(width, height, widthSegments, heightSegments, texture) {
+function createInstancedTrees(count) {
+	console.log('Generating `' + count + '` instances of tree');
+
+	let logHeight = 4.0;
+	const treeLogGeometry   = new THREE.CylinderGeometry(
+		0.30, 0.30, logHeight, 40, 40);
+	treeLogGeometry.translate(0, logHeight/2.0, 0);
+	const instancedTreeLogGeometry = new THREE.InstancedBufferGeometry();
+	instancedTreeLogGeometry.copy(treeLogGeometry);
+	const treeLogMaterial   = new THREE.MeshPhongMaterial({color: 0x7c3f00});
+	const instancedTreeLogs = new THREE.InstancedMesh(
+		instancedTreeLogGeometry,
+		treeLogMaterial,
+		count);
+
+	const treeLeavesGeometry = new THREE.SphereGeometry(1.75,40,40);
+	const instancedTreeLeavesGeometry = new THREE.InstancedBufferGeometry();
+	instancedTreeLeavesGeometry.copy(treeLeavesGeometry);
+	const treeLeavesMaterial  = new THREE.MeshPhongMaterial({color: 0x365829});
+	const instancedTreeLeaves = new THREE.InstancedMesh(
+		instancedTreeLeavesGeometry,
+		treeLeavesMaterial,
+		count);
+
+	const rotMatrix         = new THREE.Matrix4();
+	const translationMatrix = new THREE.Matrix4();
+	const treeLogMatrix     = new THREE.Matrix4();
+	const treeLeavesMatrix  = new THREE.Matrix4();
+
+	//let origin = new THREE.Vector3();
+	const RANGE = 100 - 4/2;
+
+	const positionAttribute = terrainGeometry.getAttribute('position');
+	const point = new THREE.Vector3();
+	//point.fromBufferAttribute(positionAttribute, i);
+
+	// Creamos un canvas para poder leer los valores de los píxeles de la textura
+	let canvas = document.createElement('canvas');
+	let ctx = canvas.getContext('2d');
+	let img = textures.elevationMap.object.image;
+
+	// Ajustamos el tamaño del canvas segun la cantidad de segmentos horizontales y verticales
+	canvas.width = widthSegments;
+	canvas.height = heightSegments;
+
+	// Dibujamos la textura en el canvas en la escala definida por widthSegments y heightSegments
+	ctx.drawImage(img, 0, 0, widthSegments, heightSegments);
+
+	// Obtenemos los valores de los píxeles de la textura
+	let imageData = ctx.getImageData(0, 0, widthSegments, heightSegments);
+	let data = imageData.data; // Este es un array con los valores de los píxeles
+	const quadsPerRow = widthSegments - 1;
+
+	for (let i = 0; i < count; i++) {
+		let treeX = (Math.random() - 0.5) * RANGE;
+		let treeZ = (Math.random() - 0.5) * RANGE;
+
+		let treeY = amplitudeBottom;
+		// let treeY = (data[Math.floor(treeX + treeZ) * 4] / 255)*(amplitude+amplitudeBottom);
+		// console.log(treeY);
+
+		let position = new THREE.Vector3(treeX, 0, treeZ);
+
+		//let terrainPosition = getPositionFromMatrix()
+
+		translationMatrix.makeTranslation(position);
+
+		//rotMatrix.lookAt(0, 0, new THREE.Vector3(0, 1, 0));
+		treeLogMatrix.identity();
+		treeLeavesMatrix.identity();
+
+		let scale = 0.5 + (Math.random()*(logHeight/3));
+		console.log(scale);
+		treeLogMatrix.makeScale(1, scale, 1);
+		//matrix.premultiply(rotMatrix);
+
+		treeLogMatrix.premultiply(translationMatrix);
+
+		position.y = scale*logHeight;
+		translationMatrix.makeTranslation(position);
+		treeLeavesMatrix.premultiply(translationMatrix);
+
+		instancedTreeLogs.setMatrixAt(i, treeLogMatrix);
+		instancedTreeLeaves.setMatrixAt(i, treeLeavesMatrix);
+
+	}
+	//
+	//const vertex = new THREE.Vector3();
+	//const terrainPositionAttribute = terrainGeometry.getAttribute('position');
+	//
+	//for(let i = 0; i < 100; i++) {
+	//	vertex.fromBufferAttribute(terrainPositionAttribute, i);
+	//	terrain.localToWorld(vertex);
+	//	console.log(vertex);
+	//}
+
+	// Recorremos los segmentos horizontales y verticales
+	for (let i = 0; i < widthSegments - 1; i++) {
+		for (let j = 0; j < heightSegments - 1; j++) {
+		}
+	}
+
+	return [instancedTreeLogs, instancedTreeLeaves];
 }
 
 // La funcion devuelve una geometria de Three.js
@@ -177,27 +288,17 @@ function elevationGeometry(width, height, amplitude, widthSegments, heightSegmen
 function buildScene() {
 	console.log('Building scene');
 
-	const width = 45;
-	const height = 45;
-	const amplitude = 4.50;
-	const widthSegments = 600;
-	const heightSegments = 600;
-	const amplitudeBottom = -1.00;
+	const width = 100;
+	const height = 100;
 
-	const geometry = elevationGeometry(
-		width, height,
-		amplitude,
-		widthSegments, heightSegments,
-		textures.elevationMap.object);
-
-	const waterOnlyGeometry = elevationGeometry(
+	terrainGeometry = elevationGeometry(
 		width, height,
 		amplitude,
 		widthSegments, heightSegments,
 		textures.elevationMap.object);
 
 	console.log('Applying textures');
-	material = new THREE.RawShaderMaterial({
+	terrainMaterial = new THREE.RawShaderMaterial({
 		uniforms: {
 			dirtSampler: { type: 't', value: textures.tierra.object },
 			rockSampler: { type: 't', value: textures.roca.object },
@@ -213,19 +314,23 @@ function buildScene() {
 		fragmentShader: fragmentShader,
 		side: THREE.DoubleSide,
 	});
-	material.needsUpdate = true;
+	terrainMaterial.needsUpdate = true;
 
-	const mesh = new THREE.Mesh(geometry, material);
-	mesh.position.set(0,amplitudeBottom,0);
-	scene.add(mesh);
+	terrain = new THREE.Mesh(terrainGeometry, terrainMaterial);
+	terrain.position.set(0, amplitudeBottom, 0);
+	scene.add(terrain);
 
 	console.log('Generating water');
 	const waterGeometry = new THREE.PlaneGeometry(width/2, height);
 	const waterMaterial = new THREE.MeshPhongMaterial( {color: 0x12ABFF, side: THREE.DoubleSide} );
 	const water = new THREE.Mesh( waterGeometry, waterMaterial );
 	water.rotateX(Math.PI/2);
-	water.position.set(0, 0, 0);
-	scene.add( water );
+	water.position.set(0, 0.85, 0);
+	scene.add(water);
+
+	const [treeLogs, treeLeaves] = createInstancedTrees(50);
+	scene.add(treeLogs);
+	scene.add(treeLeaves);
 }
 
 function onTextureLoaded(key, texture) {
@@ -259,9 +364,9 @@ function loadTextures(callback) {
 
 function createMenu() {
 	const gui = new dat.GUI({ width: 400 });
-	gui.add(material.uniforms.scale, 'value', 1.00, 5.00).name('Terrain texture scale');
-	gui.add(material.uniforms.dirtStepWidth, 'value', 0.0, 1.0).name('dirt step width');
-	gui.add(material.uniforms.rockStepWidth, 'value', 0.10, 0.50).name('rock step width');
+	gui.add(terrainMaterial.uniforms.scale, 'value', 1.00, 5.00).name('Terrain texture scale');
+	gui.add(terrainMaterial.uniforms.dirtStepWidth, 'value', 0.0, 1.0).name('dirt step width');
+	gui.add(terrainMaterial.uniforms.rockStepWidth, 'value', 0.10, 0.50).name('rock step width');
 }
 
 function mainLoop() {
