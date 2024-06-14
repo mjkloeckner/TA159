@@ -3,15 +3,8 @@ import * as dat from 'dat.gui';
 import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
 
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { vertexShader, fragmentShader } from '/assets/treesShaders.js';
 
 let scene, camera, renderer, container, terrainMaterial, instancedTrees;
-
-const textures = {
-	tierra: { url: '/assets/tierra.jpg', object: null },
-	roca: { url: '/assets/roca.jpg', object: null },
-	pasto: { url: '/assets/pasto.jpg', object: null },
-};
 
 function onResize() {
 	camera.aspect = container.offsetWidth / container.offsetHeight;
@@ -56,48 +49,103 @@ function setupThreeJs() {
 	onResize();
 }
 
-function buildChamber() {
-	const steamChamberLen = 17;
-	const steamChamberRad = 5;
-	const steamChamberEndLen = 5;
-	const cabinLen = 10;
+const steamChamberLen = 20;
+const steamChamberRad = 5;
+const steamChamberEndRad = steamChamberRad+0.75;
+const steamChamberEndLen = 5;
+const cabinLen = 10;
+const cabinHeight = 11;
+const cabinRoofHeight = 8;
+const cabinWallThickness = 0.75;
+const wheelRad = 5;
 
-	let geometries = [];
-
-	const g1 = new THREE.CylinderGeometry( steamChamberRad, steamChamberRad,
-		steamChamberLen, 32);
-
-	geometries.push(g1);
-
-	const g2 = new THREE.CylinderGeometry( steamChamberRad+0.75,
-		steamChamberRad+0.75, steamChamberEndLen, 32);
-
-	g2.translate(0,steamChamberLen/2 + steamChamberEndLen/2,0);
-	geometries.push(g2);
-
-	const g3 = new THREE.BoxGeometry(steamChamberRad*2,
-	 	steamChamberLen + steamChamberEndLen + cabinLen, 1.0);
-
-	g3.translate(0, -2.5, steamChamberRad);
-	geometries.push(g3);
-
-	const g4 = new THREE.BoxGeometry(10,10,20);
-	g4.translate(0, -steamChamberLen+steamChamberEndLen, -steamChamberRad);
-	geometries.push(g4);
-
-	const g5 = new THREE.BoxGeometry(steamChamberRad*2,
-	 	steamChamberLen + steamChamberEndLen + cabinLen, 1.0);
-
-	g5.translate(0, -2.5, steamChamberRad);
-	geometries.push(g3);
-
-	const geometry = BufferGeometryUtils.mergeGeometries(geometries);
+function buildCabinRoof() {
+	const geometry = new THREE.BoxGeometry(12, cabinWallThickness, 12);
 	return geometry;
 }
 
+function buildCabin() {
+	let cabin = [];
+
+	const cabinFront = new THREE.BoxGeometry(steamChamberRad*2, cabinWallThickness, cabinHeight);
+	cabinFront.translate(0, cabinLen/2, -cabinHeight/2);
+	cabin.push(cabinFront);
+
+	const cabinLeft = new THREE.BoxGeometry(steamChamberRad*2, cabinWallThickness, cabinHeight);
+	cabinLeft.rotateZ(Math.PI/2);
+	cabinLeft.translate(steamChamberRad-cabinWallThickness/2, cabinWallThickness/2, -cabinHeight/2);
+	cabin.push(cabinLeft);
+
+	const cabinRight = new THREE.BoxGeometry(steamChamberRad*2, cabinWallThickness, cabinHeight);
+	cabinRight.rotateZ(Math.PI/2);
+	cabinRight.translate(-steamChamberRad+cabinWallThickness/2, cabinWallThickness/2, -cabinHeight/2);
+	cabin.push(cabinRight);
+
+	const g1 = new THREE.BoxGeometry(cabinWallThickness, cabinWallThickness, cabinRoofHeight);
+	g1.rotateZ(Math.PI/2);
+	g1.translate(-steamChamberRad+(cabinWallThickness/2), -steamChamberRad+cabinWallThickness, -cabinHeight-cabinRoofHeight/2);
+	cabin.push(g1);
+
+	const g2 = new THREE.BoxGeometry(cabinWallThickness, cabinWallThickness, cabinRoofHeight);
+	g2.rotateZ(Math.PI/2);
+	g2.translate(steamChamberRad-cabinWallThickness/2, steamChamberRad, -cabinHeight-cabinRoofHeight/2);
+	cabin.push(g2);
+
+	const g3 = new THREE.BoxGeometry(cabinWallThickness, cabinWallThickness, cabinRoofHeight);
+	g3.rotateZ(Math.PI/2);
+	g3.translate(steamChamberRad-cabinWallThickness/2, -steamChamberRad+cabinWallThickness, -cabinHeight-cabinRoofHeight/2);
+	cabin.push(g3);
+
+	const g4 = new THREE.BoxGeometry(cabinWallThickness, cabinWallThickness, cabinRoofHeight);
+	g4.rotateZ(Math.PI/2);
+	g4.translate(-steamChamberRad+cabinWallThickness/2, steamChamberRad, -cabinHeight-cabinRoofHeight/2);
+	cabin.push(g4);
+
+	const geometry = BufferGeometryUtils.mergeGeometries(cabin);
+	geometry.rotateX(Math.PI/2);
+	return geometry;
+}
+
+function buildChamber() {
+	let geometries = [];
+
+	const steamChamber = new THREE.CylinderGeometry(steamChamberRad,
+		steamChamberRad, steamChamberLen, 32);
+	
+	geometries.push(steamChamber);
+
+	const steamChamberEnd = new THREE.CylinderGeometry(steamChamberEndRad,
+		steamChamberEndRad, steamChamberEndLen, 32);
+
+	steamChamberEnd.translate(0,steamChamberLen/2 + steamChamberEndLen/2,0);
+	geometries.push(steamChamberEnd);
+
+	const floor = new THREE.BoxGeometry(steamChamberRad*2, steamChamberLen + steamChamberEndLen + cabinLen, 1.0);
+	floor.translate(0, -steamChamberEndLen/2, steamChamberRad);
+	geometries.push(floor);
+
+	const chamberPipeLen = 8;
+	const chamberPipe = new THREE.CylinderGeometry(0.75, 0.75, chamberPipeLen, 32);
+	chamberPipe.translate(0, -(steamChamberRad + chamberPipeLen/2)+1.0,
+		-(steamChamberLen+steamChamberEndLen)/2);
+	chamberPipe.rotateX(Math.PI/2);
+	geometries.push(chamberPipe);
+
+	const geometry = BufferGeometryUtils.mergeGeometries(geometries);
+	geometry.rotateX(Math.PI/2);
+	geometry.translate(0, steamChamberRad, 0);
+	return geometry;
+}
+
+function buildTrainAxe() {
+	const axe = new THREE.CylinderGeometry(0.65, 0.65, 10);
+	axe.rotateZ(Math.PI/2);
+	return axe;
+}
+
 function buildTrainChassis() {
-	const g1 = new THREE.BoxGeometry(5, 5, 28);
-	return g1;
+	const chassis = new THREE.BoxGeometry(7, 3, steamChamberLen+steamChamberEndLen+cabinLen);
+	return chassis;
 }
 
 function buildTrain() {
@@ -112,8 +160,23 @@ function buildTrain() {
 	});
 
 	const chamber = new THREE.Mesh(chamberGeometry, chamberMaterial);
-	chamber.rotateX(Math.PI/2);
 	train.add(chamber);
+
+	const cabinGeometry = buildCabin();
+	const cabin = new THREE.Mesh(cabinGeometry, chamberMaterial);
+	train.add(cabin);
+	cabin.position.set(0,0,-steamChamberLen+(cabinLen/2));
+
+	const cabinRoofGeometry = buildCabinRoof();
+	const roofMaterial = new THREE.MeshPhongMaterial({
+		color: 0xFBEC50, 
+		side: THREE.DoubleSide,
+		shininess: 100.0
+	});
+
+	const cabinRoof = new THREE.Mesh(cabinRoofGeometry, roofMaterial);
+	train.add(cabinRoof);
+	cabinRoof.position.set(0, cabinHeight+cabinRoofHeight+cabinWallThickness/2, -steamChamberLen+(cabinLen/2));
 
 	const chassisGeometry = buildTrainChassis();
 	const chassisMaterial = new THREE.MeshPhongMaterial({
@@ -123,9 +186,46 @@ function buildTrain() {
 	});
 
 	const chassis = new THREE.Mesh(chassisGeometry, chassisMaterial);
-	chassis.position.set(0, -7.5, -2);
 	train.add(chassis);
 
+	let axes = [];
+	const a1 = buildTrainAxe();
+	a1.translate(0, 0, 0);
+	axes.push(a1);
+
+	const a2 = buildTrainAxe();
+	a2.translate(0, 0, wheelRad*1.65);
+	axes.push(a2);
+
+	const a3 = buildTrainAxe();
+	a3.translate(0, 0, -wheelRad*1.65);
+	axes.push(a3);
+	
+	const axesGeometry = BufferGeometryUtils.mergeGeometries(axes);
+	chassis.add(new THREE.Mesh(axesGeometry, chassisMaterial));
+	chassis.position.set(0,-2,-2.75);
+
+	const steamCylindersLen = 8;
+
+	const cylinderLeft = new THREE.CylinderGeometry(1.75, 1.75, steamCylindersLen);
+	cylinderLeft.rotateX(Math.PI/2);
+	cylinderLeft.translate(steamChamberRad-1.25, 0, steamChamberLen-steamCylindersLen/1.5);
+
+	const cylinderRight = new THREE.CylinderGeometry(1.75, 1.75, steamCylindersLen);
+	cylinderRight.rotateX(Math.PI/2);
+	cylinderRight.translate(-steamChamberRad+1.25, 0, steamChamberLen-steamCylindersLen/1.5);
+
+	const cylindersGeometry = BufferGeometryUtils.mergeGeometries([cylinderRight, cylinderLeft]);
+	const cylindersMaterial = new THREE.MeshPhongMaterial({
+		color: 0x393939, 
+		side: THREE.DoubleSide,
+		shininess: 100.0
+	});
+
+	chassis.add(new THREE.Mesh(cylindersGeometry, cylindersMaterial));
+	chassis.position.set(0,-2,-2.75);
+
+	train.position.set(0,2,0);
 	return train;
 }
 
@@ -142,29 +242,6 @@ function onTextureLoaded(key, texture) {
 	console.log('Texture `' + key + '` loaded');
 }
 
-function loadTextures(callback) {
-	const loadingManager = new THREE.LoadingManager();
-
-	loadingManager.onLoad = () => {
-		console.log('All textures loaded');
-		callback();
-	};
-
-	for (const key in textures) {
-		console.log("Loading textures");
-		const loader = new THREE.TextureLoader(loadingManager);
-		const texture = textures[key];
-		texture.object = loader.load(
-			texture.url,
-			onTextureLoaded.bind(this, key),
-			null,
-			(error) => {
-				console.error(error);
-			}
-		);
-	}
-}
-
 function mainLoop() {
 	requestAnimationFrame(mainLoop);
 	renderer.render(scene, camera);
@@ -177,4 +254,3 @@ function main() {
 
 setupThreeJs();
 main();
-// loadTextures(main);
