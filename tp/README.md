@@ -38,7 +38,7 @@ puede ser montaña o rio, de acuerdo a un parametro fijo
 A continuacion se muestra el arbol de dependencias de los objetos que componen
 la locomotora
 
-![Objeto tren: arbol de dependencia](./train-tree.png)
+![Objeto tren: arbol de dependencia](https://github.com/mjkloeckner/86.43-tp/assets/64109770/a4f8ea14-83f1-4180-bbad-696f4ee5dadf)
 
 ### Puente
 
