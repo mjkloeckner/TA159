@@ -5,6 +5,16 @@ en particular la libreria [Three.js]()
 
 ## Elementos de la escena
 
+* [X] Terreno
+* [X] Arboles
+* [ ] Vias de Tren
+* [ ] Locomotora
+* [ ] Puente
+* [ ] Túnel
+* [ ] Camaras
+* [X] Texturas
+* [ ] Iluminación
+
 ### Terreno
 
 Para generar la geometría del terreno se utiliza un mapa de elevación el cual se
@@ -15,13 +25,20 @@ se utilizan en el terreno de acuerdo a la elevación del mismo.
 Para utilizar la misma textura varias veces y evitar que se note la repetición,
 se utiliza la función Ruido de Perlin para obtener valores pseudo-aleatorios.
 
-#### Ruido Perlin
-
 ### Arboles
+
+Los arboles se generan de manera aleatoria en todo el mapa, y se utiliza el mapa
+de elevación para verificar que no caiga en un punto muy bajo o muy alto, como
+puede ser montaña o rio, de acuerdo a un parametro fijo
 
 ### Vias de Tren
 
 ### Locomotora
+
+A continuacion se muestra el arbol de dependencias de los objetos que componen
+la locomotora
+
+![Objeto tren: arbol de dependencia](./train-tree.png)
 
 ### Puente
 
