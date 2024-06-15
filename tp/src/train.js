@@ -6,6 +6,8 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 let scene, camera, renderer, container, terrainMaterial, instancedTrees;
 
+let time = 0.0;
+
 function onResize() {
 	camera.aspect = container.offsetWidth / container.offsetHeight;
 	camera.updateProjectionMatrix();
@@ -59,6 +61,15 @@ const cabinRoofHeight = 8;
 const cabinWallThickness = 0.75;
 const wheelRad = 2.75;
 const chassisHeight = 5;
+const wheelThickness = 0.85;
+const chassisOffset = 2.49;
+const wheelOffset = -0.70;
+const steamCylindersLen = 8;
+const crankLen = 22;
+const crankOffset = 3.750;
+const crankWidth = 0.5;
+
+let crankLeft, crankRight;
 
 function buildCabinRoof() {
 	console.log('Building train cabin roof');
@@ -141,8 +152,6 @@ function buildChamber() {
 	return geometry;
 }
 
-const wheelThickness = 0.85;
-
 function buildTrainWheel() {
 	const wheel = new THREE.CylinderGeometry(wheelRad, wheelRad, wheelThickness);
 	wheel.rotateZ(Math.PI/2);
@@ -160,10 +169,16 @@ function buildTrainWheel() {
 }
 
 function buildTrainAxe(material) {
-	const axe = new THREE.CylinderGeometry(0.65, 0.65, 10);
-	axe.rotateZ(Math.PI/2);
+	const axeGeometry = new THREE.CylinderGeometry(0.65, 0.65, 10);
+	axeGeometry.rotateZ(Math.PI/2);
 
-	return new THREE.Mesh(axe, material);
+	const axeMaterial = new THREE.MeshPhongMaterial({
+		color: 0x7A7F80, 
+		side: THREE.DoubleSide,
+		shininess: 100.0
+	});
+
+	return new THREE.Mesh(axeGeometry, axeMaterial);
 }
 
 function buildTrainChassis() {
@@ -175,6 +190,16 @@ function buildTrain() {
 	console.log('Building train');
 	const train = new THREE.Group();
 
+	const chassisGeometry = buildTrainChassis();
+	const chassisMaterial = new THREE.MeshPhongMaterial({
+		color: 0x7A7F80, 
+		side: THREE.DoubleSide,
+		shininess: 100.0
+	});
+
+	const chassis = new THREE.Mesh(chassisGeometry, chassisMaterial);
+	train.add(chassis);
+
 	const chamberGeometry = buildChamber();
 	const chamberMaterial = new THREE.MeshPhongMaterial({
 		color: 0xFA1A09, 
@@ -183,13 +208,13 @@ function buildTrain() {
 	});
 
 	const chamber = new THREE.Mesh(chamberGeometry, chamberMaterial);
-	train.add(chamber);
-	chamber.position.set(0, cabinWallThickness, 0);
+	chassis.add(chamber);
+	chamber.position.set(0, (chassisHeight + cabinWallThickness)/2, chassisOffset);
 
 	const cabinGeometry = buildCabin();
 	const cabin = new THREE.Mesh(cabinGeometry, chamberMaterial);
-	train.add(cabin);
-	cabin.position.set(0, cabinWallThickness, -steamChamberLen+(cabinLen/2));
+	chassis.add(cabin);
+	cabin.position.set(0, (chassisHeight + cabinWallThickness)/2, -steamChamberLen+(cabinLen/2)+chassisOffset);
 
 	const cabinRoofGeometry = buildCabinRoof();
 	const roofMaterial = new THREE.MeshPhongMaterial({
@@ -202,30 +227,19 @@ function buildTrain() {
 	cabin.add(cabinRoof);
 	cabinRoof.position.set(0, cabinHeight+cabinRoofHeight+cabinWallThickness/2, 0);
 
-	const chassisGeometry = buildTrainChassis();
-	const chassisMaterial = new THREE.MeshPhongMaterial({
-		color: 0x7A7F80, 
-		side: THREE.DoubleSide,
-		shininess: 100.0
-	});
-
-	const chassis = new THREE.Mesh(chassisGeometry, chassisMaterial);
-	train.add(chassis);
-
-	const a1 = buildTrainAxe(chassisMaterial);
+	const a1 = buildTrainAxe();
 	chassis.add(a1);
 
-	const a2 = buildTrainAxe(chassisMaterial);
+	const a2 = buildTrainAxe();
 	chassis.add(a2);
 
 	const a3 = buildTrainAxe(chassisMaterial);
 	chassis.add(a3);
 
-	a1.position.set(0, -0.65, 0);
-	a2.position.set(0, -0.65, wheelRad*2.5);
-	a3.position.set(0, -0.65, -wheelRad*2.5);
+	a1.position.set(0, wheelOffset, 0);
+	a2.position.set(0, wheelOffset, wheelRad*2.5);
+	a3.position.set(0, wheelOffset, -wheelRad*2.5);
 
-	const steamCylindersLen = 8;
 
 	const cylinderLeft = new THREE.CylinderGeometry(2.25, 2.5, steamCylindersLen);
 	cylinderLeft.rotateX(Math.PI/2);
@@ -269,19 +283,18 @@ function buildTrain() {
 	w6.position.set(-steamChamberRad+wheelThickness/2.1,0,0);
 	a3.add(w6);
 
+	const crankGeometry = new THREE.BoxGeometry(crankWidth, 1.0, crankLen);
 
-	const crankLen = 20;
+	crankRight = new THREE.Mesh(crankGeometry, chassisMaterial);
+	//crankRight.position.set(steamChamberRad, wheelOffset, crankOffset);
 
-	const crankGeometry = new THREE.BoxGeometry(0.5, 1, crankLen);
-
-	const crankRight = new THREE.Mesh(crankGeometry, chassisMaterial);
-	crankRight.position.set(steamChamberRad, 0, 2);
-
-	const crankLeft = new THREE.Mesh(crankGeometry, chassisMaterial);
-	crankLeft.position.set(-steamChamberRad, 0, 2);
+	crankLeft = new THREE.Mesh(crankGeometry, chassisMaterial);
+	//crankLeft.position.set(-steamChamberRad, wheelOffset, crankOffset);
 
 	chassis.add(crankLeft);
 	chassis.add(crankRight);
+
+	chassis.translateY(-wheelOffset);
 
 	train.position.set(0, 2, 0);
 	return train;
@@ -301,7 +314,18 @@ function onTextureLoaded(key, texture) {
 }
 
 function mainLoop() {
+	time += 0.05;
+
 	requestAnimationFrame(mainLoop);
+
+	crankLeft.position.set(-steamChamberRad-crankWidth/2,
+		wheelOffset+1.00*(Math.sin(time*Math.PI/2)),
+		crankOffset - 1.00*(Math.cos(time*Math.PI/2)));
+
+	crankRight.position.set(steamChamberRad+crankWidth/2,
+		wheelOffset+1.00*(Math.sin(time*Math.PI/2)),
+		crankOffset - 1.00*(Math.cos(time*Math.PI/2)));
+
 	renderer.render(scene, camera);
 }
 
