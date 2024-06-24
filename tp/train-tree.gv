@@ -1,0 +1,21 @@
+digraph G {
+	node [ shape=box ];
+	rankdir=TD;
+	compound=true;
+	
+	subgraph cluster {
+		label="Train";
+		style="dashed";
+		A [ label="Chassis" ];
+		B [ label="Chamber" ];
+		C [ label="Cabin" ];
+		D [ label="Axes" ]
+		E [ label="Wheels" ]
+		F [ label="Cylinders" ]
+		G [ label="Floor" ]
+		H [ label="Cranks" ]
+	}
+
+	A -> {B, C, D, F, G, H};
+	D -> E;
+}
