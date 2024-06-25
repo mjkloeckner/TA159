@@ -8,6 +8,8 @@ import { ParametricGeometries } from 'three/examples/jsm/geometries/ParametricGe
 
 let scene, camera, renderer, container, terrainMaterial, instancedTrees;
 let spherePath;
+let railsPath;
+let railsFoundationShape;
 
 const textures = {
 	tierra: { url: '/assets/tierra.jpg', object: null },
@@ -28,18 +30,14 @@ function createPathWithSpheres() {
 	const geometry = new THREE.BufferGeometry().setFromPoints(points);
 	const lineMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 });
 
-	// const geometry = new THREE.TubeGeometry( railsPath, 50, 1, 25, false );
-
 	const material = new THREE.MeshPhongMaterial({ color: 0xFF0000 });
-	const sphere = new THREE.SphereGeometry(0.5,20,20);
+	// const sphere = new THREE.SphereGeometry(0.5,20,20);
+	const sphere = new THREE.CylinderGeometry(0.50, 0.50, 5.0);
 	const instancedSphereGeo = new THREE.InstancedBufferGeometry();
 	instancedSphereGeo.copy(sphere);
 
 	let count = 10;
 	const instancedSpheres = new THREE.InstancedMesh(instancedSphereGeo, material, count);
-
-	// const sphere = new THREE.Mesh( geometry, material );
-	// scene.add( sphere );
 
 	const rotMatrix = new THREE.Matrix4();
 	const translationMatrix = new THREE.Matrix4();
@@ -65,134 +63,56 @@ function createPathWithSpheres() {
 	scene.add(curveObject);
 }
 
-function getParametricPlaneFunction(width, height) {
-	return function (u, v, target) {
-		const x = -width / 2 + u * width;
-		const y = 0;
-		const z = -width / 2 + v * height;
+function parametricRailsFoundation(u, v, target) {
+	const rotMatrix = new THREE.Matrix4();
+	const translationMatrix = new THREE.Matrix4();
+	const levelMatrix = new THREE.Matrix4();
 
-		target.set(x, y, z);
-	};
+	let railsPathPos = railsPath.getPointAt(u);
+	let railsFoundationShapePos = railsFoundationShape.getPointAt(v);
+
+	let tangente = new THREE.Vector3();
+	let binormal = new THREE.Vector3();
+	let normal = new THREE.Vector3();
+
+	tangente = railsPath.getTangent(u);
+
+	tangente.normalize();
+	binormal = new THREE.Vector3(0, 1, 0);
+	normal.crossVectors(tangente, binormal);
+
+	translationMatrix.makeTranslation(railsPathPos);
+
+	rotMatrix.identity();
+	levelMatrix.identity();
+
+	levelMatrix.makeTranslation(railsPathPos);
+	rotMatrix.makeBasis(normal, tangente, binormal);
+	levelMatrix.multiply(rotMatrix);
+	railsFoundationShapePos.applyMatrix4(levelMatrix);
+	
+	const x = railsFoundationShapePos.x;
+	const y = railsFoundationShapePos.y;
+	const z = railsFoundationShapePos.z;
+	target.set(x, y, z);
 }
 
-// buffer
-const vertices = [];
-const normals = [];
-const uvs = [];
-const indices = [];
+function railsFoundation() {
+	railsFoundationShape = new THREE.CatmullRomCurve3([
+		new THREE.Vector3( -2, 0, 0),
+		new THREE.Vector3( -1, 0, 1),
+		new THREE.Vector3(  1, 0, 1),
+		new THREE.Vector3(  2, 0, 0),
+	], false);
 
-const vertex = new THREE.Vector3();
-const normal = new THREE.Vector3();
-const uv = new THREE.Vector2();
+	// const points = railsFoundationShape.getPoints(50);
+	// const geometry = new THREE.BufferGeometry().setFromPoints(points);
+	// const lineMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 });
+	// const curveObject = new THREE.Line(geometry, lineMaterial);
+	// scene.add(curveObject);
 
-function generateIndices(tubularSegments, radialSegments) {
-	for ( let j = 1; j <= tubularSegments; j ++ ) {
-		for ( let i = 1; i <= radialSegments; i ++ ) {
-			const a = ( radialSegments + 1 ) * ( j - 1 ) + ( i - 1 );
-			const b = ( radialSegments + 1 ) * j + ( i - 1 );
-			const c = ( radialSegments + 1 ) * j + i;
-			const d = ( radialSegments + 1 ) * ( j - 1 ) + i;
-
-			// faces
-			indices.push( a, b, d );
-			indices.push( b, c, d );
-		}
-	}
-}
-
-function generateSegment(i, frames, path, segments) {
-	// we use getPointAt to sample evenly distributed points from the given path
-	P = path.getPointAt(i/segments, P);
-
-	// retrieve corresponding normal and binormal
-	const N = frames.normals[i];
-	const B = frames.binormals[i];
-
-	// generate normals and vertices for the current segment
-	for (let j = 0; j <= radialSegments; j++) {
-		const v = j / radialSegments*Math.PI*2;
-
-		const sin = Math.sin(v);
-		const cos = - Math.cos(v);
-
-		// normal
-		normal.x = (cos*N.x + sin*B.x);
-		normal.y = (cos*N.y + sin*B.y);
-		normal.z = (cos*N.z + sin*B.z);
-		normal.normalize();
-
-		normals.push( normal.x, normal.y, normal.z );
-
-		// vertex
-		vertex.x = P.x + radius * normal.x;
-		vertex.y = P.y + radius * normal.y;
-		vertex.z = P.z + radius * normal.z;
-
-		vertices.push(vertex.x, vertex.y, vertex.z);
-	}
-}
-
-function generateBufferData(tubularSegments) {
-	for (let i = 0; i < tubularSegments; i++) {
-		generateSegment(i);
-	}
-
-	// if the geometry is not closed, generate the last row of vertices and normals
-	// at the regular position on the given path
-	//
-	// if the geometry is closed, duplicate the first row of vertices and normals (uvs will differ)
-	generateSegment( ( closed === false ) ? tubularSegments : 0 );
-
-	// uvs are generated in a separate function.
-	// this makes it easy compute correct values for closed geometries
-	generateUVs();
-
-	// finally create faces
-	generateIndices();
-}
-
-function createPath() {
-	//Create a closed wavey loop
-	const path = new THREE.CatmullRomCurve3([
-		new THREE.Vector3(-10, 0,  10),
-		new THREE.Vector3( 10, 0,  10),
-		new THREE.Vector3( 10, 0, -10),
-		new THREE.Vector3(-10, 0, -10),
-	], true);
-
-	const points = path.getPoints(50);
-	const geometry = new THREE.BufferGeometry().setFromPoints(points);
-	const lineMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 });
-
-	const curveObject = new THREE.Line(geometry, lineMaterial);
-	scene.add(curveObject);
-
-	const pMaterial = new THREE.MeshPhongMaterial({
-		color: 0xFF0000,
-		side: THREE.DoubleSide,
-		transparent: false,
-		opacity: 0.7,
-		shininess: 10,
-		specular: 0XFFFFFF,
-	});
-
-	let close = true;
-	let segments = 10;
-
-	frames = path.computeFrenetFrames(segments, closed);
-
-	let P = new THREE.Vector3();
-
-	// setIndex( indices );
-	setAttribute( 'position', new Float32BufferAttribute( vertices, 3 ) );
-	setAttribute( 'normal', new Float32BufferAttribute( normals, 3 ) );
-	setAttribute( 'uv', new Float32BufferAttribute( uvs, 2 ) );
-
-	let samplingFunction = getParametricPlaneFunction(10, 10);
-
-	let pGeometry = new ParametricGeometry(samplingFunction, 50, 50);
-	let pMesh = new THREE.Mesh(pGeometry, pMaterial);
-	scene.add(pMesh);
+	const pGeometry = new ParametricGeometry(parametricRailsFoundation, 100, 10);
+	return pGeometry;
 }
 
 function onResize() {
@@ -268,28 +188,66 @@ function loadTextures(callback) {
 	}
 }
 
-
-function createMenu() {
-	const gui = new dat.GUI({ width: 400 });
-	gui.add(terrainMaterial.uniforms.scale1, 'value', 0, 10).name('Texture scale');
-	gui.add(terrainMaterial.uniforms.mask1low, 'value', -1, 1).name('Mask1 Low');
-	gui.add(terrainMaterial.uniforms.mask1high, 'value', -1, 1).name('Mask1 High');
-	gui.add(terrainMaterial.uniforms.mask2low, 'value', -1, 1).name('Mask2 Low');
-	gui.add(terrainMaterial.uniforms.mask2high, 'value', -1, 1).name('Mask2 High');
-}
-
 function mainLoop() {
 	requestAnimationFrame(mainLoop);
 	renderer.render(scene, camera);
 }
 
+function buildRailsFoundation() {
+	railsPath = new THREE.CatmullRomCurve3([
+		new THREE.Vector3(-10, 0,  10),
+		new THREE.Vector3( 10, 0,  10),
+		new THREE.Vector3( 10, 0, -10),
+		new THREE.Vector3(-10, 0, -10),
+	], true);
+
+	const pGeometry = railsFoundation();
+
+	textures.tierra.object.wrapS = THREE.MirroredRepeatWrapping;
+	textures.tierra.object.wrapT = THREE.MirroredRepeatWrapping;
+	textures.tierra.object.repeat.set(25, 1);
+	textures.tierra.object.anisotropy = 16;
+
+	/*
+	const map = new THREE.TextureLoader().load('https://threejs.org/examples/textures/uv_grid_opengl.jpg');
+	map.wrapS = map.wrapT = THREE.RepeatWrapping;
+	map.repeat.set(25, 1);
+	map.anisotropy = 16;
+	*/
+
+	const pMaterial = new THREE.MeshPhongMaterial({
+		side: THREE.DoubleSide,
+		transparent: false,
+		opacity: 1.0,
+		shininess: 10,
+		map: textures.tierra.object
+	});
+	const pMesh = new THREE.Mesh(pGeometry, pMaterial);
+	scene.add(pMesh);
+}
+
+function buildPlane() {
+	const geo = new THREE.PlaneGeometry(20, 20);
+	const mat = new THREE.MeshPhongMaterial({
+		side: THREE.DoubleSide,
+		transparent: false,
+		opacity: 1.0,
+		shininess: 10,
+		map: textures.tierra.object
+	});
+	const mesh = new THREE.Mesh(geo, mat);
+	scene.add(mesh);
+}
+
 function main() {
 	buildScene();
-	// createMenu();
+	buildRailsFoundation();
 	mainLoop();
 }
 
 setupThreeJs();
-createPath();
-main();
-// loadTextures(main);
+// buildRailsPath();
+// createPath();
+// createPathWithSpheres();
+// main();
+loadTextures(main);
