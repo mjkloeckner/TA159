@@ -17,6 +17,47 @@ const textures = {
 	pasto: { url: '/assets/pasto.jpg', object: null },
 };
 
+// `position` es de tipo `THREE.Vector3` y representa la translacion de la
+// forma del rail con respecto al origen del sist. de coordenadas de modelado
+function getParametricRailsFunction(radius, position) {
+	return function parametricRails(u, v, target) {
+		const rotMatrix = new THREE.Matrix4();
+		const translationMatrix = new THREE.Matrix4();
+		const levelMatrix = new THREE.Matrix4();
+
+		let railsShape = new THREE.Vector3();
+
+		let railsPathPos = railsPath.getPointAt(v);
+		let railsShapePos = new THREE.Vector3(
+			Math.cos(u*6.28) + position.x,
+			position.y,
+			Math.sin(u*6.28) + position.z);
+
+		railsShapePos.multiplyScalar(0.1*railsRadius);
+
+		let tangente = new THREE.Vector3();
+		let binormal = new THREE.Vector3();
+		let normal = new THREE.Vector3();
+
+		// https://threejs.org/docs/index.html?q=curve#api/en/extras/core/Curve.getTangent
+		tangente = railsPath.getTangentAt(v);
+		binormal = new THREE.Vector3(0, 1, 0);
+		normal.crossVectors(tangente, binormal);
+
+		translationMatrix.makeTranslation(railsPathPos);
+
+		rotMatrix.identity();
+		levelMatrix.identity();
+
+		levelMatrix.makeTranslation(railsPathPos);
+		rotMatrix.makeBasis(normal, tangente, binormal);
+		levelMatrix.multiply(rotMatrix);
+		railsShapePos.applyMatrix4(levelMatrix);
+		
+		const x = railsShapePos.x;
+		const y = railsShapePos.y;
+		const z = railsShapePos.z;
+		target.set(x, y, z);
 	}
 }
 
@@ -183,17 +224,47 @@ function buildRailsFoundation() {
 	scene.add(pMesh);
 }
 
+const railsRadius = 0.5;
+function buildRails() {
+	let railsGeometries = [];
+
+	const leftRailGeometryFunction  = getParametricRailsFunction(railsRadius,
+		new THREE.Vector3( 6, 0, railsRadius+11.25));
+
+	const rightRailGeometryFunction = getParametricRailsFunction(railsRadius,
+		new THREE.Vector3(-7, 0, railsRadius+11.25));
+
+	const leftRailGeometry  = new ParametricGeometry(leftRailGeometryFunction, 100, 500);
+	const rightRailGeometry = new ParametricGeometry(rightRailGeometryFunction, 100, 500);
+
+	railsGeometries.push(leftRailGeometry);
+	railsGeometries.push(rightRailGeometry);
+
+	const railsMaterial = new THREE.MeshPhongMaterial({
 		side: THREE.DoubleSide,
 		transparent: false,
 		opacity: 1.0,
 		shininess: 10,
-		map: textures.tierra.object
+		color: 0xFFFFFF
 	});
+
+	const railsGeometry = mergeGeometries(railsGeometries);
+	const rails = new THREE.Mesh(railsGeometry, railsMaterial);
+	scene.add(rails);
+}
 }
 
 function main() {
-	buildScene();
+	// buildScene();
+	railsPath = new THREE.CatmullRomCurve3([
+		new THREE.Vector3(-10, 0,  10),
+		new THREE.Vector3( 10, 0,  10),
+		new THREE.Vector3( 10, 0, -10),
+		new THREE.Vector3(-10, 0, -10),
+	], true);
+
 	buildRailsFoundation();
+	buildRails();
 	mainLoop();
 }
 
