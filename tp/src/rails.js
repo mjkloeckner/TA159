@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 import * as dat from 'dat.gui';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { vertexShader, fragmentShader } from '/assets/treesShaders.js';
 
 import { ParametricGeometry } from 'three/addons/geometries/ParametricGeometry.js';
 import { ParametricGeometries } from 'three/examples/jsm/geometries/ParametricGeometries.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 let scene, camera, renderer, container, terrainMaterial, instancedTrees;
 let spherePath;
@@ -239,6 +239,10 @@ function buildRails() {
 	const rails = new THREE.Mesh(railsGeometry, railsMaterial);
 	scene.add(rails);
 }
+
+function mainLoop() {
+	requestAnimationFrame(mainLoop);
+	renderer.render(scene, camera);
 }
 
 function main() {
@@ -249,6 +253,12 @@ function main() {
 		new THREE.Vector3( 10, 0, -10),
 		new THREE.Vector3(-10, 0, -10),
 	], true);
+
+	const railsPathPoints = railsPath.getPoints(50);
+	const railsPathGeometry = new THREE.BufferGeometry().setFromPoints(railsPathPoints);
+	const railsPathMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 });
+	const railsPathMesh = new THREE.Line(railsPathGeometry, railsPathMaterial);
+	scene.add(railsPathMesh);
 
 	buildRailsFoundation();
 	buildRails();
