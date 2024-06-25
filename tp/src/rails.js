@@ -183,17 +183,12 @@ function buildRailsFoundation() {
 	scene.add(pMesh);
 }
 
-function buildPlane() {
-	const geo = new THREE.PlaneGeometry(20, 20);
-	const mat = new THREE.MeshPhongMaterial({
 		side: THREE.DoubleSide,
 		transparent: false,
 		opacity: 1.0,
 		shininess: 10,
 		map: textures.tierra.object
 	});
-	const mesh = new THREE.Mesh(geo, mat);
-	scene.add(mesh);
 }
 
 function main() {
