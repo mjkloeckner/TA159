@@ -67,7 +67,7 @@ function parametricRailsFoundation(u, v, target) {
 	const levelMatrix = new THREE.Matrix4();
 
 	let railsPathPos = railsPath.getPointAt(u);
-	let railsFoundationShapePos = railsFoundationShape.getPointAt(v);
+	let railsFoundationShapePos = railsFoundationShape.getPointAt(v).multiplyScalar(0.5);
 
 	let tangente = new THREE.Vector3();
 	let binormal = new THREE.Vector3();
@@ -93,24 +93,6 @@ function parametricRailsFoundation(u, v, target) {
 	const y = railsFoundationShapePos.y;
 	const z = railsFoundationShapePos.z;
 	target.set(x, y, z);
-}
-
-function railsFoundation() {
-	railsFoundationShape = new THREE.CatmullRomCurve3([
-		new THREE.Vector3( -2, 0, 0),
-		new THREE.Vector3( -1, 0, 1),
-		new THREE.Vector3(  1, 0, 1),
-		new THREE.Vector3(  2, 0, 0),
-	], false);
-
-	// const points = railsFoundationShape.getPoints(50);
-	// const geometry = new THREE.BufferGeometry().setFromPoints(points);
-	// const lineMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 });
-	// const curveObject = new THREE.Line(geometry, lineMaterial);
-	// scene.add(curveObject);
-
-	const pGeometry = new ParametricGeometry(parametricRailsFoundation, 100, 10);
-	return pGeometry;
 }
 
 function onResize() {
@@ -186,20 +168,24 @@ function loadTextures(callback) {
 	}
 }
 
-function mainLoop() {
-	requestAnimationFrame(mainLoop);
-	renderer.render(scene, camera);
-}
-
 function buildRailsFoundation() {
-	railsPath = new THREE.CatmullRomCurve3([
-		new THREE.Vector3(-10, 0,  10),
-		new THREE.Vector3( 10, 0,  10),
-		new THREE.Vector3( 10, 0, -10),
-		new THREE.Vector3(-10, 0, -10),
-	], true);
+	railsFoundationShape = new THREE.CatmullRomCurve3([
+		new THREE.Vector3( -2, 0, 0),
+		new THREE.Vector3( -1, 0, 1),
+		new THREE.Vector3(  1, 0, 1),
+		new THREE.Vector3(  2, 0, 0),
+	], false);
 
-	const pGeometry = railsFoundation();
+	/*
+	// show rails foundation shape
+	const points = railsFoundationShape.getPoints(50);
+	const geometry = new THREE.BufferGeometry().setFromPoints(points);
+	const lineMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 });
+	const curveObject = new THREE.Line(geometry, lineMaterial);
+	scene.add(curveObject);
+	*/
+
+	const pGeometry = new ParametricGeometry(parametricRailsFoundation, 100, 10);
 
 	textures.tierra.object.wrapS = THREE.MirroredRepeatWrapping;
 	textures.tierra.object.wrapT = THREE.MirroredRepeatWrapping;
@@ -207,6 +193,7 @@ function buildRailsFoundation() {
 	textures.tierra.object.anisotropy = 16;
 
 	/*
+	// load into `map` the examples texture
 	const map = new THREE.TextureLoader().load('https://threejs.org/examples/textures/uv_grid_opengl.jpg');
 	map.wrapS = map.wrapT = THREE.RepeatWrapping;
 	map.repeat.set(25, 1);
@@ -269,7 +256,4 @@ function main() {
 }
 
 setupThreeJs();
-// buildRailsPath();
-// createPath();
-// main();
 loadTextures(main);
