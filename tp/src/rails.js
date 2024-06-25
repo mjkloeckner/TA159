@@ -17,50 +17,7 @@ const textures = {
 	pasto: { url: '/assets/pasto.jpg', object: null },
 };
 
-function createPathWithSpheres() {
-	//Create a closed wavey loop
-	spherePath = new THREE.CatmullRomCurve3([
-		new THREE.Vector3(-10, 0,  10),
-		new THREE.Vector3( 10, 0,  10),
-		new THREE.Vector3( 10, 0, -10),
-		new THREE.Vector3(-10, 0, -10),
-	], true);
-
-	const points = spherePath.getPoints(50);
-	const geometry = new THREE.BufferGeometry().setFromPoints(points);
-	const lineMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 });
-
-	const material = new THREE.MeshPhongMaterial({ color: 0xFF0000 });
-	// const sphere = new THREE.SphereGeometry(0.5,20,20);
-	const sphere = new THREE.CylinderGeometry(0.50, 0.50, 5.0);
-	const instancedSphereGeo = new THREE.InstancedBufferGeometry();
-	instancedSphereGeo.copy(sphere);
-
-	let count = 10;
-	const instancedSpheres = new THREE.InstancedMesh(instancedSphereGeo, material, count);
-
-	const rotMatrix = new THREE.Matrix4();
-	const translationMatrix = new THREE.Matrix4();
-	const sphereMatrix = new THREE.Matrix4()
-
-	const dotGeo = new THREE.SphereGeometry()
-	let u, i;
-	for(u = 0.0, i = 0; u < 1.0; u += 1/count, i++) {
-		let position = spherePath.getPointAt(u);
-		translationMatrix.makeTranslation(position);
-		sphereMatrix.identity();
-		sphereMatrix.premultiply(rotMatrix);
-		sphereMatrix.premultiply(translationMatrix);
-		//rotMatrix.lookAt(0, 0, new THREE.Vector3(0, 1, 0));
-		instancedSpheres.setMatrixAt(i, sphereMatrix);
 	}
-
-	scene.add(instancedSpheres);
-
-	// Create the final object to add to the scene
-	const curveObject = new THREE.Line(geometry, lineMaterial);
-	// const curveObject = new THREE.Mesh(geometry, material);
-	scene.add(curveObject);
 }
 
 function parametricRailsFoundation(u, v, target) {
@@ -248,6 +205,5 @@ function main() {
 setupThreeJs();
 // buildRailsPath();
 // createPath();
-// createPathWithSpheres();
 // main();
 loadTextures(main);
