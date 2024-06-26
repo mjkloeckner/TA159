@@ -2,91 +2,11 @@ import * as THREE from 'three';
 import * as dat from 'dat.gui';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
-import { ParametricGeometry } from 'three/addons/geometries/ParametricGeometry.js';
-import { ParametricGeometries } from 'three/examples/jsm/geometries/ParametricGeometries.js';
-import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-
-let scene, camera, renderer, container, terrainMaterial, instancedTrees;
-let spherePath;
-let railsPath;
-let railsFoundationShape;
+let scene, camera, renderer, container;
 
 const textures = {
-	tierra:     { url: '/assets/tierra.jpg', object: null },
-	roca:       { url: '/assets/roca.jpg', object: null },
-	pasto:      { url: '/assets/pasto.jpg', object: null },
-	durmientes: { url: '/assets/durmientes.jpg', object: null },
-	madera:     { url: '/assets/madera.jpg', object: null },
+	madera: { url: '/assets/madera.jpg', object: null },
 };
-
-function parametricRailsFoundationInverted(u, v, target) {
-	const rotMatrix = new THREE.Matrix4();
-	const translationMatrix = new THREE.Matrix4();
-	const levelMatrix = new THREE.Matrix4();
-
-	let railsPathPos = railsPath.getPointAt(v);
-	let railsFoundationShapePos = railsFoundationShape.getPointAt(u).multiplyScalar(0.5);
-
-	let tangente = new THREE.Vector3();
-	let binormal = new THREE.Vector3();
-	let normal = new THREE.Vector3();
-
-	tangente = railsPath.getTangent(v);
-
-	tangente.normalize();
-	binormal = new THREE.Vector3(0, 1, 0);
-	normal.crossVectors(tangente, binormal);
-
-	translationMatrix.makeTranslation(railsPathPos);
-
-	rotMatrix.identity();
-	levelMatrix.identity();
-
-	levelMatrix.makeTranslation(railsPathPos);
-	rotMatrix.makeBasis(normal, tangente, binormal);
-	levelMatrix.multiply(rotMatrix);
-	railsFoundationShapePos.applyMatrix4(levelMatrix);
-	
-	const x = railsFoundationShapePos.x;
-	const y = railsFoundationShapePos.y;
-	const z = railsFoundationShapePos.z;
-	target.set(x, y, z);
-}
-
-
-function parametricRailsFoundation(u, v, target) {
-	const rotMatrix = new THREE.Matrix4();
-	const translationMatrix = new THREE.Matrix4();
-	const levelMatrix = new THREE.Matrix4();
-
-	let railsPathPos = railsPath.getPointAt(u);
-	let railsFoundationShapePos = railsFoundationShape.getPointAt(v).multiplyScalar(0.5);
-
-	let tangente = new THREE.Vector3();
-	let binormal = new THREE.Vector3();
-	let normal = new THREE.Vector3();
-
-	tangente = railsPath.getTangent(u);
-
-	tangente.normalize();
-	binormal = new THREE.Vector3(0, 1, 0);
-	normal.crossVectors(tangente, binormal);
-
-	translationMatrix.makeTranslation(railsPathPos);
-
-	rotMatrix.identity();
-	levelMatrix.identity();
-
-	levelMatrix.makeTranslation(railsPathPos);
-	rotMatrix.makeBasis(normal, tangente, binormal);
-	levelMatrix.multiply(rotMatrix);
-	railsFoundationShapePos.applyMatrix4(levelMatrix);
-	
-	const x = railsFoundationShapePos.x;
-	const y = railsFoundationShapePos.y;
-	const z = railsFoundationShapePos.z;
-	target.set(x, y, z);
-}
 
 function onResize() {
 	camera.aspect = container.offsetWidth / container.offsetHeight;
@@ -161,121 +81,11 @@ function loadTextures(callback) {
 	}
 }
 
-function buildRailsFoundation() {
-	railsFoundationShape = new THREE.CatmullRomCurve3([
-		new THREE.Vector3( -2.00, 0.00, 0.00),
-		new THREE.Vector3( -1.00, 0.00, 1.00),
-		new THREE.Vector3(  0.00, 0.00, 1.15),
-		new THREE.Vector3(  1.00, 0.00, 1.00),
-		new THREE.Vector3(  2.00, 0.00, 0.00),
-	], false);
-
-	/*
-	// show rails foundation shape
-	const points = railsFoundationShape.getPoints(50);
-	const geometry = new THREE.BufferGeometry().setFromPoints(points);
-	const lineMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 });
-	const curveObject = new THREE.Line(geometry, lineMaterial);
-	scene.add(curveObject);
-	*/
-
-	/*
-	const pGeometry = new ParametricGeometry(parametricRailsFoundation, 100, 10);
-	*/
-	const pGeometry = new ParametricGeometry(parametricRailsFoundationInverted, 100, 100);
-	
-	textures.durmientes.object.wrapS = THREE.RepeatWrapping;
-	textures.durmientes.object.wrapT = THREE.RepeatWrapping;
-	textures.durmientes.object.repeat.set(1, 45);
-	textures.durmientes.object.anisotropy = 16;
-	// textures.durmientes.object.rotation = Math.PI/2;
-
-	/*
-	const pGeometry = new ParametricGeometry(parametricRailsFoundationInverted, 100, 100);
-
-	// load into `map` the examples texture
-	const map = new THREE.TextureLoader().load('https://threejs.org/examples/textures/uv_grid_opengl.jpg');
-	map.wrapS = map.wrapT = THREE.RepeatWrapping;
-	map.repeat.set(1, 30);
-	map.anisotropy = 16;
-	// map.rotation = Math.PI/2;
-	*/
-
-	const pMaterial = new THREE.MeshPhongMaterial({
-		side: THREE.DoubleSide,
-		transparent: false,
-		opacity: 1.0,
-		shininess: 10,
-		map: textures.durmientes.object
-	});
-	const pMesh = new THREE.Mesh(pGeometry, pMaterial);
-	scene.add(pMesh);
-}
-
-const railsRadius = 0.5;
-function buildRails() {
-	let railsGeometries = [];
-
-	const leftRailGeometryFunction  = getParametricRailsFunction(railsRadius,
-		new THREE.Vector3( 6, 0, railsRadius+11.25));
-
-	const rightRailGeometryFunction = getParametricRailsFunction(railsRadius,
-		new THREE.Vector3(-7, 0, railsRadius+11.25));
-
-	const leftRailGeometry  = new ParametricGeometry(leftRailGeometryFunction, 100, 500);
-	const rightRailGeometry = new ParametricGeometry(rightRailGeometryFunction, 100, 500);
-
-	railsGeometries.push(leftRailGeometry);
-	railsGeometries.push(rightRailGeometry);
-
-	const railsMaterial = new THREE.MeshPhongMaterial({
-		side: THREE.DoubleSide,
-		transparent: false,
-		opacity: 1.0,
-		shininess: 10,
-		color: 0xFFFFFF
-	});
-
-	const railsGeometry = mergeGeometries(railsGeometries);
-	const rails = new THREE.Mesh(railsGeometry, railsMaterial);
-	scene.add(rails);
-}
-
-function mainLoop() {
-	requestAnimationFrame(mainLoop);
-	renderer.render(scene, camera);
-}
-
-function main() {
-	/*
-	railsPath = new THREE.CatmullRomCurve3([
-		new THREE.Vector3(-10, 0,  10),
-		new THREE.Vector3( 10, 0,  10),
-		new THREE.Vector3( 10, 0, -10),
-		new THREE.Vector3(-10, 0, -10),
-	], true);
-
-	const railsPathPoints = railsPath.getPoints(50);
-	const railsPathGeometry = new THREE.BufferGeometry().setFromPoints(railsPathPoints);
-	const railsPathMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 });
-	const railsPathMesh = new THREE.Line(railsPathGeometry, railsPathMaterial);
-	scene.add(railsPathMesh);
-
-	buildRailsFoundation();
-	buildRails();
-	*/
-	const length = 12, width = 8;
-
-	// const shape = new THREE.Shape();
-	// shape.moveTo(0,0);
-	// shape.lineTo(0, width);
-	// shape.lineTo(length, width);
-	// shape.lineTo(length, 0);
-	// shape.lineTo(0, 0);
-	
+function generateTunnel() {
 	const tunnelHeight        = 20;
 	const tunnelWidth         = 14;
 	const tunnelWallThickness = 0.5;
+	const tunnelLen           = 26;
 
 	const path = new THREE.Path();
 	path.moveTo(-tunnelWidth/2, 0);
@@ -307,6 +117,7 @@ function main() {
 	const points = path.getPoints();
 
 	/*
+	// muestra la curva utilizada para la extrusión
 	const geometry = new THREE.BufferGeometry().setFromPoints(points);
 	const lineMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 });
 	const curveObject = new THREE.Line(geometry, lineMaterial);
@@ -318,14 +129,15 @@ function main() {
 	const extrudeSettings = {
 		curveSegments: 24,
 		steps: 50,
-		depth: 26,
+		depth: tunnelLen,
 	};
 
 	const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+	geometry.translate(0, 0, -tunnelLen/2);
 
 	textures.madera.object.wrapS = THREE.RepeatWrapping;
 	textures.madera.object.wrapT = THREE.RepeatWrapping;
-	textures.madera.object.repeat.set(100, 100);
+	textures.madera.object.repeat.set(0.10, 0.10);
 	textures.madera.object.anisotropy = 16;
 
 	const tunnelMaterial = new THREE.MeshPhongMaterial({
@@ -338,7 +150,15 @@ function main() {
 
 	const mesh = new THREE.Mesh(geometry, tunnelMaterial) ;
 	scene.add(mesh);
+}
 
+function mainLoop() {
+	requestAnimationFrame(mainLoop);
+	renderer.render(scene, camera);
+}
+
+function main() {
+	generateTunnel();
 	mainLoop();
 }
 
