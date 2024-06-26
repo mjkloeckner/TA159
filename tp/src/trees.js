@@ -42,7 +42,7 @@ function setupThreeJs() {
 	scene.add(directionalLight);
 
 	const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 5);
-	scene.add(directionalLightHelper);
+	// scene.add(directionalLightHelper);
 
 	//const gridHelper = new THREE.GridHelper(50, 20);
 	//scene.add(gridHelper);
