@@ -39,16 +39,18 @@ $ vite
 * [npm](https://www.npmjs.com/)
 * [vite](https://www.npmjs.com/package/vite)
 
-## Elementos de la escena
+## Objetivos
 
 * [X] Terreno
 * [X] Arboles
-* [X] Vias de Tren
+* [ ] Vias de Tren
     - [X] Crear el terraplen
     - [X] Crear las vias
     - [ ] Aplicar textura difusa (?)
 * [X] Locomotora
 * [ ] Puente
+    - [X] Puente de ladrillos
+    - [ ] Estructura de Hierro
 * [X] Túnel
 * [ ] Cámaras
     - [X] Orbital general
@@ -59,6 +61,11 @@ $ vite
     - [ ] Primera persona (debe poder moverse sobre el terreno con el teclado y el mouse)
 * [X] Texturas
 * [ ] Iluminación
+* [ ] Posicionar los objetos en la escena final
+    - [ ] Mapa de zonas prohibidas para la generación de arboles
+    - [ ] Mapa para el camino que realiza la vía
+
+## Como se generan los elementos de la escena
 
 ### Terreno
 
@@ -78,7 +85,7 @@ puede ser montaña o rió, de acuerdo a un parámetro fijo
 
 ### Terraplén y Vías de Tren
 
-Para dibujar las vías del tren se utiliza la función
+Para generar las vías del tren se utiliza la función
 [`ParametricGeometry`](https://threejs.org/docs/index.html?q=param#examples/en/geometries/ParametricGeometry)
 de `three.js`, la cual genera una geometría a partir de una función paramétrica
 que recibe tres parámetros: `u`, `v` y un vector en espacio 3D.
