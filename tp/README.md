@@ -48,9 +48,9 @@ $ vite
     - [X] Crear las vias
     - [ ] Aplicar textura difusa (?)
 * [X] Locomotora
-* [ ] Puente
+* [X] Puente
     - [X] Base de ladrillos
-    - [ ] Estructura de Hierro
+    - [X] Estructura de Hierro
 * [X] Túnel
 * [ ] Cámaras
     - [X] Orbital general
