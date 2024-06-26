@@ -46,10 +46,10 @@ $ vite
 * [X] Vias de Tren
     - [X] Crear el terraplen
     - [X] Crear las vias
-    - [ ] Aplicar textura difusa
+    - [ ] Aplicar textura difusa (?)
 * [X] Locomotora
 * [ ] Puente
-* [ ] Túnel
+* [X] Túnel
 * [ ] Cámaras
     - [X] Orbital general
     - [ ] Fija, locomotora frontal (desde la cabina hacia adelante)
