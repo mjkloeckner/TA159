@@ -12,9 +12,10 @@ let railsPath;
 let railsFoundationShape;
 
 const textures = {
-	tierra: { url: '/assets/tierra.jpg', object: null },
-	roca: { url: '/assets/roca.jpg', object: null },
-	pasto: { url: '/assets/pasto.jpg', object: null },
+	tierra:     { url: '/assets/tierra.jpg', object: null },
+	roca:       { url: '/assets/roca.jpg', object: null },
+	pasto:      { url: '/assets/pasto.jpg', object: null },
+	durmientes: { url: '/assets/durmientes.jpg', object: null },
 };
 
 // `position` es de tipo `THREE.Vector3` y representa la translacion de la
@@ -60,6 +61,41 @@ function getParametricRailsFunction(radius, position) {
 		target.set(x, y, z);
 	}
 }
+
+function parametricRailsFoundationInverted(u, v, target) {
+	const rotMatrix = new THREE.Matrix4();
+	const translationMatrix = new THREE.Matrix4();
+	const levelMatrix = new THREE.Matrix4();
+
+	let railsPathPos = railsPath.getPointAt(v);
+	let railsFoundationShapePos = railsFoundationShape.getPointAt(u).multiplyScalar(0.5);
+
+	let tangente = new THREE.Vector3();
+	let binormal = new THREE.Vector3();
+	let normal = new THREE.Vector3();
+
+	tangente = railsPath.getTangent(v);
+
+	tangente.normalize();
+	binormal = new THREE.Vector3(0, 1, 0);
+	normal.crossVectors(tangente, binormal);
+
+	translationMatrix.makeTranslation(railsPathPos);
+
+	rotMatrix.identity();
+	levelMatrix.identity();
+
+	levelMatrix.makeTranslation(railsPathPos);
+	rotMatrix.makeBasis(normal, tangente, binormal);
+	levelMatrix.multiply(rotMatrix);
+	railsFoundationShapePos.applyMatrix4(levelMatrix);
+	
+	const x = railsFoundationShapePos.x;
+	const y = railsFoundationShapePos.y;
+	const z = railsFoundationShapePos.z;
+	target.set(x, y, z);
+}
+
 
 function parametricRailsFoundation(u, v, target) {
 	const rotMatrix = new THREE.Matrix4();
@@ -170,10 +206,11 @@ function loadTextures(callback) {
 
 function buildRailsFoundation() {
 	railsFoundationShape = new THREE.CatmullRomCurve3([
-		new THREE.Vector3( -2, 0, 0),
-		new THREE.Vector3( -1, 0, 1),
-		new THREE.Vector3(  1, 0, 1),
-		new THREE.Vector3(  2, 0, 0),
+		new THREE.Vector3( -2.00, 0.00, 0.00),
+		new THREE.Vector3( -1.00, 0.00, 1.00),
+		new THREE.Vector3(  0.00, 0.00, 1.15),
+		new THREE.Vector3(  1.00, 0.00, 1.00),
+		new THREE.Vector3(  2.00, 0.00, 0.00),
 	], false);
 
 	/*
@@ -185,19 +222,26 @@ function buildRailsFoundation() {
 	scene.add(curveObject);
 	*/
 
+	/*
 	const pGeometry = new ParametricGeometry(parametricRailsFoundation, 100, 10);
-
-	textures.tierra.object.wrapS = THREE.MirroredRepeatWrapping;
-	textures.tierra.object.wrapT = THREE.MirroredRepeatWrapping;
-	textures.tierra.object.repeat.set(25, 1);
-	textures.tierra.object.anisotropy = 16;
+	*/
+	const pGeometry = new ParametricGeometry(parametricRailsFoundationInverted, 100, 100);
+	
+	textures.durmientes.object.wrapS = THREE.RepeatWrapping;
+	textures.durmientes.object.wrapT = THREE.RepeatWrapping;
+	textures.durmientes.object.repeat.set(1, 45);
+	textures.durmientes.object.anisotropy = 16;
+	// textures.durmientes.object.rotation = Math.PI/2;
 
 	/*
+	const pGeometry = new ParametricGeometry(parametricRailsFoundationInverted, 100, 100);
+
 	// load into `map` the examples texture
 	const map = new THREE.TextureLoader().load('https://threejs.org/examples/textures/uv_grid_opengl.jpg');
 	map.wrapS = map.wrapT = THREE.RepeatWrapping;
-	map.repeat.set(25, 1);
+	map.repeat.set(1, 30);
 	map.anisotropy = 16;
+	// map.rotation = Math.PI/2;
 	*/
 
 	const pMaterial = new THREE.MeshPhongMaterial({
@@ -205,7 +249,7 @@ function buildRailsFoundation() {
 		transparent: false,
 		opacity: 1.0,
 		shininess: 10,
-		map: textures.tierra.object
+		map: textures.durmientes.object
 	});
 	const pMesh = new THREE.Mesh(pGeometry, pMaterial);
 	scene.add(pMesh);
