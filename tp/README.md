@@ -47,7 +47,10 @@ $ vite
     - [X] Crear el terraplen
     - [X] Crear las vias
     - [ ] Aplicar textura difusa (?)
-* [X] Locomotora
+* [ ] Locomotora
+    - [X] Chassis, cabina, ruedas, caldera
+    - [ ] Aplicar textura a las ruedas
+    - [ ] Hacer que las ruedas roten sobre su eje
 * [X] Puente
     - [X] Base de ladrillos
     - [X] Estructura de Hierro
@@ -61,6 +64,7 @@ $ vite
     - [ ] Primera persona (debe poder moverse sobre el terreno con el teclado y el mouse)
 * [X] Texturas
 * [ ] Iluminación
+    - [ ] Modo noche/día
 * [ ] Posicionar los objetos en la escena final
     - [ ] Mapa de zonas prohibidas para la generación de arboles
     - [ ] Mapa para el camino que realiza la vía
