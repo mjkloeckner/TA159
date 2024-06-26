@@ -49,7 +49,7 @@ $ vite
     - [ ] Aplicar textura difusa (?)
 * [X] Locomotora
 * [ ] Puente
-    - [X] Puente de ladrillos
+    - [X] Base de ladrillos
     - [ ] Estructura de Hierro
 * [X] Túnel
 * [ ] Cámaras
