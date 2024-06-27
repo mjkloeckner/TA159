@@ -1,55 +1,10 @@
 import * as THREE from 'three';
-import * as dat from 'dat.gui';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-
-let scene, camera, renderer, container;
 
 const textures = {
 	tierra:     { url: '/assets/tierraSeca.jpg', object: null },
 	ladrillos:  { url: '/assets/pared-de-ladrillos.jpg', object: null },
 };
-
-function onResize() {
-	camera.aspect = container.offsetWidth / container.offsetHeight;
-	camera.updateProjectionMatrix();
-	renderer.setSize(container.offsetWidth, container.offsetHeight);
-}
-
-function setupThreeJs() {
-	scene = new THREE.Scene();
-	container = document.getElementById('mainContainer');
-
-	renderer = new THREE.WebGLRenderer();
-	renderer.setClearColor(0x606060);
-	// renderer.setClearColor(0xFFFFFF);
-	container.appendChild(renderer.domElement);
-
-	camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 1000);
-	camera.position.set(25, 25, 25);
-	camera.lookAt(10, 10, 10);
-
-	const controls = new OrbitControls(camera, renderer.domElement);
-
-	const ambientLight = new THREE.AmbientLight(0xaaaaaa);
-	scene.add(ambientLight);
-
-	const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x000000, 0.25);
-	scene.add(hemisphereLight);
-
-	const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-	directionalLight.position.set(100, 100, 100);
-	scene.add(directionalLight);
-
-	const gridHelper = new THREE.GridHelper(50, 20);
-	scene.add(gridHelper);
-
-	const axesHelper = new THREE.AxesHelper(5);
-	scene.add(axesHelper);
-
-	window.addEventListener('resize', onResize);
-	onResize();
-}
 
 function onTextureLoaded(key, texture) {
 	texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
@@ -92,7 +47,7 @@ const bridgeWallThickness = 2.5;
 const bridgeLen           = arcCount*(columnWidth+arcWidth)+columnWidth+startPadding+endPadding;
 const bridgeHeight        = columnHeight+arcRadius+topPadding;
 
-function generateBridgeWall() {
+export function generateBridgeWallGeometry() {
 	const path = new THREE.Path();
 
 	// generate the arcs
@@ -227,14 +182,16 @@ function generateBridgeCage(squaresCount = 3) {
 	return bridgeCage;
 }
 
-function generateBridge() {
+export function generateBridge() {
+	const bridge = new THREE.Object3D();
+
 	const bridgeWidth   = 10;
 	const roadwayHeight = 2;
 
-	const leftWallGeometry = generateBridgeWall();
+	const leftWallGeometry = generateBridgeWallGeometry();
 	leftWallGeometry.translate(0, 0, -bridgeWidth/2);
 
-	const rightWallGeometry = generateBridgeWall();
+	const rightWallGeometry = generateBridgeWallGeometry();
 	rightWallGeometry.translate(0, 0, bridgeWidth/2)
 
 	const bridgeColumnsGeometry = mergeGeometries([leftWallGeometry, rightWallGeometry]);
@@ -277,7 +234,7 @@ function generateBridge() {
 	*/
 
 	const bridgeColumns = new THREE.Mesh(bridgeColumnsGeometry, bridgeMaterial);
-	scene.add(bridgeColumns);
+	bridge.add(bridgeColumns);
 
 	// para reutilizar la textura de ladrillos usada en los arcos se escalan las
 	// coordenadas uv de la geometria de la parte superior
@@ -287,7 +244,7 @@ function generateBridge() {
 	}
 
 	const bridgeRoadway = new THREE.Mesh(bridgeRoadwayGeometry, bridgeMaterial);
-	scene.add(bridgeRoadway);
+	bridge.add(bridgeRoadway);
 
 	const cageGeometry = generateBridgeCage()
 	cageGeometry.translate(0, bridgeHeight+roadwayHeight-squareTubeRadius*2, 0);
@@ -301,7 +258,7 @@ function generateBridge() {
 	});
 
 	const bridgeCage = new THREE.Mesh(cageGeometry, cageMaterial);
-	scene.add(bridgeCage);
+	bridge.add(bridgeCage);
 
 	const roadwayFloorGeometry = new THREE.PlaneGeometry(
 		bridgeWidth+bridgeWallThickness,
@@ -325,18 +282,11 @@ function generateBridge() {
 	});
 
 	const roadwayFloor = new THREE.Mesh(roadwayFloorGeometry, roadwayFloorMaterial);
-	scene.add(roadwayFloor)
-}
-
-function mainLoop() {
-	requestAnimationFrame(mainLoop);
-	renderer.render(scene, camera);
+	bridge.add(roadwayFloor)
+	return bridge;
 }
 
 function main() {
-	generateBridge();
-	mainLoop();
 }
 
-setupThreeJs();
 loadTextures(main);

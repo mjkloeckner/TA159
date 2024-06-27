@@ -1,75 +1,18 @@
 import * as THREE from 'three';
-import * as dat from 'dat.gui';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { vertexShader, fragmentShader } from '/assets/shaders.js';
 
-let scene, camera, renderer, container, terrainMaterial, terrainGeometry, terrain;
 let treesForbiddenMapData, treesForbiddenMap, elevationMap, elevationMapData;
+
+const textures = {
+	elevationMap:     { url: '/assets/elevation_map2.png', object: null },
+	treeForbiddenMap: { url: '/assets/tree_forbidden_zone_map.png', object: null }
+};
 
 const widthSegments   = 100;
 const heightSegments  = 100;
 const amplitude       = 8;
 const amplitudeBottom = -1.00;
-
-const textures = {
-	tierra:           { url: '/assets/tierra.jpg', object: null },
-	roca:             { url: '/assets/roca.jpg', object: null },
-	pasto:            { url: '/assets/pasto.jpg', object: null },
-	elevationMap:     { url: '/assets/elevation_map2.png', object: null },
-	treeForbiddenMap: { url: '/assets/tree_forbidden_zone_map.png', object: null }
-};
-
-function onResize() {
-	camera.aspect = container.offsetWidth / container.offsetHeight;
-	camera.updateProjectionMatrix();
-	renderer.setSize(container.offsetWidth, container.offsetHeight);
-}
-
-function setupThreeJs() {
-	scene = new THREE.Scene();
-	container = document.getElementById('mainContainer');
-
-	renderer = new THREE.WebGLRenderer();
-	renderer.setClearColor(0x606060);
-	container.appendChild(renderer.domElement);
-
-	camera = new THREE.PerspectiveCamera(
-		35, window.innerWidth/window.innerHeight, 0.1, 1000);
-	camera.position.set(100, 120, -100);
-	camera.lookAt(0, 0, 0);
-
-	const controls = new OrbitControls(camera, renderer.domElement);
-
-	const ambientLight = new THREE.AmbientLight(0xffffff);
-	scene.add(ambientLight);
-
-	const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x000000, 0.25);
-	//scene.add(hemisphereLight);
-
-	const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-	directionalLight.position.set(100, 100, 100);
-	scene.add(directionalLight);
-
-	const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 5);
-	// scene.add(directionalLightHelper);
-
-	 const gridHelper = new THREE.GridHelper(150, 150);
-	 scene.add(gridHelper);
-
-	const axesHelper = new THREE.AxesHelper( 5 );
-	scene.add( axesHelper );
-
-	window.addEventListener('resize', onResize);
-	onResize();
-}
-
 const imgWidth  = 512;
 const imgHeight = 512;
-
-// (x, y) ∈ [imgHeight, imgWidth] -> son un punto de la imagen 
-function getPixelIndex(x, y) {
-	return Math.floor(x + y*imgWidth*4);
-}
 
 function getPixel(imgData, index) {
   let i = index*4, d = imgData.data
@@ -124,76 +67,6 @@ function getRandomPositionInTerrain(padding = 0) {
 	const position = new THREE.Vector3(x+padding, y, z+padding);
 	return position;
 }
-
-function createInstancedTrees(count) {
-	console.log('Generating `' + count + '` instances of tree');
-
-	let logHeight = 4.0;
-	const treeLogGeometry   = new THREE.CylinderGeometry(
-		0.30, 0.30, logHeight, 40, 40);
-	treeLogGeometry.translate(0, logHeight/2.0, 0);
-	const instancedTreeLogGeometry = new THREE.InstancedBufferGeometry();
-	instancedTreeLogGeometry.copy(treeLogGeometry);
-	const treeLogMaterial   = new THREE.MeshPhongMaterial({color: 0x7c3f00});
-	const instancedTreeLogs = new THREE.InstancedMesh(
-		instancedTreeLogGeometry,
-		treeLogMaterial,
-		count);
-
-	const treeLeavesGeometry = new THREE.SphereGeometry(1.75,40,40);
-	const instancedTreeLeavesGeometry = new THREE.InstancedBufferGeometry();
-	instancedTreeLeavesGeometry.copy(treeLeavesGeometry);
-	const treeLeavesMaterial  = new THREE.MeshPhongMaterial({color: 0x365829});
-	const instancedTreeLeaves = new THREE.InstancedMesh(
-		instancedTreeLeavesGeometry,
-		treeLeavesMaterial,
-		count);
-
-	const rotMatrix         = new THREE.Matrix4();
-	const translationMatrix = new THREE.Matrix4();
-	const treeLogMatrix     = new THREE.Matrix4();
-	const treeLeavesMatrix  = new THREE.Matrix4();
-
-	const treesBorderPadding = 3.0;
-	for (let i = 0; i < count; i++) {
-		let position = getRandomPositionInTerrain(treesBorderPadding);
-		for(let j = 0; isForbbidenPosition(position); ++j) {
-			position = getRandomPositionInTerrain(treesBorderPadding);
-			if(j++ == 1000) { // maximo de iteraciones
-				break;
-			}
-		}
-
-		if(isForbbidenPosition(position)) {
-			continue;
-		}
-
-		const treeOffset = 0.25;
-		// 1.50 numbero magico para posicionar correctamente los arboles con
-		// respecto al terreno
-		position.x -= (widthSegments+treesBorderPadding+1.50)/2;
-		position.y += amplitudeBottom - treeOffset;
-		position.z -= (heightSegments+treesBorderPadding)/2;
-		translationMatrix.makeTranslation(position);
-		treeLogMatrix.identity();
-		treeLeavesMatrix.identity();
-
-		let scale = 0.6 + (Math.random()*(logHeight/3));
-		treeLogMatrix.makeScale(1, scale, 1);
-		treeLogMatrix.premultiply(translationMatrix);
-
-		position.y += scale*logHeight;
-		translationMatrix.makeTranslation(position);
-		treeLeavesMatrix.premultiply(translationMatrix);
-
-		instancedTreeLogs.setMatrixAt(i, treeLogMatrix);
-		instancedTreeLeaves.setMatrixAt(i, treeLeavesMatrix);
-	}
-
-	console.log('Done generating `' + count + '` instances of tree');
-	return [instancedTreeLogs, instancedTreeLeaves];
-}
-
 
 // La funcion devuelve una geometria de Three.js
 // width: Ancho del plano
@@ -297,7 +170,79 @@ function elevationGeometry(width, height, amplitude, widthSegments, heightSegmen
 	return geometry;
 }
 
-function buildScene() {
+// devuelve un arreglo de 2 `instancedMesh` con los troncos y copas de los arboles
+export function createInstancedTrees(count) {
+	console.log('Generating `' + count + '` instances of tree');
+
+	let logHeight = 4.0;
+	const treeLogGeometry   = new THREE.CylinderGeometry(
+		0.30, 0.30, logHeight, 40, 40);
+	treeLogGeometry.translate(0, logHeight/2.0, 0);
+	const instancedTreeLogGeometry = new THREE.InstancedBufferGeometry();
+	instancedTreeLogGeometry.copy(treeLogGeometry);
+	const treeLogMaterial   = new THREE.MeshPhongMaterial({color: 0x7c3f00});
+	const instancedTreeLogs = new THREE.InstancedMesh(
+		instancedTreeLogGeometry,
+		treeLogMaterial,
+		count);
+
+	const treeLeavesGeometry = new THREE.SphereGeometry(1.75,40,40);
+	const instancedTreeLeavesGeometry = new THREE.InstancedBufferGeometry();
+	instancedTreeLeavesGeometry.copy(treeLeavesGeometry);
+	const treeLeavesMaterial  = new THREE.MeshPhongMaterial({color: 0x365829});
+	const instancedTreeLeaves = new THREE.InstancedMesh(
+		instancedTreeLeavesGeometry,
+		treeLeavesMaterial,
+		count);
+
+	const rotMatrix         = new THREE.Matrix4();
+	const translationMatrix = new THREE.Matrix4();
+	const treeLogMatrix     = new THREE.Matrix4();
+	const treeLeavesMatrix  = new THREE.Matrix4();
+
+	const treesBorderPadding = 3.0;
+	for (let i = 0; i < count; i++) {
+		let position = getRandomPositionInTerrain(treesBorderPadding);
+		for(let j = 0; isForbbidenPosition(position); ++j) {
+			position = getRandomPositionInTerrain(treesBorderPadding);
+			if(j++ == 1000) { // maximo de iteraciones
+				break;
+			}
+		}
+
+		if(isForbbidenPosition(position)) {
+			continue;
+		}
+
+		const treeOffset = 0.25;
+		// 1.50 numbero magico para posicionar correctamente los arboles con
+		// respecto al terreno
+		position.x -= (widthSegments+treesBorderPadding+1.50)/2;
+		position.y += amplitudeBottom - treeOffset;
+		position.z -= (heightSegments+treesBorderPadding)/2;
+		translationMatrix.makeTranslation(position);
+		treeLogMatrix.identity();
+		treeLeavesMatrix.identity();
+
+		let scale = 0.6 + (Math.random()*(logHeight/3));
+		treeLogMatrix.makeScale(1, scale, 1);
+		treeLogMatrix.premultiply(translationMatrix);
+
+		position.y += scale*logHeight;
+		translationMatrix.makeTranslation(position);
+		treeLeavesMatrix.premultiply(translationMatrix);
+
+		instancedTreeLogs.setMatrixAt(i, treeLogMatrix);
+		instancedTreeLeaves.setMatrixAt(i, treeLeavesMatrix);
+	}
+
+	console.log('Done generating `' + count + '` instances of tree');
+	return [instancedTreeLogs, instancedTreeLeaves];
+}
+
+
+
+function buildTrees() {
 	console.log('Building scene');
 
 	const width  = widthSegments;
@@ -336,11 +281,40 @@ function buildScene() {
 	const water = new THREE.Mesh( waterGeometry, waterMaterial );
 	water.rotateX(Math.PI/2);
 	water.position.set(0, 0.75, -1.00);
-	scene.add(water);
+	// scene.add(water);
 
 	const [treeLogs, treeLeaves] = createInstancedTrees(250);
-	scene.add(treeLogs);
-	scene.add(treeLeaves);
+	return 
+	// scene.add(treeLogs);
+	// scene.add(treeLeaves);
+}
+
+function loadMapsData() {
+	console.log("Loading maps data");
+
+	// Creamos un canvas para poder leer los valores de los píxeles de la textura
+	let canvas = document.createElement('canvas');
+	let ctx = canvas.getContext('2d');
+
+	let treesForbiddenMapImage = textures.treeForbiddenMap.object.image;
+	let elevationMapImage = textures.elevationMap.object.image;
+
+	// ambos mapas deben tener el mismo tamaño
+	const imgWidth  = widthSegments;
+	const imgHeight = heightSegments;
+
+	canvas.width  = imgWidth;
+	canvas.height = imgHeight;
+
+	ctx.drawImage(treesForbiddenMapImage, 0, 0, imgWidth, imgHeight);
+	treesForbiddenMap = ctx.getImageData(0, 0, imgWidth, imgHeight);
+	treesForbiddenMapData = treesForbiddenMap.data;
+
+	ctx.drawImage(elevationMapImage, 0, 0, imgWidth, imgHeight);
+	elevationMap = ctx.getImageData(0, 0, imgWidth, imgHeight);
+	elevationMapData = elevationMap.data
+
+	console.log("All maps data loaded succesfully");
 }
 
 function onTextureLoaded(key, texture) {
@@ -372,52 +346,10 @@ function loadTextures(callback) {
 	}
 }
 
-function createMenu() {
-	const gui = new dat.GUI({ width: 400 });
-	gui.add(terrainMaterial.uniforms.scale, 'value', 1.00, 5.00).name('Terrain texture scale');
-	gui.add(terrainMaterial.uniforms.dirtStepWidth, 'value', 0.0, 1.0).name('dirt step width');
-	gui.add(terrainMaterial.uniforms.rockStepWidth, 'value', 0.10, 0.50).name('rock step width');
-}
-
-function mainLoop() {
-	requestAnimationFrame(mainLoop);
-	renderer.render(scene, camera);
-}
-
-function loadMapsData() {
-	console.log("Loading maps data");
-
-	// Creamos un canvas para poder leer los valores de los píxeles de la textura
-	let canvas = document.createElement('canvas');
-	let ctx = canvas.getContext('2d');
-
-	let treesForbiddenMapImage = textures.treeForbiddenMap.object.image;
-	let elevationMapImage = textures.elevationMap.object.image;
-
-	// ambos mapas deben tener el mismo tamaño
-	const imgWidth  = widthSegments;
-	const imgHeight = heightSegments;
-
-	canvas.width  = imgWidth;
-	canvas.height = imgHeight;
-
-	ctx.drawImage(treesForbiddenMapImage, 0, 0, imgWidth, imgHeight);
-	treesForbiddenMap = ctx.getImageData(0, 0, imgWidth, imgHeight);
-	treesForbiddenMapData = treesForbiddenMap.data;
-
-	ctx.drawImage(elevationMapImage, 0, 0, imgWidth, imgHeight);
-	elevationMap = ctx.getImageData(0, 0, imgWidth, imgHeight);
-	elevationMapData = elevationMap.data
-
-	console.log("All maps data loaded succesfully");
-}
 
 function main() {
 	loadMapsData();
-	buildScene();
-	// getTrainTrackShape();
-	mainLoop();
+	// buildScene();
 }
 
-setupThreeJs();
 loadTextures(main);

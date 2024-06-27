@@ -1,55 +1,5 @@
 import * as THREE from 'three';
-import * as dat from 'dat.gui';
 import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
-
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-
-let scene, camera, renderer, container, terrainMaterial, instancedTrees;
-
-let time = 0.0;
-
-function onResize() {
-	camera.aspect = container.offsetWidth / container.offsetHeight;
-	camera.updateProjectionMatrix();
-	renderer.setSize(container.offsetWidth, container.offsetHeight);
-}
-
-function setupThreeJs() {
-	scene = new THREE.Scene();
-	container = document.getElementById('mainContainer');
-
-	renderer = new THREE.WebGLRenderer();
-	renderer.setClearColor(0x606060);
-	container.appendChild(renderer.domElement);
-
-	camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 1000);
-	camera.position.set(-50, 60, 50);
-	camera.lookAt(0, 0, 0);
-
-	const controls = new OrbitControls(camera, renderer.domElement);
-
-	const ambientLight = new THREE.AmbientLight(0xAAAAAA);
-	scene.add(ambientLight);
-
-	const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x000000, 0.25);
-	scene.add(hemisphereLight);
-
-	const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-	directionalLight.position.set(100, 100, 100);
-	scene.add(directionalLight);
-
-	const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 5);
-	// scene.add(directionalLightHelper);
-
-	const gridHelper = new THREE.GridHelper(50, 20);
-	scene.add(gridHelper);
-
-	const axesHelper = new THREE.AxesHelper(5);
-	scene.add(axesHelper);
-
-	window.addEventListener('resize', onResize);
-	onResize();
-}
 
 const steamChamberLen = 20;
 const steamChamberRad = 5;
@@ -186,9 +136,9 @@ function buildTrainChassis() {
 	return chassis;
 }
 
-function buildTrain() {
+export function buildTrain() {
 	console.log('Building train');
-	const train = new THREE.Group();
+	const train = new THREE.Object3D();
 
 	const chassisGeometry = buildTrainChassis();
 	const chassisMaterial = new THREE.MeshPhongMaterial({
@@ -239,7 +189,6 @@ function buildTrain() {
 	a1.position.set(0, wheelOffset, 0);
 	a2.position.set(0, wheelOffset, wheelRad*2.5);
 	a3.position.set(0, wheelOffset, -wheelRad*2.5);
-
 
 	const cylinderLeft = new THREE.CylinderGeometry(2.25, 2.5, steamCylindersLen);
 	cylinderLeft.rotateX(Math.PI/2);
@@ -294,30 +243,14 @@ function buildTrain() {
 	chassis.add(crankLeft);
 	chassis.add(crankRight);
 
-	chassis.translateY(-wheelOffset);
+	// chassis.translateY(-wheelOffset);
+	updateTrainCrankPosition();
 
-	train.position.set(0, 2, 0);
+	train.position.set(0, 1.9, 0);
 	return train;
 }
 
-function buildScene() {
-	console.log('Building scene');
-
-	const train = buildTrain();
-	scene.add(train);
-}
-
-function onTextureLoaded(key, texture) {
-	texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-	textures[key].object = texture;
-	console.log('Texture `' + key + '` loaded');
-}
-
-function mainLoop() {
-	time += 0.05;
-
-	requestAnimationFrame(mainLoop);
-
+export function updateTrainCrankPosition(time = 0.0) {
 	crankLeft.position.set(-steamChamberRad-crankWidth/2,
 		wheelOffset+1.00*(Math.sin(time*Math.PI/2)),
 		crankOffset - 1.00*(Math.cos(time*Math.PI/2)));
@@ -325,14 +258,4 @@ function mainLoop() {
 	crankRight.position.set(steamChamberRad+crankWidth/2,
 		wheelOffset+1.00*(Math.sin(time*Math.PI/2)),
 		crankOffset - 1.00*(Math.cos(time*Math.PI/2)));
-
-	renderer.render(scene, camera);
 }
-
-function main() {
-	buildScene();
-	mainLoop();
-}
-
-setupThreeJs();
-main();
