@@ -168,18 +168,21 @@ function createInstancedTrees(count) {
 			continue;
 		}
 
-		position.x -= widthSegments/2;
-		position.y += amplitudeBottom;
-		position.z -= heightSegments/2;
+		const treeOffset = 0.25;
+		// 1.50 numbero magico para posicionar correctamente los arboles con
+		// respecto al terreno
+		position.x -= (widthSegments+treesBorderPadding+1.50)/2;
+		position.y += amplitudeBottom - treeOffset;
+		position.z -= (heightSegments+treesBorderPadding)/2;
 		translationMatrix.makeTranslation(position);
 		treeLogMatrix.identity();
 		treeLeavesMatrix.identity();
 
-		let scale = 0.5 + (Math.random()*(logHeight/3));
+		let scale = 0.6 + (Math.random()*(logHeight/3));
 		treeLogMatrix.makeScale(1, scale, 1);
 		treeLogMatrix.premultiply(translationMatrix);
 
-		position.y += scale * logHeight;
+		position.y += scale*logHeight;
 		translationMatrix.makeTranslation(position);
 		treeLeavesMatrix.premultiply(translationMatrix);
 
