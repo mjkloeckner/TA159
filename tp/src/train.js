@@ -32,38 +32,82 @@ function buildCabin() {
 
 	let cabin = [];
 
-	const cabinFront = new THREE.BoxGeometry(steamChamberRad*2, cabinWallThickness, cabinHeight);
+	const cabinFront = new THREE.BoxGeometry(
+		steamChamberRad*2,
+		cabinWallThickness,
+		cabinHeight);
+
 	cabinFront.translate(0, cabinLen/2, -cabinHeight/2);
 	cabin.push(cabinFront);
 
-	const cabinLeft = new THREE.BoxGeometry(steamChamberRad*2, cabinWallThickness, cabinHeight);
+	const cabinLeft = new THREE.BoxGeometry(
+		steamChamberRad*2,
+		cabinWallThickness,
+		cabinHeight);
+
 	cabinLeft.rotateZ(Math.PI/2);
-	cabinLeft.translate(steamChamberRad-cabinWallThickness/2, cabinWallThickness/2, -cabinHeight/2);
+	cabinLeft.translate(
+		steamChamberRad-cabinWallThickness/2,
+		cabinWallThickness/2,
+		-cabinHeight/2);
+
 	cabin.push(cabinLeft);
 
-	const cabinRight = new THREE.BoxGeometry(steamChamberRad*2, cabinWallThickness, cabinHeight);
+	const cabinRight = new THREE.BoxGeometry(
+		steamChamberRad*2,
+		cabinWallThickness,
+		cabinHeight);
+
 	cabinRight.rotateZ(Math.PI/2);
-	cabinRight.translate(-steamChamberRad+cabinWallThickness/2, cabinWallThickness/2, -cabinHeight/2);
+	cabinRight.translate(
+		-steamChamberRad+cabinWallThickness/2,
+		cabinWallThickness/2,
+		-cabinHeight/2);
+
 	cabin.push(cabinRight);
 
-	const g1 = new THREE.BoxGeometry(cabinWallThickness, cabinWallThickness, cabinRoofHeight);
+	const g1 = new THREE.BoxGeometry(
+		cabinWallThickness, cabinWallThickness, cabinRoofHeight);
+
 	g1.rotateZ(Math.PI/2);
-	g1.translate(-steamChamberRad+(cabinWallThickness/2), -steamChamberRad+cabinWallThickness, -cabinHeight-cabinRoofHeight/2);
+	g1.translate(
+		-steamChamberRad+(cabinWallThickness/2),
+		-steamChamberRad+cabinWallThickness,
+		-cabinHeight-cabinRoofHeight/2);
+
 	cabin.push(g1);
 
-	const g2 = new THREE.BoxGeometry(cabinWallThickness, cabinWallThickness, cabinRoofHeight);
+	const g2 = new THREE.BoxGeometry(
+		cabinWallThickness, cabinWallThickness, cabinRoofHeight);
+
 	g2.rotateZ(Math.PI/2);
-	g2.translate(steamChamberRad-cabinWallThickness/2, steamChamberRad, -cabinHeight-cabinRoofHeight/2);
+	g2.translate(
+		steamChamberRad-cabinWallThickness/2,
+		steamChamberRad,
+		-cabinHeight-cabinRoofHeight/2);
+
 	cabin.push(g2);
 
-	const g3 = new THREE.BoxGeometry(cabinWallThickness, cabinWallThickness, cabinRoofHeight);
+	const g3 = new THREE.BoxGeometry(
+		cabinWallThickness, cabinWallThickness, cabinRoofHeight);
+
 	g3.rotateZ(Math.PI/2);
-	g3.translate(steamChamberRad-cabinWallThickness/2, -steamChamberRad+cabinWallThickness, -cabinHeight-cabinRoofHeight/2);
+	g3.translate(
+		steamChamberRad-cabinWallThickness/2,
+		-steamChamberRad+cabinWallThickness,
+		-cabinHeight-cabinRoofHeight/2);
+
 	cabin.push(g3);
 
-	const g4 = new THREE.BoxGeometry(cabinWallThickness, cabinWallThickness, cabinRoofHeight);
+	const g4 = new THREE.BoxGeometry(
+		cabinWallThickness, cabinWallThickness, cabinRoofHeight);
+
 	g4.rotateZ(Math.PI/2);
-	g4.translate(-steamChamberRad+cabinWallThickness/2, steamChamberRad, -cabinHeight-cabinRoofHeight/2);
+	g4.translate(
+		-steamChamberRad+cabinWallThickness/2,
+		steamChamberRad,
+		-cabinHeight-cabinRoofHeight/2);
+
 	cabin.push(g4);
 
 	const geometry = BufferGeometryUtils.mergeGeometries(cabin);
@@ -85,14 +129,18 @@ function buildChamber() {
 	steamChamberEnd.translate(0,steamChamberLen/2 + steamChamberEndLen/2,0);
 	geometries.push(steamChamberEnd);
 
-	const floor = new THREE.BoxGeometry(steamChamberRad*2, steamChamberLen + steamChamberEndLen + cabinLen, 1.0);
+	const floor = new THREE.BoxGeometry(
+		steamChamberRad*2, steamChamberLen + steamChamberEndLen + cabinLen, 1.0);
 	floor.translate(0, -steamChamberEndLen/2, steamChamberRad);
 	geometries.push(floor);
 
 	const chamberPipeLen = 8;
 	const chamberPipe = new THREE.CylinderGeometry(0.75, 0.75, chamberPipeLen, 32);
-	chamberPipe.translate(0, -(steamChamberRad + chamberPipeLen/2)+1.0,
+
+	chamberPipe.translate(0,
+		-(steamChamberRad + chamberPipeLen/2)+1.0,
 		-(steamChamberLen+steamChamberEndLen)/2);
+
 	chamberPipe.rotateX(Math.PI/2);
 	geometries.push(chamberPipe);
 
@@ -164,7 +212,9 @@ export function buildTrain() {
 	const cabinGeometry = buildCabin();
 	const cabin = new THREE.Mesh(cabinGeometry, chamberMaterial);
 	chassis.add(cabin);
-	cabin.position.set(0, (chassisHeight + cabinWallThickness)/2, -steamChamberLen+(cabinLen/2)+chassisOffset);
+	cabin.position.set(0,
+		(chassisHeight + cabinWallThickness)/2,
+		-steamChamberLen+(cabinLen/2)+chassisOffset);
 
 	const cabinRoofGeometry = buildCabinRoof();
 	const roofMaterial = new THREE.MeshPhongMaterial({
