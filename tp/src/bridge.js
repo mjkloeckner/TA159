@@ -35,19 +35,28 @@ function loadTextures(callback) {
 	}
 }
 
-const arcWidth     = 5;
-const arcCount     = 4;
-const arcRadius    = arcWidth/2;
-const columnHeight = 5;
-const columnWidth  = 1.50;
-const topPadding   = 0.50;
-const startPadding = 10;
-const endPadding   = startPadding;
-const bridgeWallThickness = 2.5;
-const bridgeLen           = arcCount*(columnWidth+arcWidth)+columnWidth+startPadding+endPadding;
-const bridgeHeight        = columnHeight+arcRadius+topPadding;
+// const arcRadius    = 3;
+// const arcCount     = 1;
+// const columnHeight = 0;
+// const columnWidth  = 1.00;
+// const arcWidth     = arcRadius*2;
+// const startPadding = 12;
+// const endPadding   = startPadding;
+// const bridgeHeight        = columnHeight+arcRadius+topPadding;
 
-export function generateBridgeWallGeometry() {
+const topPadding   = 0.25;
+const bridgeWallThickness = 2.5;
+const bridgeWidth   = 10;
+const roadwayHeight = 0.65;
+
+function generateBridgeWallGeometry(
+		arcCount=2, arcRadius=3, columnWidth=1, columnHeight=0, padding=10) {
+
+	const arcWidth = arcRadius*2;
+	const startPadding = padding;
+	const endPadding = padding;
+	const bridgeLen = arcCount*(columnWidth+arcWidth)+columnWidth+startPadding+endPadding;
+	const bridgeHeight = columnHeight+arcRadius+topPadding;
 	const path = new THREE.Path();
 
 	// generate the arcs
@@ -90,10 +99,9 @@ export function generateBridgeWallGeometry() {
 	return bridgeWallGeometry;
 }
 
-const squareTubeRadius = 0.15;
-function generateBridgeCage(squaresCount = 3) {
-	const squaresSideLen = 10;
-	const bridgeCageLen  = squaresCount * squaresSideLen;
+function generateBridgeCage(squaresCount=3, squareTubeRadius=0.15) {
+	const squareLen = bridgeWidth - 0.25;
+	const bridgeCageLen  = squaresCount * squareLen;
 
 	let geometries = []
 
@@ -105,11 +113,11 @@ function generateBridgeCage(squaresCount = 3) {
 		// 3 -> 11
 		for(let i = 0; i < 4; ++i) {
 			cylinderBase = new THREE.CylinderGeometry(
-				squareTubeRadius, squareTubeRadius, squaresSideLen);
+				squareTubeRadius, squareTubeRadius, squareLen);
 
 			cylinderCorner = cylinderBase.clone();
 
-			const squareHypotenuse = Math.sqrt(2*squaresSideLen*squaresSideLen);
+			const squareHypotenuse = Math.sqrt(2*squareLen*squareLen);
 			cylinderCrossbar = new THREE.CylinderGeometry(
 				squareTubeRadius, squareTubeRadius, squareHypotenuse);
 
@@ -117,36 +125,36 @@ function generateBridgeCage(squaresCount = 3) {
 				cylinderBase.rotateZ(Math.PI/2);
 				cylinderBase.translate(
 					0,
-					square*(squaresSideLen),
-					((-1)**(i>>1))*squaresSideLen/2);
+					square*(squareLen),
+					((-1)**(i>>1))*squareLen/2);
 
 				cylinderCrossbar.rotateZ((-1)**((i>>1))*Math.PI/4);
 				cylinderCrossbar.translate(
 					0,
-					square*(squaresSideLen)+(squaresSideLen/2),
-					((-1)**(i>>1))*squaresSideLen/2);
+					square*(squareLen)+(squareLen/2),
+					((-1)**(i>>1))*squareLen/2);
 
 				cylinderCorner.translate(
-					((-1)**(i>>1))*squaresSideLen/2,
-					square*(squaresSideLen)+(squaresSideLen/2),
-					((-1)**(i&1))*squaresSideLen/2);
+					((-1)**(i>>1))*squareLen/2,
+					square*(squareLen)+(squareLen/2),
+					((-1)**(i&1))*squareLen/2);
 			} else {
 				cylinderBase.rotateX(Math.PI/2);
 				cylinderBase.translate(
-					((-1)**(i>>1))*squaresSideLen/2,
-					square*(squaresSideLen),
+					((-1)**(i>>1))*squareLen/2,
+					square*(squareLen),
 					0);
 
 				cylinderCrossbar.rotateX((-1)**((i>>1))*Math.PI/4);
 				cylinderCrossbar.translate(
-					((-1)**(i>>1))*squaresSideLen/2,
-					square*(squaresSideLen)+(squaresSideLen/2),
+					((-1)**(i>>1))*squareLen/2,
+					square*(squareLen)+(squareLen/2),
 					0);
 
 				cylinderCorner.translate(
-					((-1)**(i>>1))*squaresSideLen/2,
-					square*(squaresSideLen)+(squaresSideLen/2),
-					((-1)**(i&1))*squaresSideLen/2);
+					((-1)**(i>>1))*squareLen/2,
+					square*(squareLen)+(squareLen/2),
+					((-1)**(i&1))*squareLen/2);
 			}
 			geometries.push(cylinderBase);
 			geometries.push(cylinderCrossbar);
@@ -157,19 +165,19 @@ function generateBridgeCage(squaresCount = 3) {
 		if((square + 1) == squaresCount) {
 			for(let i = 0; i < 4; ++i) {
 				cylinderBase = new THREE.CylinderGeometry(
-					squareTubeRadius, squareTubeRadius, squaresSideLen);
+					squareTubeRadius, squareTubeRadius, squareLen);
 
 				if((i % 2) == 0) {
 					cylinderBase.rotateZ(Math.PI/2);
 					cylinderBase.translate(
 						0,
-						(square+1)*(squaresSideLen),
-						((-1)**(i>>1))*squaresSideLen/2);
+						(square+1)*(squareLen),
+						((-1)**(i>>1))*squareLen/2);
 				} else {
 					cylinderBase.rotateX(Math.PI/2);
 					cylinderBase.translate(
-						((-1)**(i>>1))*squaresSideLen/2,
-						(square+1)*(squaresSideLen), 0);
+						((-1)**(i>>1))*squareLen/2,
+						(square+1)*(squareLen), 0);
 				}
 				geometries.push(cylinderBase);
 			}
@@ -178,23 +186,36 @@ function generateBridgeCage(squaresCount = 3) {
 
 	const bridgeCage = mergeGeometries(geometries);
 	bridgeCage.rotateZ(Math.PI/2);
-	bridgeCage.translate(bridgeCageLen/2, squaresSideLen/2, 0);
+	bridgeCage.translate(bridgeCageLen/2, squareLen/2, 0);
 	return bridgeCage;
 }
 
-export function generateBridge() {
-	const bridge = new THREE.Object3D();
+export function generateBridge(arcCount=1, arcRadius=3,
+	columnWidth=0, columnHeight=0, padding=10, squaresCount=0, squareLen=1) {
 
-	const bridgeWidth   = 10;
-	const roadwayHeight = 2;
+	const arcWidth     = arcRadius*2;
+	const startPadding = padding;
+	const endPadding   = padding;
+	const bridgeHeight = columnHeight+arcRadius+topPadding;
+	const bridgeLen    = arcCount*(columnWidth+arcWidth)+columnWidth+startPadding+endPadding;
+	const squareTubeRadius = 0.30;
 
-	const leftWallGeometry = generateBridgeWallGeometry();
+	const bridge       = new THREE.Object3D();
+
+	const leftWallGeometry = generateBridgeWallGeometry(
+		arcCount, arcRadius, columnWidth, columnHeight, padding);
+
+	// const leftWallGeometry = generateBridgeWallGeometry();
 	leftWallGeometry.translate(0, 0, -bridgeWidth/2);
 
-	const rightWallGeometry = generateBridgeWallGeometry();
+	const rightWallGeometry = generateBridgeWallGeometry(
+		arcCount, arcRadius, columnWidth, columnHeight, padding);
+
+	// const rightWallGeometry = generateBridgeWallGeometry();
 	rightWallGeometry.translate(0, 0, bridgeWidth/2)
 
 	const bridgeColumnsGeometry = mergeGeometries([leftWallGeometry, rightWallGeometry]);
+
 	const bridgeRoadwayGeometry = new THREE.BoxGeometry(
 		bridgeLen, roadwayHeight, bridgeWidth+bridgeWallThickness,
 	);
@@ -246,7 +267,7 @@ export function generateBridge() {
 	const bridgeRoadway = new THREE.Mesh(bridgeRoadwayGeometry, bridgeMaterial);
 	bridge.add(bridgeRoadway);
 
-	const cageGeometry = generateBridgeCage()
+	const cageGeometry = generateBridgeCage(squaresCount)
 	cageGeometry.translate(0, bridgeHeight+roadwayHeight-squareTubeRadius*2, 0);
 
 	const cageMaterial = new THREE.MeshPhongMaterial({
