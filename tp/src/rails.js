@@ -22,6 +22,13 @@ const textures = {
 	durmientes: { url: '/assets/durmientes.jpg', object: null },
 };
 
+export function getRailsPathPosAt(t) {
+	if(railsPath == undefined) {
+		console.log("railsPath is undefined");
+	}
+	return railsPath.getPointAt(t);
+}
+
 function parametricRailsFoundationFunction(u, v, target) {
 	const rotMatrix = new THREE.Matrix4();
 	const translationMatrix = new THREE.Matrix4();

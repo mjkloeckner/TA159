@@ -7,6 +7,7 @@ import { generateTunnelGeometry } from '/src/tunnel.js';
 import { createInstancedTrees } from '/src/track-map.js';
 import { elevationGeometry } from '/src/terrain.js';
 import {
+	getRailsPathPosAt,
 	buildRailsGeometry,
 	buildRailsFoundationGeometry
 } from '/src/rails.js';
@@ -16,7 +17,6 @@ import { updateTrainCrankPosition } from '/src/train.js';
 
 let scene, camera, renderer, container, terrainMaterial, terrainGeometry, terrain, time;
 let treesForbiddenMapData, treesForbiddenMap, elevationMap, elevationMapData;
-
 
 // actualizar la variable global `amplitude` de '/src/track-map/'
 const widthSegments   = 150;
@@ -36,6 +36,7 @@ const textures = {
 
 let settings = {
 	animationEnable: false,
+	showTrain: false
 };
 
 function onResize() {
@@ -127,10 +128,13 @@ function buildBridge() {
 	scene.add(bridge2);
 }
 
+let train;
+
 // loco -> locomotora/locomotive
 function buildLoco() {
-	const train = buildTrain();
-	train.scale.set(0.35, 0.35, 0.35)
+	train = buildTrain();
+	train.scale.set(0.10, 0.10, 0.10);
+	train.rotateY(Math.PI/8);
 	scene.add(train);
 }
 
@@ -263,17 +267,24 @@ function buildScene() {
 	buildTerrain();
 	buildRailsFoundation();
 	buildRails();
-	// buildLoco();
+	buildLoco();
 	buildBridge();
 }
 
 function mainLoop() {
 	requestAnimationFrame(mainLoop);
 	renderer.render(scene, camera);
+	const translationMatrix = new THREE.Matrix4();
 
-	time += 0.05;
-	if(settings.animationEnable) {
+	train.position.set(-10, 2.25, 0);
+
+	time += 0.10;
+	if(settings.animationEnable && ((time % 1) != 0)) {
 		updateTrainCrankPosition(time);
+		// const railsPos = getRailsPathPosAt(time % 1.0);
+		// console.log(railsPos);
+		// translationMatrix.makeTranslation(railsPos);
+		// train.applyMatrix(translationMatrix);
 	}
 	renderer.render(scene, camera);
 }
