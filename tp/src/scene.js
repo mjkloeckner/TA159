@@ -6,7 +6,7 @@ import { vertexShader, fragmentShader } from '/assets/shaders.js';
 import { generateTunnelGeometry } from '/src/tunnel.js';
 import { createInstancedTrees } from '/src/track-map.js';
 import { elevationGeometry } from '/src/terrain.js';
-import { 
+import {
 	buildRailsGeometry,
 	buildRailsFoundationGeometry
 } from '/src/rails.js';
@@ -17,6 +17,8 @@ import { updateTrainCrankPosition } from '/src/train.js';
 let scene, camera, renderer, container, terrainMaterial, terrainGeometry, terrain, time;
 let treesForbiddenMapData, treesForbiddenMap, elevationMap, elevationMapData;
 
+
+// actualizar la variable global `amplitude` de '/src/track-map/'
 const widthSegments   = 150;
 const heightSegments  = 150;
 const amplitude       = 10;
@@ -33,7 +35,7 @@ const textures = {
 };
 
 let settings = {
-	animationEnable: true,
+	animationEnable: false,
 };
 
 function onResize() {
@@ -114,11 +116,11 @@ function buildBridge() {
 	const bridge2 = generateBridge(2, 2, 1, 0, 15, 3, 2);
 
 	bridge1.scale.set(0.5, 0.5, 0.5);
-	bridge1.position.set(16, -0.75, 33);
+	bridge1.position.set(16, -0.75, 36);
 	// bridge1.rotateY(-Math.PI*0.118);
 
 	bridge2.scale.set(0.5, 0.5, 0.5);
-	bridge2.position.set(-14, 0, -40);
+	bridge2.position.set(-14, 0, -41);
 	// bridge2.rotateY(-Math.PI*0.118);
 
 	scene.add(bridge1);
@@ -137,8 +139,15 @@ function buildRailsFoundation() {
 
 	textures.durmientes.object.wrapS = THREE.RepeatWrapping;
 	textures.durmientes.object.wrapT = THREE.RepeatWrapping;
-	textures.durmientes.object.repeat.set(1, 60);
+	textures.durmientes.object.repeat.set(1, 150);
 	textures.durmientes.object.anisotropy = 16;
+
+	// load into `map` the example texture
+	const map = new THREE.TextureLoader().load('https://threejs.org/examples/textures/uv_grid_opengl.jpg');
+	map.wrapS = map.wrapT = THREE.RepeatWrapping;
+	map.repeat.set(1, 80);
+	map.anisotropy = 16;
+	// map.rotation = Math.PI/2;
 
 	const railsFoundationMaterial = new THREE.MeshPhongMaterial({
 		side: THREE.DoubleSide,
@@ -146,10 +155,12 @@ function buildRailsFoundation() {
 		opacity: 1.0,
 		shininess: 10,
 		map: textures.durmientes.object
+		// map: map
 	});
 
 	const railsFoundation = new THREE.Mesh(railsFoundationGeometry, railsFoundationMaterial);
-	railsFoundation.scale.set(2, 2, 2);
+	railsFoundation.position.set(-1, 1.25, -1);
+	railsFoundation.scale.set(1.00, 1.50, 1.00);
 	scene.add(railsFoundation);
 }
 
@@ -164,7 +175,8 @@ function buildRails() {
 	});
 
 	const rails = new THREE.Mesh(railsGeometry, railsMaterial);
-	rails.scale.set(2, 2, 2);
+	rails.position.set(-1, 1.25, -1);
+	rails.scale.set(1.00, 1.50, 1.00);
 	scene.add(rails);
 }
 
@@ -246,13 +258,13 @@ function createMenu() {
 
 function buildScene() {
 	console.log('Building scene');
-	buildTunnel();
-	// buildTrees(100);
-	// buildTerrain();
+	// buildTunnel();
+	buildTrees(200);
+	buildTerrain();
 	buildRailsFoundation();
 	buildRails();
-	buildLoco();
-	// buildBridge();
+	// buildLoco();
+	buildBridge();
 }
 
 function mainLoop() {

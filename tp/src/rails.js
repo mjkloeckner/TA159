@@ -70,7 +70,7 @@ export function buildRailsFoundationGeometry() {
 	*/
 
 	const pGeometry = new ParametricGeometry(
-		parametricRailsFoundationFunction, 100, 100);
+		parametricRailsFoundationFunction, 250, 250);
 	
 	return pGeometry;
 }
@@ -170,11 +170,19 @@ function loadTextures(callback) {
 
 function main() {
 	railsPath = new THREE.CatmullRomCurve3([
-		new THREE.Vector3(-10, 0,  10),
-		new THREE.Vector3( 10, 0,  10),
-		new THREE.Vector3( 10, 0, -10),
-		new THREE.Vector3(-10, 0, -10),
-	], true);
+		// bridge1 side
+		new THREE.Vector3(  0, 0, 32),
+		new THREE.Vector3( 28, 0, 32),
+
+		new THREE.Vector3( 28, 0, 0),
+
+		// bridge2 side
+		new THREE.Vector3(  5, 0, -37),
+		new THREE.Vector3(-35, 0, -30),
+		// new THREE.Vector3(-20, 0, -10),
+
+		new THREE.Vector3(-10, 0, 0),
+	], true, 'catmullrom', 0.75);
 
 	/*
 	// muestra la curva utilizada para el camino de `rails`

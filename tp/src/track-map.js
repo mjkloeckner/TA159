@@ -9,7 +9,7 @@ const textures = {
 
 const widthSegments   = 100;
 const heightSegments  = 100;
-const amplitude       = 8;
+const amplitude       = 10;
 const amplitudeBottom = -1.00;
 const imgWidth  = 512;
 const imgHeight = 512;
@@ -29,7 +29,8 @@ function isForbbidenPosition(position) {
 	const y = position.y;
 	const z = Math.floor(position.z);
 
-	if((y > 5.8) || (y < 2.65)){
+	// TODO: estos valores deberian depender de la posicion del terreno
+	if((y > 5.8) || (y < 3.25)) {
 		// console.log("(" + position.x + ", " + position.y + ", " + position.z + ") is not valid ");
 		return true;
 	}
@@ -213,11 +214,12 @@ export function createInstancedTrees(count) {
 			continue;
 		}
 
-		const treeOffset = 0.25;
+		const treeOffset = -1.50;
+
 		// 1.50 numbero magico para posicionar correctamente los arboles con
 		// respecto al terreno
 		position.x -= (widthSegments+treesBorderPadding+1.50)/2;
-		position.y += amplitudeBottom - treeOffset;
+		position.y += (amplitudeBottom + treeOffset);
 		position.z -= (heightSegments+treesBorderPadding)/2;
 		translationMatrix.makeTranslation(position);
 		treeLogMatrix.identity();
@@ -228,6 +230,7 @@ export function createInstancedTrees(count) {
 		treeLogMatrix.premultiply(translationMatrix);
 
 		position.y += scale*logHeight;
+
 		translationMatrix.makeTranslation(position);
 		treeLeavesMatrix.premultiply(translationMatrix);
 
