@@ -17,10 +17,10 @@ import { updateTrainCrankPosition } from '/src/train.js';
 let scene, camera, renderer, container, terrainMaterial, terrainGeometry, terrain, time;
 let treesForbiddenMapData, treesForbiddenMap, elevationMap, elevationMapData;
 
-const widthSegments   = 100;
-const heightSegments  = 100;
-const amplitude       = 8;
-const amplitudeBottom = -1.00;
+const widthSegments   = 150;
+const heightSegments  = 150;
+const amplitude       = 10;
+const amplitudeBottom = -2.10; // terrain offset
 
 const textures = {
 	roca:             { url: '/assets/roca.jpg', object: null },
@@ -28,8 +28,8 @@ const textures = {
 	tierra:           { url: '/assets/tierra.jpg', object: null },
 	madera:           { url: '/assets/madera.jpg', object: null },
 	durmientes:       { url: '/assets/durmientes.jpg', object: null },
-	elevationMap:     { url: '/assets/elevation_map2.png', object: null },
-	treeForbiddenMap: { url: '/assets/tree_forbidden_zone_map.png', object: null }
+	elevationMap:     { url: '/assets/elevation_map_wider_river.png', object: null },
+	treeForbiddenMap: { url: '/assets/tree_forbidden_zone_map_wider_path.png', object: null }
 };
 
 let settings = {
@@ -66,7 +66,7 @@ function setupThreeJs() {
 	directionalLight.position.set(100, 100, 100);
 	scene.add(directionalLight);
 
-	const gridHelper = new THREE.GridHelper(150, 150);
+	const gridHelper = new THREE.GridHelper(200, 200);
 	scene.add(gridHelper);
 
 	const axesHelper = new THREE.AxesHelper(5);
@@ -149,7 +149,7 @@ function buildRailsFoundation() {
 	});
 
 	const railsFoundation = new THREE.Mesh(railsFoundationGeometry, railsFoundationMaterial);
-	railsFoundation.scale.set(5, 5, 5);
+	railsFoundation.scale.set(2, 2, 2);
 	scene.add(railsFoundation);
 }
 
@@ -164,7 +164,7 @@ function buildRails() {
 	});
 
 	const rails = new THREE.Mesh(railsGeometry, railsMaterial);
-	rails.scale.set(5, 5, 5);
+	rails.scale.set(2, 2, 2);
 	scene.add(rails);
 }
 
@@ -208,7 +208,7 @@ function buildTerrain() {
 	const waterMaterial = new THREE.MeshPhongMaterial( {color: 0x12ABFF, side: THREE.DoubleSide} );
 	const water = new THREE.Mesh( waterGeometry, waterMaterial );
 	water.rotateX(Math.PI/2);
-	water.position.set(0, 0.75, 0);
+	water.position.set(0, 0, 0);
 	scene.add(water);
 }
 
