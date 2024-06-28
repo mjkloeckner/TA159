@@ -106,8 +106,23 @@ function loadTextures(callback) {
 }
 
 function buildBridge() {
-	const bridge = generateBridge();
-	scene.add(bridge);
+	// const bridge1 = generateBridge();
+	// const bridge2 = generateBridge();
+
+	// (arcCount, arcRadius, columnWidth, columnHeight, padding, squaresCount, squareLen)
+	const bridge1 = generateBridge(1, 3, 0, 0, 10, 2, 2);
+	const bridge2 = generateBridge(2, 2, 1, 0, 15, 3, 2);
+
+	bridge1.scale.set(0.5, 0.5, 0.5);
+	bridge1.position.set(16, -0.75, 33);
+	// bridge1.rotateY(-Math.PI*0.118);
+
+	bridge2.scale.set(0.5, 0.5, 0.5);
+	bridge2.position.set(-14, 0, -40);
+	// bridge2.rotateY(-Math.PI*0.118);
+
+	scene.add(bridge1);
+	scene.add(bridge2);
 }
 
 // loco -> locomotora/locomotive
