@@ -49,7 +49,7 @@ function isForbbidenPosition(position) {
 		return true;
 	}
 
-	console.log("(" + position.x + ", " + position.y + ") is valid ");
+	// console.log("(" + position.x + ", " + position.y + ") is valid ");
 	return false;
 }
 
