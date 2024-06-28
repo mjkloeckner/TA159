@@ -29,12 +29,10 @@ function isForbbidenPosition(position) {
 	const y = position.y;
 	const z = Math.floor(position.z);
 
-	/*
-	if((y > 5.0) || (y < 2.65)){
-		console.log("(" + position.x + ", " + position.y + ", " + position.z + ") is not valid ");
+	if((y > 5.8) || (y < 2.65)){
+		// console.log("(" + position.x + ", " + position.y + ", " + position.z + ") is not valid ");
 		return true;
 	}
-	*/
 	
 	let pixelArray = getPixelXY(treesForbiddenMap, x, z);
 	const R = pixelArray[0]; // Red
@@ -174,9 +172,9 @@ function elevationGeometry(width, height, amplitude, widthSegments, heightSegmen
 export function createInstancedTrees(count) {
 	console.log('Generating `' + count + '` instances of tree');
 
-	let logHeight = 4.0;
+	let logHeight = 3.0;
 	const treeLogGeometry   = new THREE.CylinderGeometry(
-		0.30, 0.30, logHeight, 40, 40);
+		0.10, 0.25, logHeight, 40, 40);
 	treeLogGeometry.translate(0, logHeight/2.0, 0);
 	const instancedTreeLogGeometry = new THREE.InstancedBufferGeometry();
 	instancedTreeLogGeometry.copy(treeLogGeometry);
@@ -186,7 +184,8 @@ export function createInstancedTrees(count) {
 		treeLogMaterial,
 		count);
 
-	const treeLeavesGeometry = new THREE.SphereGeometry(1.75,40,40);
+	const treeLeavesRadius = 1.25;
+	const treeLeavesGeometry = new THREE.SphereGeometry(treeLeavesRadius,40,40);
 	const instancedTreeLeavesGeometry = new THREE.InstancedBufferGeometry();
 	instancedTreeLeavesGeometry.copy(treeLeavesGeometry);
 	const treeLeavesMaterial  = new THREE.MeshPhongMaterial({color: 0x365829});
