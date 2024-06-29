@@ -142,8 +142,8 @@ let train;
 // loco -> locomotora/locomotive
 function buildLoco() {
 	train = buildTrain();
-	train.scale.set(0.10, 0.10, 0.10);
-	train.rotateY(Math.PI/8);
+	train.scale.set(0.075, 0.10, 0.09);
+	train.visible = false;
 	scene.add(train);
 }
 
@@ -156,7 +156,8 @@ function buildRailsFoundation() {
 	textures.durmientes.object.anisotropy = 16;
 
 	// load into `map` the example texture
-	const map = new THREE.TextureLoader().load('https://threejs.org/examples/textures/uv_grid_opengl.jpg');
+	const map = new THREE.TextureLoader().load(
+		'https://threejs.org/examples/textures/uv_grid_opengl.jpg');
 	map.wrapS = map.wrapT = THREE.RepeatWrapping;
 	map.repeat.set(1, 80);
 	map.anisotropy = 16;
@@ -253,8 +254,9 @@ function buildTunnel() {
 		map: textures.madera.object
 	});
 
-	const mesh = new THREE.Mesh(tunnelGeometry, tunnelMaterial) ;
-	scene.add(mesh);
+	const tunnel = new THREE.Mesh(tunnelGeometry, tunnelMaterial) ;
+	tunnel.scale.set(0.5, 0.5, 0.5);
+	scene.add(tunnel);
 }
 
 function buildTrees(count = 50) {
@@ -266,6 +268,10 @@ function buildTrees(count = 50) {
 function createMenu() {
 	const gui = new dat.GUI({ width: 250 });
 	gui.add(settings, 'animationEnable', true).name('Animations enabled');
+	gui.add(settings, 'showTrain', false).name('Show train').onChange(
+		function () {
+			train.visible = !train.visible;
+		});
 	// console.log(settings.animationEnable);
 }
 
@@ -283,17 +289,33 @@ function buildScene() {
 function mainLoop() {
 	requestAnimationFrame(mainLoop);
 	renderer.render(scene, camera);
-	const translationMatrix = new THREE.Matrix4();
 
 	train.position.set(-10, 2.25, 0);
 
-	time += 0.10;
-	if(settings.animationEnable && ((time % 1) != 0)) {
-		updateTrainCrankPosition(time);
-		// const railsPos = getRailsPathPosAt(time % 1.0);
-		// console.log(railsPos);
-		// translationMatrix.makeTranslation(railsPos);
-		// train.applyMatrix(translationMatrix);
+	const dt = 0.001;
+	if(settings.animationEnable) {
+		time = (time < 1.0-dt) ? (time + dt) : 0.00;
+	}
+
+	if(train.visible) {
+		updateTrainCrankPosition(time*100);
+		const trainPos = getRailsPathPosAt(time);
+		const railsData = getRailsPathPosAt(time);
+		// [railsPath.getPointAt(t), railsPath.getTangentAt(t)]
+
+		let x = railsData[0].x;
+		let z = railsData[0].z;
+
+		// translationMatrix.makeTranslation(trainPos);
+		// rotMatrix.identity();
+
+		// translationMatrix.makeTranslation(trainPos);
+		// train.position.set(0, 0, 0);
+		// train.position.set(time*10, 1.9, 0);
+		train.position.set(-1+x, 2.25, -1+z);
+		// railsFoundation.position.set(-1, 1.25, -1);
+		train.lookAt(railsData[1].x*1000, 1.9, railsData[1].z*1000);
+		// train.lookAt(0, 1.9, 0);
 	}
 	renderer.render(scene, camera);
 }
