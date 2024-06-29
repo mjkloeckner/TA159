@@ -302,10 +302,10 @@ export function buildTrain() {
 
 export function updateTrainCrankPosition(time = 0.0) {
 	crankLeft.position.set(-steamChamberRad-crankWidth/2,
-		wheelOffset+1.00*(Math.sin(time*Math.PI/2)),
-		crankOffset - 1.00*(Math.cos(time*Math.PI/2)));
+		wheelOffset+1.00*(Math.sin(time*Math.PI*2)),
+		crankOffset - 1.00*(Math.cos(time*Math.PI*2)));
 
 	crankRight.position.set(steamChamberRad+crankWidth/2,
-		wheelOffset+1.00*(Math.sin(time*Math.PI/2)),
-		crankOffset - 1.00*(Math.cos(time*Math.PI/2)));
+		wheelOffset+1.00*(Math.sin(time*Math.PI*2)),
+		crankOffset - 1.00*(Math.cos(time*Math.PI*2)));
 }
