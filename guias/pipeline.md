@@ -9,16 +9,16 @@ El pipeline gráfico hace referencia a la serie de procedimientos que hacen falt
 para renderizar un objeto 3D en la pantalla de una computadora, en el contexto
 de WebGL y Three.js, el objeto se renderiza en un navegador.
 
+![principales etapas del pipeline gráfico junto con las entradas y salidas](./graphics-pipeline.png)
+
+En la figura anterior se puede ver una vista simplificada de las etapas del
+pipeline gráfico junto con las entradas y salidas del mismo.
+
 > 2. ¿Cuáles son las etapas principales del Pipeline Gráfico?
 
 Las etapas principales del Pipeline Gráfico son el procesamiento de vertices
 ("vertex shader"), la etapa de pasterización y la etapa de procesamiento de
 fragmentos ("fragment shader" o "pixel shader").
-
-![Diagrama de flujo completo del pipeline gráfico[^1]](./3D-Pipeline.png)
-
-[^1]: [Pipeline Flow Chart: Martin Wantke, Wikimedia Commons,
-    2021.](https://commons.wikimedia.org/wiki/File:3D-Pipeline.svg)
 
 > 3. ¿Qué función desempeña el "vertex shader" en el proceso de renderizado?
 
@@ -26,9 +26,9 @@ El procesador de vertices o "vertex shader" se encarga de aplicar
 transformaciones a cada uno de los vertices, la principal tarea es transformar
 la posición 3D del vértice en una posición 2D en el plano virtual que se
 mostrara en pantalla, así como también obtener la profundidad y almacenarla en
-el `z-buffer`.[^2]
+el `z-buffer`.[^1]
 
-[^2]: [“Shader” Wikipedia, The Free Encyclopedia, 2 Mar 2024.](https://en.wikipedia.org/w/index.php?title=Shader)
+[^1]: [“Shader” Wikipedia, The Free Encyclopedia, 2 Mar 2024.](https://en.wikipedia.org/w/index.php?title=Shader)
 
 Los "vertex shader" pueden manipular propiedades del vértice como la posición,
 el color o las coordenadas de la textura, no pueden crear nuevos vértices.
@@ -38,11 +38,11 @@ el color o las coordenadas de la textura, no pueden crear nuevos vértices.
 
 En GLSL el trabajo mínimo de un vertex shader es asignar a la variable
 especial `gl_Position` un vector de 4 dimensiones (x, y, z, w). Esta variable
-luego será entregada a la siguiente etapa del pipeline gráfico.[^3]
+luego será entregada a la siguiente etapa del pipeline gráfico.[^2]
 
-[^3]: ["A Primer on Shaders", Learn WebGL, Wayne Brown, 2015.](http://learnwebgl.brown37.net/rendering/shader_primer.html)
+[^2]: ["A Primer on Shaders", Learn WebGL, Wayne Brown, 2015.](http://learnwebgl.brown37.net/rendering/shader_primer.html)
 
-Un implementación en GLSL del vertex shader mas básico para renderizar un objeto
+Una implementación en GLSL del vertex shader más básico para renderizar un objeto
 se puede ver a continuación:
 
 ```glsl
@@ -57,6 +57,11 @@ void main() {
 }
 ```
 
+El vertex shader se debe encargar de aplicar las transformaciones necesarias al
+objeto para transformarlo del espacio de modelado a espacio de pantalla. Para
+eso realiza un cambio de base multiplicando por la matriz de modelado, vista,
+proyección y finalmente de viewport.
+
 > 5. ¿Qué datos se pueden pasar al vertex shader a través de atributos?
 
 Los atributos que se pueden pasar al "vertex shader" se denominan "vertex
@@ -66,12 +71,12 @@ textura.
 > 6. ¿Qué es una variable uniform en el contexto de shaders?
 
 En GLSL una variable `uniform` es una variable de alcance global la cual se
-puede utilizar para recibir parámetros del programa que utiliza el shader.[^4]
+puede utilizar para recibir parámetros del programa que utiliza el shader.[^3]
 El valor de las variables de tipo `uniform` se almacena en el propio objeto
-compilado del shader.[^5]
+compilado del shader.[^4]
 
-[^4]: ["GLSL Object" OpenGL Wiki, 2015.](https://www.khronos.org/opengl/wiki/GLSL_Object)
-[^5]: ["Uniform (GLSL)" OpenGL Wiki, 2015.](https://www.khronos.org/opengl/wiki/Uniform_(GLSL))
+[^3]: ["GLSL Object" OpenGL Wiki, 2015.](https://www.khronos.org/opengl/wiki/GLSL_Object)
+[^4]: ["Uniform (GLSL)" OpenGL Wiki, 2015.](https://www.khronos.org/opengl/wiki/Uniform_(GLSL))
 
 Las variables de tipo `uniform` se denominan así porque no cambian entre las
 diferencias instancias de la ejecución del shader. Recordemos que en el caso de
@@ -79,6 +84,13 @@ los "vertex shaders", por ejemplo, se ejecuta una instancia del shader por cada
 vértice. Las variables `uniform` se diferencian de otras variables como las de
 entrada y salida de cada etapa, las cuales por lo general cambian en cada
 invocación del shader.
+
+Un ejemplo común de utilización de variables uniform es para informar al shader
+del variables constantes, o que permanecerán constantes en la ejecución del
+shader, por ejemplo el tiempo, ya que durante la ejecución del shader la
+variable permanecerá constante y no cambiará, quizás en la próxima iteración
+cambie o quizás no, pero eso es ajeno al alcance del shader, si no más bien
+depende de quien lo invoca.
 
 > 7. ¿Cuál es la diferencia entre un vertex shader y un fragment shader?
 
@@ -115,18 +127,18 @@ un shader.
 
 El rasterizador se encarga de convertir cada primitiva (generada en la etapa de
 "vertex post-processing") en un fragmentos, para luego ser enviados al "fragment
-shader".[^6]
+shader".[^5]
 
-[^6]: ["Rendering Pipeline Overview" OpenGL Wiki, 2022.](https://www.khronos.org/opengl/wiki/Rendering_Pipeline_Overview)
+[^5]: ["Rendering Pipeline Overview" OpenGL Wiki, 2022.](https://www.khronos.org/opengl/wiki/Rendering_Pipeline_Overview)
 
 Un fragmento es un conjunto de estados que se utiliza para computar la salida de
 un pixel (o `sample` si se utiliza `multisampling`) en el `framebuffer`. Este
-conjunto de estados para un fragmento incluye la posicion en el espacio de
+conjunto de estados para un fragmento incluye la posición en el espacio de
 pantalla y una lista de datos arbitrarios provenientes de etapas previas del
-pipeline grafico, como el "vertex shader". 
+pipeline gráfico, como el "vertex shader". 
 
 Este ultimo conjunto de datos se computa para cada fragmento mediante la
-interpolacion de los valores de los vertices. El metodo de interpolacion queda
+interpolación de los valores de los vertices. El método de interpolación queda
 definido por el shader que procesó esos datos.
 
 > 11. ¿Cuál es la función principal de la GPU en el Pipeline Gráfico?
@@ -171,7 +183,7 @@ de estas variable es que sea interpolado automáticamente
 >     través de las variables varying? 
 
 Como se menciono antes las variables de tipo `varying` son aquellas que se
-interpolan automaticamente a los largo de la superficie de una primitiva.
+interpolan automáticamente a los largo de la superficie de una primitiva.
 Algunos ejemplos de datos que se pueden interpolar son colores, coordenadas
 de textura o coordenadas de vectores normales.
 
@@ -184,7 +196,7 @@ automáticamente por el hardware gráfico durante el proceso de rasterización.
 > 16. ¿Qué es la matriz de vista?
 
 La matriz de vista se utiliza para transformar los objetos desde su sistema de
-coordenadas del mundo al sistema de coordenas de camara.
+coordenadas del mundo al sistema de coordenas de cámara.
 
 La matriz de vista se utiliza para definir la posición y orientación de la
 cámara en relación con los objetos en la escena, simulando así el punto de vista
@@ -209,9 +221,16 @@ cámara a un espacio normalizado entre `(-1.0; 1.0)`
 > 19. ¿Cómo se crea la matriz de transformación de la vista a partir de la
 >     posición y orientación de la cámara?
 
-La matriz de vista es una combinación de traslaciones y rotaciones:
+La matriz de vista transforma de coordenadas de mundo a coordenadas de cámara,
+en el espacio de cámara, la cámara se posiciona en el origine y todos los
+objetos relativos a esta.
 
-$$\boxed{M_V = T\cdot R\cdot T}$$
+En `three.js` se puede construir la matriz de vista de la siguiente forma:
+
+```js
+var viewMatrix = mat4.create();
+mat4.lookAt(viewMatrix, cameraPosition, target, [0, 1, 0]);
+```
 
 > 20. ¿Cómo se transforman las normales en un vertex shader para mantener su
 >     coherencia durante las transformaciones de modelo y vista?
@@ -236,7 +255,7 @@ $$\boxed{M_V = T\cdot R\cdot T}$$
 > 27. ¿Qué es la memoria de video (VRAM) y cómo se diferencia de la memoria RAM
 >     convencional?
 
-> 28. ¿Cómo se gestionan las variables uniforms en un shader y cuál es su
+> 28. ¿Cómo se gestionan las variables `uniforms` en un shader y cuál es su
 >     propósito?
 
 > 30. ¿Cómo se puede optimizar el rendimiento en WebGL al minimizar el número de

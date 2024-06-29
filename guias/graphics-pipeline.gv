@@ -1,0 +1,22 @@
+// https://graphviz.org/doc/infor/shapes.html
+
+digraph G {
+	rankdir=LR
+	node [ shape=box ];
+	compound=true;
+
+	subgraph cluster_pipeline {
+		node [ shape=box, style=filled, fillcolor=white ];
+		B [ label="Vertex Shader" ];
+		C [ label="Rasterizador" ];
+		D [ label="Fragment Shader" ];
+		label="Pipeline Grafico";
+		// bgcolor="#DD2D4A";
+		graph [style=dashed];
+	}
+
+	A [ label="Datos de Escena", color=transparent ];
+	E [ label="Framebuffer", color=transparent ];
+
+	A-> B -> C -> D -> E;
+}
