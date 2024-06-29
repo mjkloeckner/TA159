@@ -51,30 +51,35 @@ function setupThreeJs() {
 	container = document.getElementById('mainContainer');
 
 	renderer = new THREE.WebGLRenderer();
-	renderer.setClearColor(0x606060);
+	// renderer.setClearColor(0x606060);
 	container.appendChild(renderer.domElement);
 
-	camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 1000);
+	camera = new THREE.PerspectiveCamera(
+		35, window.innerWidth / window.innerHeight, 0.1, 1000);
+
 	camera.position.set(-50, 60, 50);
 	camera.lookAt(0, 0, 0);
 
 	const controls = new OrbitControls(camera, renderer.domElement);
 
-	const ambientLight = new THREE.AmbientLight(0xffffff);
+	const ambientLight = new THREE.AmbientLight(0xFFFFFF);
 	scene.add(ambientLight);
 
-	const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x000000, 0.25);
+	const hemisphereLight = new THREE.HemisphereLight(0xFFFFFF, 0x000000, 0.25);
 	scene.add(hemisphereLight);
 
 	const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
 	directionalLight.position.set(100, 100, 100);
 	scene.add(directionalLight);
 
+	const helper = new THREE.HemisphereLightHelper(hemisphereLight, 5);
+	// scene.add(helper) ;
+
 	const gridHelper = new THREE.GridHelper(200, 200);
-	scene.add(gridHelper);
+	// scene.add(gridHelper);
 
 	const axesHelper = new THREE.AxesHelper(5);
-	scene.add(axesHelper);
+	// scene.add(axesHelper);
 
 	window.addEventListener('resize', onResize);
 	onResize();
@@ -294,11 +299,11 @@ function mainLoop() {
 }
 
 function main() {
+	setupThreeJs();
 	time = 0.00;
 	buildScene();
 	createMenu();
 	mainLoop();
 }
 
-setupThreeJs();
 loadTextures(main);
