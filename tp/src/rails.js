@@ -26,7 +26,7 @@ export function getRailsPathPosAt(t) {
 	if(railsPath == undefined) {
 		console.log("railsPath is undefined");
 	}
-	return railsPath.getPointAt(t);
+	return [railsPath.getPointAt(t), railsPath.getTangentAt(t)];
 }
 
 function parametricRailsFoundationFunction(u, v, target) {
@@ -38,6 +38,7 @@ function parametricRailsFoundationFunction(u, v, target) {
 	let railsFoundationShapePos = railsFoundationShape.getPointAt(u);
 	// TODO: make `railsFoundationShape` smaller and remove this multiplication
 	railsFoundationShapePos.multiplyScalar(0.5);
+	railsFoundationShapePos.x *= 1.25;
 
 	let tangente = new THREE.Vector3();
 	let binormal = new THREE.Vector3();
@@ -131,10 +132,10 @@ export function buildRailsGeometry(railsRadius = 0.35) {
 	let railsGeometries = [];
 
 	const leftRailGeometryFunction  = getParametricRailsFunction(railsRadius,
-		new THREE.Vector3( 6, 0, railsRadius+8));
+		new THREE.Vector3( 9.5, 0, railsRadius+8));
 
 	const rightRailGeometryFunction = getParametricRailsFunction(railsRadius,
-		new THREE.Vector3(-6, 0, railsRadius+8));
+		new THREE.Vector3(-9.5, 0, railsRadius+8));
 
 	const leftRailGeometry  = new ParametricGeometry(leftRailGeometryFunction, 100, 500);
 	const rightRailGeometry = new ParametricGeometry(rightRailGeometryFunction, 100, 500);
