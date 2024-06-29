@@ -43,10 +43,9 @@ $ vite
 
 * [X] Terreno
 * [X] Arboles
-* [ ] Vias de Tren
+* [X] Vias de Tren
     - [X] Crear el terraplen
     - [X] Crear las vias
-    - [ ] Aplicar textura difusa (?)
 * [ ] Locomotora
     - [X] Chassis, cabina, ruedas, caldera
     - [ ] Aplicar textura a las ruedas
@@ -66,8 +65,8 @@ $ vite
 * [ ] Iluminación
     - [ ] Modo noche/día
 * [ ] Posicionar los objetos en la escena final
-    - [ ] Mapa de zonas prohibidas para la generación de arboles
-    - [ ] Mapa para el camino que realiza la vía
+    - [X] Mapa de zonas prohibidas para la generación de arboles
+    - [X] Locomotora
 
 ## Como se generan los elementos de la escena
 
