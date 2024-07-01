@@ -1,110 +1,134 @@
 import * as THREE from 'three';
-import * as dat from 'dat.gui';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { vertexShader, fragmentShader } from '/assets/treesShaders.js';
 
-let scene, camera, renderer, container, terrainMaterial, instancedTrees;
+let treesForbiddenMapData, treesForbiddenMap, elevationMap, elevationMapData;
 
 const textures = {
-	tierra: { url: '/assets/tierra.jpg', object: null },
-	roca: { url: '/assets/roca.jpg', object: null },
-	pasto: { url: '/assets/pasto.jpg', object: null },
+	elevationMap:     { url: '/assets/elevation_map2.png', object: null },
+	treeForbiddenMap: { url: '/assets/tree_forbidden_zone_map.png', object: null }
 };
 
-function onResize() {
-	camera.aspect = container.offsetWidth / container.offsetHeight;
-	camera.updateProjectionMatrix();
-	renderer.setSize(container.offsetWidth, container.offsetHeight);
+const widthSegments   = 100;
+const heightSegments  = 100;
+const amplitude       = 10;
+const amplitudeBottom = -1.00;
+const imgWidth  = 512;
+const imgHeight = 512;
+
+function getPixel(imgData, index) {
+  let i = index*4, d = imgData.data
+  return [d[i],d[i+1],d[i+2],d[i+3]] // Returns array [R,G,B,A]
 }
 
-function setupThreeJs() {
-	scene = new THREE.Scene();
-	container = document.getElementById('mainContainer');
-
-	renderer = new THREE.WebGLRenderer();
-	renderer.setClearColor(0x606060);
-	container.appendChild(renderer.domElement);
-
-	camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 1000);
-	camera.position.set(-50, 60, 50);
-	camera.lookAt(0, 0, 0);
-
-	const controls = new OrbitControls(camera, renderer.domElement);
-
-	const ambientLight = new THREE.AmbientLight(0xffffff);
-	scene.add(ambientLight);
-
-	const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x000000, 0.25);
-	scene.add(hemisphereLight);
-
-	const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-	directionalLight.position.set(100, 100, 100);
-	scene.add(directionalLight);
-
-	const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 5);
-	// scene.add(directionalLightHelper);
-
-	//const gridHelper = new THREE.GridHelper(50, 20);
-	//scene.add(gridHelper);
-
-	const axesHelper = new THREE.AxesHelper(5);
-	scene.add(axesHelper);
-
-	window.addEventListener('resize', onResize);
-	onResize();
+function getPixelXY(imgData, x, y) {
+  return getPixel(imgData, y*imgData.width+x)
 }
 
-function createInstancedTrees(count) {
+// position: Vector3
+function isForbbidenPosition(position) {
+	const x = Math.floor(position.x);
+	const y = position.y;
+	const z = Math.floor(position.z);
+
+	// TODO: estos valores deberian depender de la posicion del terreno
+	if((y > 5.8) || (y < 3.25)) {
+		// console.log("(" + position.x + ", " + position.y + ", " + position.z + ") is not valid ");
+		return true;
+	}
+	
+	let pixelArray = getPixelXY(treesForbiddenMap, x, z);
+	const R = pixelArray[0]; // Red
+	const G = pixelArray[1]; // Green
+	const B = pixelArray[2]; // Blue
+	const A = pixelArray[3]; // Alpha
+	// const pixel = new THREE.Vector4(R, G, B, A);
+
+	if(((R <= 10) && (G >= 250) && (B <= 10))
+		|| (R <= 80) && (G <= 80) && (B <= 80)
+		|| (R >= 200) && (G >= 200) && (B >= 200)) {
+		// console.log("(" + position.x + ", " + position.y + ", " + position.z + ") is not valid ");
+		return true;
+	}
+
+	// console.log("(" + position.x + ", " + position.y + ") is valid ");
+	return false;
+}
+
+// obtiene una posicion aleatoria en el terreno, para obtener la altura del
+// terreno utiliza el mapa de elevacion.
+// `padding` permite definir un borde del cual no se toman puntos
+function getRandomPositionInTerrain(padding = 0) {
+	const x = Math.floor(Math.random() * (widthSegments-(padding*2)));
+	const z = Math.floor(Math.random() * (heightSegments-(padding*2)));
+
+	const pixelArray = getPixelXY(elevationMap, x, z); // array [R,G,B,A]
+	const y = (pixelArray[0]/255)*amplitude;
+
+	const position = new THREE.Vector3(x+padding, y, z+padding);
+	return position;
+}
+
+// devuelve un arreglo de 2 `instancedMesh` con los troncos y copas de los arboles
+export function createInstancedTrees(count) {
 	console.log('Generating `' + count + '` instances of tree');
 
-	let logHeight = 4.0;
-
-	const treeLogGeometry    = new THREE.CylinderGeometry(0.30, 0.30, logHeight, 40, 40);
-	const treeLeavesGeometry = new THREE.SphereGeometry(1.75,40,40);
-
+	let logHeight = 3.0;
+	const treeLogGeometry   = new THREE.CylinderGeometry(
+		0.10, 0.25, logHeight, 40, 40);
 	treeLogGeometry.translate(0, logHeight/2.0, 0);
-
 	const instancedTreeLogGeometry = new THREE.InstancedBufferGeometry();
 	instancedTreeLogGeometry.copy(treeLogGeometry);
+	const treeLogMaterial   = new THREE.MeshPhongMaterial({color: 0x7c3f00});
+	const instancedTreeLogs = new THREE.InstancedMesh(
+		instancedTreeLogGeometry,
+		treeLogMaterial,
+		count);
 
+	const treeLeavesRadius = 1.25;
+	const treeLeavesGeometry = new THREE.SphereGeometry(treeLeavesRadius,40,40);
 	const instancedTreeLeavesGeometry = new THREE.InstancedBufferGeometry();
 	instancedTreeLeavesGeometry.copy(treeLeavesGeometry);
-
-	const treeLogMaterial   = new THREE.MeshPhongMaterial({color: 0x7c3f00});
-	const instancedTreeLogs = new THREE.InstancedMesh(instancedTreeLogGeometry, treeLogMaterial, count);
-
 	const treeLeavesMaterial  = new THREE.MeshPhongMaterial({color: 0x365829});
-	const instancedTreeLeaves = new THREE.InstancedMesh(instancedTreeLeavesGeometry, treeLeavesMaterial, count);
+	const instancedTreeLeaves = new THREE.InstancedMesh(
+		instancedTreeLeavesGeometry,
+		treeLeavesMaterial,
+		count);
 
-	const rotMatrix = new THREE.Matrix4();
-
+	const rotMatrix         = new THREE.Matrix4();
 	const translationMatrix = new THREE.Matrix4();
-	const treeLogMatrix    = new THREE.Matrix4();
-	const treeLeavesMatrix = new THREE.Matrix4();
+	const treeLogMatrix     = new THREE.Matrix4();
+	const treeLeavesMatrix  = new THREE.Matrix4();
 
-	//let origin = new THREE.Vector3();
-	const RANGE = 50 - 4/2;
-
+	const treesBorderPadding = 3.0;
 	for (let i = 0; i < count; i++) {
-		let position = new THREE.Vector3(
-			(Math.random() - 0.5) * RANGE,
-			0,
-			(Math.random() - 0.5) * RANGE
-		);
+		let position = getRandomPositionInTerrain(treesBorderPadding);
+		for(let j = 0; isForbbidenPosition(position); ++j) {
+			position = getRandomPositionInTerrain(treesBorderPadding);
+			if(j++ == 1000) { // maximo de iteraciones
+				break;
+			}
+		}
 
+		if(isForbbidenPosition(position)) {
+			continue;
+		}
+
+		const treeOffset = -1.50;
+
+		// 1.50 numbero magico para posicionar correctamente los arboles con
+		// respecto al terreno
+		position.x -= (widthSegments+treesBorderPadding+1.50)/2;
+		position.y += (amplitudeBottom + treeOffset);
+		position.z -= (heightSegments+treesBorderPadding)/2;
 		translationMatrix.makeTranslation(position);
-
-		//rotMatrix.lookAt(0, 0, new THREE.Vector3(0, 1, 0));
 		treeLogMatrix.identity();
 		treeLeavesMatrix.identity();
 
-		let scale = 0.5 + (Math.random()*(logHeight/3));
+		let scale = 0.6 + (Math.random()*(logHeight/3));
 		treeLogMatrix.makeScale(1, scale, 1);
-		//matrix.premultiply(rotMatrix);
-
 		treeLogMatrix.premultiply(translationMatrix);
 
-		position.y = scale*logHeight;
+		position.y += scale*logHeight;
+
 		translationMatrix.makeTranslation(position);
 		treeLeavesMatrix.premultiply(translationMatrix);
 
@@ -112,42 +136,36 @@ function createInstancedTrees(count) {
 		instancedTreeLeaves.setMatrixAt(i, treeLeavesMatrix);
 	}
 
-	scene.add(instancedTreeLogs);
-	scene.add(instancedTreeLeaves);
+	console.log('Done generating `' + count + '` instances of tree');
+	return [instancedTreeLogs, instancedTreeLeaves];
 }
 
-function buildScene() {
-	console.log('Building scene');
+function loadMapsData() {
+	console.log("Loading maps data");
 
-	console.log('Generating terrain');
-	const terrainGeometry = new THREE.PlaneGeometry(50, 50);
-	//const terrainMaterial = new THREE.MeshPhongMaterial( {color: 0x365829, side: THREE.DoubleSide} );
-	terrainMaterial = new THREE.RawShaderMaterial({
-		uniforms: {
-			tierraSampler: { type: 't', value: textures.tierra.object },
-			rocaSampler: { type: 't', value: textures.roca.object },
-			pastoSampler: { type: 't', value: textures.pasto.object },
-			scale1: { type: 'f', value: 2.0 },
+	// Creamos un canvas para poder leer los valores de los píxeles de la textura
+	let canvas = document.createElement('canvas');
+	let ctx = canvas.getContext('2d');
 
-			mask1low: { type: 'f', value: -0.38 },
-			mask1high: { type: 'f', value: 0.1 },
+	let treesForbiddenMapImage = textures.treeForbiddenMap.object.image;
+	let elevationMapImage = textures.elevationMap.object.image;
 
-			mask2low: { type: 'f', value: 0.05 },
-			mask2high: { type: 'f', value: -0.70 },
-		},
-		vertexShader: vertexShader,
-		fragmentShader: fragmentShader,
-		side: THREE.DoubleSide,
-	});
-	terrainMaterial.needsUpdate = true;
+	// ambos mapas deben tener el mismo tamaño
+	const imgWidth  = widthSegments;
+	const imgHeight = heightSegments;
 
-	const terrain = new THREE.Mesh(terrainGeometry, terrainMaterial);
-	terrain.rotateX(Math.PI/2);
-	terrain.position.set(0, 0, 0);
-	scene.add(terrain);
+	canvas.width  = imgWidth;
+	canvas.height = imgHeight;
 
-	console.log('Generating trees');
-	createInstancedTrees(35);
+	ctx.drawImage(treesForbiddenMapImage, 0, 0, imgWidth, imgHeight);
+	treesForbiddenMap = ctx.getImageData(0, 0, imgWidth, imgHeight);
+	treesForbiddenMapData = treesForbiddenMap.data;
+
+	ctx.drawImage(elevationMapImage, 0, 0, imgWidth, imgHeight);
+	elevationMap = ctx.getImageData(0, 0, imgWidth, imgHeight);
+	elevationMapData = elevationMap.data
+
+	console.log("All maps data loaded succesfully");
 }
 
 function onTextureLoaded(key, texture) {
@@ -179,26 +197,4 @@ function loadTextures(callback) {
 	}
 }
 
-
-function createMenu() {
-	const gui = new dat.GUI({ width: 400 });
-	gui.add(terrainMaterial.uniforms.scale1, 'value', 0, 10).name('Texture scale');
-	gui.add(terrainMaterial.uniforms.mask1low, 'value', -1, 1).name('Mask1 Low');
-	gui.add(terrainMaterial.uniforms.mask1high, 'value', -1, 1).name('Mask1 High');
-	gui.add(terrainMaterial.uniforms.mask2low, 'value', -1, 1).name('Mask2 Low');
-	gui.add(terrainMaterial.uniforms.mask2high, 'value', -1, 1).name('Mask2 High');
-}
-
-function mainLoop() {
-	requestAnimationFrame(mainLoop);
-	renderer.render(scene, camera);
-}
-
-function main() {
-	buildScene();
-	createMenu();
-	mainLoop();
-}
-
-setupThreeJs();
-loadTextures(main);
+loadTextures(loadMapsData);

@@ -4,7 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { vertexShader, fragmentShader } from '/assets/shaders.js';
 
 import { generateTunnelGeometry } from '/src/tunnel.js';
-import { createInstancedTrees } from '/src/track-map.js';
+import { createInstancedTrees } from '/src/trees.js';
 import { elevationGeometry } from '/src/terrain.js';
 import {
 	getRailsPathPosAt,
