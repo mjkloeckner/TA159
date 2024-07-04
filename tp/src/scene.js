@@ -73,6 +73,7 @@ function onResize() {
 	}
 
 	renderer.setSize( window.innerWidth, window.innerHeight );
+}
 
 function prevCamera() {
 	const camerasCount = cameras.length;
