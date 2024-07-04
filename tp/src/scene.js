@@ -15,7 +15,7 @@ import { buildTrain } from '/src/train.js';
 import { generateBridge } from '/src/bridge.js';
 import { updateTrainCrankPosition } from '/src/train.js';
 
-let scene, camera, renderer, container, terrainMaterial, terrainGeometry, terrain, time;
+let scene, camera, renderer, terrainMaterial, terrainGeometry, terrain, time;
 let treesForbiddenMapData, treesForbiddenMap, elevationMap, elevationMapData;
 
 let train, gui;
@@ -46,7 +46,8 @@ const textures = {
 };
 
 function onResize() {
-	const aspect = container.offsetWidth / container.offsetHeight;
+	// const aspect = container.offsetWidth / container.offsetHeight;
+	const aspect = window.innerWidth / window.innerHeight;
 
 	for(let i = 0; i < cameras.length; ++i) {
 		if(cameras[i] != undefined) {
@@ -55,7 +56,7 @@ function onResize() {
 		}
 	}
 
-	renderer.setSize(container.offsetWidth, container.offsetHeight);
+	renderer.setSize( window.innerWidth, window.innerHeight );
 }
 
 function nextCamera() {
@@ -71,11 +72,14 @@ function nextCamera() {
 
 function setupThreeJs() {
 	scene = new THREE.Scene();
-	container = document.getElementById('mainContainer');
+	// container = document.getElementById('mainContainer');
 
 	renderer = new THREE.WebGLRenderer();
 	// renderer.setClearColor(0x606060);
-	container.appendChild(renderer.domElement);
+	// container.appendChild(renderer.domElement);
+	renderer.setPixelRatio( window.devicePixelRatio );
+	renderer.setSize( window.innerWidth, window.innerHeight );
+	document.body.appendChild( renderer.domElement );
 
 	const topView = new THREE.PerspectiveCamera(
 		35, window.innerWidth / window.innerHeight, 0.1, 1000);
