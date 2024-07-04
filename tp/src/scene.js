@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import * as dat from 'dat.gui';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { FirstPersonControls } from 'three/addons/controls/FirstPersonControls.js';
+import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 import { vertexShader, fragmentShader } from '/assets/shaders.js';
 
 import { generateTunnelGeometry } from '/src/tunnel.js';
@@ -17,6 +19,8 @@ import { updateTrainCrankPosition } from '/src/train.js';
 
 let scene, camera, renderer, terrainMaterial, terrainGeometry, terrain, time;
 let treesForbiddenMapData, treesForbiddenMap, elevationMap, elevationMapData;
+
+let firstPersonControls, orbitControls;
 
 let train, gui;
 let cameras = [];
@@ -62,11 +66,50 @@ function onResize() {
 function nextCamera() {
 	const camerasCount = cameras.length;
 
+	if(cameras[settings.currCameraIndex].name == "firstPersonCamera") {
+		firstPersonControls.unlock();
+		blocker.style.display = 'none';
+		instructions.style.display = 'flex';
+	}
+
 	if(settings.currCameraIndex == (camerasCount - 1)) {
-		console.log("Restarting cameras");
 		settings.currCameraIndex = 0;
 	} else {
 		settings.currCameraIndex += 1;
+	}
+
+	if(cameras[settings.currCameraIndex].name == "firstPersonCamera") {
+		firstPersonControls.unlock();
+		blocker.style.display = 'block';
+		instructions.style.display = 'flex';
+	}
+}
+
+const blocker = document.getElementById( 'blocker' );
+const instructions = document.getElementById( 'instructions' );
+
+function firstPersonCameraHandler(eventName) {
+	// if(cameras[settings.currCameraIndex].name != "firstPersonCamera") {
+	// 	console.log(cameras[settings.currCameraIndex].name);
+	// 	return;
+	// }
+
+	// console.log(eventName);
+	switch(eventName) {
+		case 'click':
+			console.log('click');
+			firstPersonControls.lock();
+			break;
+		case 'lock':
+			console.log('lock');
+			instructions.style.display = 'none';
+			blocker.style.display = 'none';
+			break;
+		case 'unlock':
+			console.log('unlock');
+			blocker.style.display = 'block';
+			instructions.style.display = 'flex';
+			break;
 	}
 }
 
@@ -89,7 +132,7 @@ function setupThreeJs() {
 	topView.name = "topView"
 	cameras.push(topView);
 
-	const controls = new OrbitControls(topView, renderer.domElement);
+	orbitControls = new OrbitControls(topView, renderer.domElement);
 
 	const firstPersonCamera = new THREE.PerspectiveCamera(
 		50, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -98,6 +141,25 @@ function setupThreeJs() {
 	firstPersonCamera.lookAt(1000, 0, 0);
 	firstPersonCamera.name = "firstPersonCamera"
 	cameras.push(firstPersonCamera);
+
+	firstPersonControls = new PointerLockControls(firstPersonCamera, document.body);
+
+
+	instructions.addEventListener('click', function() {
+		// console.log(event);
+		firstPersonCameraHandler('click');
+	});
+
+	firstPersonControls.addEventListener('lock', function() {
+		// console.log(event);
+		firstPersonCameraHandler('lock');
+	});
+
+	firstPersonControls.addEventListener('unlock', function() {
+		// console.log(event);
+		firstPersonCameraHandler('unlock');
+	});
+	scene.add(firstPersonControls.getObject());
 
 	const ambientLight = new THREE.AmbientLight(0xFFFFFF);
 	scene.add(ambientLight);
@@ -389,6 +451,22 @@ function buildScene() {
 
 function mainLoop() {
 	let currCamera = cameras[settings.currCameraIndex];
+	switch(currCamera.name) {
+		case "topView":
+			orbitControls.enabled = true;
+			blocker.style.display = 'none';
+			instructions.style.display = 'none';
+			break;
+		case "firstPersonCamera":
+			orbitControls.enabled = false;
+			break;
+		default:
+			orbitControls.enabled = false;
+			blocker.style.display = 'none';
+			instructions.style.display = 'none';
+			break;
+	}
+
 
 	requestAnimationFrame(mainLoop);
 	renderer.render(scene, currCamera);
