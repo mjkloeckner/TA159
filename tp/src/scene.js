@@ -260,7 +260,7 @@ function setupThreeJs() {
 	const topView = new THREE.PerspectiveCamera(
 		35, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-	topView.position.set(-50, 60, 50);
+	topView.position.set(-32, 38, 70);
 	topView.lookAt(0, 0, 0);
 	topView.name = "topView"
 	cameras.push(topView);
