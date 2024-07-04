@@ -48,8 +48,8 @@ $ vite
     - [X] Crear las vias
 * [ ] Locomotora
     - [X] Chassis, cabina, ruedas, caldera
-    - [ ] Aplicar textura a las ruedas
     - [ ] Hacer que las ruedas roten sobre su eje
+    - [ ] Aplicar textura a las ruedas (?)
 * [X] Puente
     - [X] Base de ladrillos
     - [X] Estructura de Hierro
@@ -64,9 +64,8 @@ $ vite
 * [X] Texturas
 * [ ] Iluminación
     - [ ] Modo noche/día
-* [ ] Posicionar los objetos en la escena final
-    - [X] Mapa de zonas prohibidas para la generación de arboles
-    - [X] Locomotora
+    - [ ] Lamparas en posiciones aleatorias del mapa
+    - [ ] Luz en el frente del tren
 
 ## Como se generan los elementos de la escena
 
