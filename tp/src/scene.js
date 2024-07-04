@@ -18,6 +18,8 @@ import { updateTrainCrankPosition } from '/src/train.js';
 let scene, camera, renderer, container, terrainMaterial, terrainGeometry, terrain, time;
 let treesForbiddenMapData, treesForbiddenMap, elevationMap, elevationMapData;
 
+let gui;
+
 // actualizar la variable global `amplitude` de '/src/track-map/'
 const widthSegments   = 150;
 const heightSegments  = 150;
@@ -86,6 +88,20 @@ function setupThreeJs() {
 
 	textures.sky.object.mapping = THREE.EquirectangularRefractionMapping;
 	scene.background = textures.sky.object;
+	window.addEventListener('keydown', (event) => {
+		switch (event.key) {
+			case ' ':
+				console.log("Toggling train animations");
+				settings.animationEnable = !settings.animationEnable;
+				if(gui != undefined) {
+					let controller = gui.__controllers.find(controller => controller.property === 'animationEnable');
+					if (controller) {
+						controller.updateDisplay();
+					}
+				}
+				break
+		}
+	});
 }
 
 function onTextureLoaded(key, texture) {
@@ -143,7 +159,7 @@ let train;
 function buildLoco() {
 	train = buildTrain();
 	train.scale.set(0.075, 0.10, 0.09);
-	train.visible = false;
+	train.visible = settings.showTrain;
 	scene.add(train);
 }
 
@@ -266,13 +282,12 @@ function buildTrees(count = 50) {
 }
 
 function createMenu() {
-	const gui = new dat.GUI({ width: 250 });
+	gui = new dat.GUI({ width: 250 });
 	gui.add(settings, 'animationEnable', true).name('Animations enabled');
 	gui.add(settings, 'showTrain', false).name('Show train').onChange(
 		function () {
 			train.visible = !train.visible;
 		});
-	// console.log(settings.animationEnable);
 }
 
 function buildScene() {
