@@ -41,6 +41,9 @@ export function generateTunnelGeometry(
 	};
 
 	const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
-	geometry.translate(0, 0, -tunnelLen/2);
+
+	// el `1` en `x` es porque por algun motivo queda descentrado con respecto
+	// a la vía del tren
+	geometry.translate(1, 0, -tunnelLen/2);
 	return geometry;
 }

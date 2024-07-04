@@ -311,7 +311,8 @@ function buildTerrain() {
 }
 
 function buildTunnel() {
-	const tunnelGeometry = generateTunnelGeometry();
+	// tunnelHeight = 20, tunnelWidth = 14, tunnelWallThickness = 0.5, tunnelLen = 26
+	const tunnelGeometry = generateTunnelGeometry(24, 12, 0.5, 46);
 
 	textures.madera.object.wrapS = THREE.RepeatWrapping;
 	textures.madera.object.wrapT = THREE.RepeatWrapping;
@@ -328,6 +329,12 @@ function buildTunnel() {
 
 	const tunnel = new THREE.Mesh(tunnelGeometry, tunnelMaterial) ;
 	tunnel.scale.set(0.5, 0.5, 0.5);
+
+	const trainPathPos = getRailsPathPosAt(0.32);
+	tunnel.position.set(trainPathPos[0].x, 0, trainPathPos[0].z);
+	tunnel.lookAt(trainPathPos[1].x*1000, 0, trainPathPos[1].z*1000);
+	console.log(trainPathPos);
+
 	scene.add(tunnel);
 }
 
@@ -348,8 +355,8 @@ function createMenu() {
 
 function buildScene() {
 	console.log('Building scene');
-	// buildTunnel();
 	buildTrees(200);
+	buildTunnel();
 	buildTerrain();
 	buildRailsFoundation();
 	buildRails();
