@@ -37,7 +37,7 @@ const textures = {
 
 let settings = {
 	animationEnable: false,
-	showTrain: false
+	showTrain: true,
 };
 
 function onResize() {
