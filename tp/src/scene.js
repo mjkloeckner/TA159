@@ -95,6 +95,7 @@ function prevCamera() {
 		blocker.style.display = 'block';
 		instructions.style.display = 'flex';
 	}
+	onResize();
 }
 
 function nextCamera() {
@@ -117,6 +118,7 @@ function nextCamera() {
 		blocker.style.display = 'block';
 		instructions.style.display = 'flex';
 	}
+	onResize();
 }
 
 const blocker = document.getElementById( 'blocker' );
