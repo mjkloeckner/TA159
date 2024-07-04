@@ -18,6 +18,7 @@ import { updateTrainCrankPosition } from '/src/train.js';
 let scene, camera, renderer, container, terrainMaterial, terrainGeometry, terrain, time;
 let treesForbiddenMapData, treesForbiddenMap, elevationMap, elevationMapData;
 
+let train, trainCamera, trainConductorCamera, trainBackCamera;
 let gui;
 
 // actualizar la variable global `amplitude` de '/src/track-map/'
@@ -40,11 +41,30 @@ const textures = {
 let settings = {
 	animationEnable: false,
 	showTrain: true,
+	currCamera: 'general',
 };
 
 function onResize() {
-	camera.aspect = container.offsetWidth / container.offsetHeight;
+	const aspect = container.offsetWidth / container.offsetHeight;
+	camera.aspect = aspect;
 	camera.updateProjectionMatrix();
+
+	if(trainCamera != undefined) {
+		trainCamera.aspect = aspect;
+		trainCamera.updateProjectionMatrix();
+	}
+
+	if(trainConductorCamera != undefined) {
+		trainConductorCamera.aspect = aspect;
+		trainConductorCamera.updateProjectionMatrix();
+	}
+
+
+	if(trainBackCamera != undefined) {
+		trainBackCamera.aspect = aspect;
+		trainBackCamera.updateProjectionMatrix();
+	}
+
 	renderer.setSize(container.offsetWidth, container.offsetHeight);
 }
 
@@ -90,6 +110,23 @@ function setupThreeJs() {
 	scene.background = textures.sky.object;
 	window.addEventListener('keydown', (event) => {
 		switch (event.key) {
+			case "c":
+				switch (settings.currCamera) {
+					case 'general':
+						settings.currCamera = 'train';
+						break;
+					case 'train':
+						settings.currCamera = 'trainConductor';
+						break;
+					case 'trainConductor':
+						settings.currCamera = 'trainBackCamera';
+						break;
+					case 'trainBackCamera':
+						settings.currCamera = 'general';
+						break;
+				}
+				console.log("Switched camera to `" + settings.currCamera + "`");
+				break;
 			case ' ':
 				console.log("Toggling train animations");
 				settings.animationEnable = !settings.animationEnable;
@@ -153,11 +190,30 @@ function buildBridge() {
 	scene.add(bridge2);
 }
 
-let train;
-
 // loco -> locomotora/locomotive
 function buildLoco() {
 	train = buildTrain();
+
+	trainConductorCamera = new THREE.PerspectiveCamera(
+		55, window.innerWidth / window.innerHeight, 0.1, 10000);
+
+	trainConductorCamera.position.set(0, 16, -20);
+	trainConductorCamera.lookAt(0, 20, 100);
+	train.add(trainConductorCamera);
+
+	trainCamera = new THREE.PerspectiveCamera(
+		55, window.innerWidth / window.innerHeight, 0.1, 10000);
+
+	trainCamera.position.set(-22, 12, -26);
+	trainCamera.lookAt(0, 10, 20);
+	train.add(trainCamera);
+
+	trainBackCamera = new THREE.PerspectiveCamera(
+		55, window.innerWidth / window.innerHeight, 0.1, 10000);
+
+	trainBackCamera.position.set(0, 16, -10);
+	trainBackCamera.lookAt(0, 18, -100);
+	train.add(trainBackCamera);
 	train.scale.set(0.075, 0.10, 0.09);
 	train.visible = settings.showTrain;
 	scene.add(train);
@@ -302,10 +358,24 @@ function buildScene() {
 }
 
 function mainLoop() {
-	requestAnimationFrame(mainLoop);
-	renderer.render(scene, camera);
+	let cam;
+	switch (settings.currCamera) {
+		case 'general':
+			cam = camera;
+			break;
+		case 'train':
+			cam = trainCamera;
+			break;
+		case 'trainConductor':
+			cam = trainConductorCamera;
+			break;
+		case 'trainBackCamera':
+			cam = trainBackCamera;
+			break;
+	}
 
-	train.position.set(-10, 2.25, 0);
+	requestAnimationFrame(mainLoop);
+	renderer.render(scene, cam);
 
 	const dt = 0.001;
 	if(settings.animationEnable) {
@@ -332,7 +402,6 @@ function mainLoop() {
 		train.lookAt(railsData[1].x*1000, 1.9, railsData[1].z*1000);
 		// train.lookAt(0, 1.9, 0);
 	}
-	renderer.render(scene, camera);
 }
 
 function main() {
