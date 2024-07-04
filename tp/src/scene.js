@@ -86,6 +86,7 @@ function setupThreeJs() {
 
 	topView.position.set(-50, 60, 50);
 	topView.lookAt(0, 0, 0);
+	topView.name = "topView"
 	cameras.push(topView);
 
 	const controls = new OrbitControls(topView, renderer.domElement);
@@ -183,6 +184,7 @@ function buildBridge() {
 	bridgeCamera.position.set(-18, 11, -2.75);
 	bridgeCamera.lookAt(50, 0, 42);
 	bridge2.add(bridgeCamera);
+	bridgeCamera.name = "bridgeCamera";
 	cameras.push(bridgeCamera);
 
 	scene.add(bridge1);
@@ -199,6 +201,7 @@ function buildLoco() {
 	trainConductorCamera.position.set(0, 16, -20);
 	trainConductorCamera.lookAt(0, 20, 100);
 	train.add(trainConductorCamera);
+	trainConductorCamera.name = "trainConductorCamera";
 	cameras.push(trainConductorCamera);
 
 	const trainCamera = new THREE.PerspectiveCamera(
@@ -207,6 +210,7 @@ function buildLoco() {
 	trainCamera.position.set(-22, 12, -26);
 	trainCamera.lookAt(0, 10, 20);
 	train.add(trainCamera);
+	trainCamera.name = `trainCamera`;
 	cameras.push(trainCamera);
 
 	const trainBackCamera = new THREE.PerspectiveCamera(
@@ -215,6 +219,7 @@ function buildLoco() {
 	trainBackCamera.position.set(0, 16, -10);
 	trainBackCamera.lookAt(0, 18, -100);
 	train.add(trainBackCamera);
+	trainBackCamera.name = "trainBackCamera";
 	cameras.push(trainBackCamera);
 
 	train.scale.set(0.075, 0.10, 0.09);
@@ -343,6 +348,7 @@ function buildTunnel() {
 
 	tunnelCamera.position.set(-1, 12, 18);
 	tunnelCamera.lookAt(0, 10, -10);
+	tunnelCamera.name = "tunnelCamera";
 	tunnel.add(tunnelCamera);
 	cameras.push(tunnelCamera);
 }
