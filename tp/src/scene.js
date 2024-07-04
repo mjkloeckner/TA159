@@ -178,9 +178,10 @@ function buildBridge() {
 	const bridgeCamera = new THREE.PerspectiveCamera(
 		55, window.innerWidth / window.innerHeight, 0.1, 10000);
 
-	bridgeCamera.position.set(0, 16, -10);
-	bridgeCamera.lookAt(0, 18, -100);
-	bridge1.add(bridgeCamera);
+	bridgeCamera.position.set(-18, 11, -2.75);
+	bridgeCamera.lookAt(50, 0, 42);
+	bridge2.add(bridgeCamera);
+	cameras.push(bridgeCamera);
 
 	scene.add(bridge1);
 	scene.add(bridge2);
