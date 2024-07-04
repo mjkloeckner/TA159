@@ -91,6 +91,14 @@ function setupThreeJs() {
 
 	const controls = new OrbitControls(topView, renderer.domElement);
 
+	const firstPersonCamera = new THREE.PerspectiveCamera(
+		50, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+	firstPersonCamera.position.set(0, 5, 0);
+	firstPersonCamera.lookAt(1000, 0, 0);
+	firstPersonCamera.name = "firstPersonCamera"
+	cameras.push(firstPersonCamera);
+
 	const ambientLight = new THREE.AmbientLight(0xFFFFFF);
 	scene.add(ambientLight);
 
