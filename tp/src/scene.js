@@ -61,6 +61,27 @@ function onResize() {
 	}
 
 	renderer.setSize( window.innerWidth, window.innerHeight );
+
+function prevCamera() {
+	const camerasCount = cameras.length;
+
+	if(cameras[settings.currCameraIndex].name == "firstPersonCamera") {
+		firstPersonControls.unlock();
+		blocker.style.display = 'none';
+		instructions.style.display = 'flex';
+	}
+
+	if(settings.currCameraIndex == 0) {
+		settings.currCameraIndex = (camerasCount - 1);
+	} else {
+		settings.currCameraIndex -= 1;
+	}
+
+	if(cameras[settings.currCameraIndex].name == "firstPersonCamera") {
+		firstPersonControls.unlock();
+		blocker.style.display = 'block';
+		instructions.style.display = 'flex';
+	}
 }
 
 function nextCamera() {
@@ -190,6 +211,9 @@ function setupThreeJs() {
 		switch (event.key) {
 			case "c":
 				nextCamera();
+				break;
+			case "C":
+				prevCamera();
 				break;
 			case ' ':
 				console.log("Toggling train animations");
