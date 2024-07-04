@@ -59,7 +59,7 @@ $ vite
     - [X] Fija, locomotora frontal (desde la cabina hacia adelante)
     - [X] Fija, locomotora trasera (desde la cabina hacia atrás)
     - [X] Fija, con vistas al interior del túnel
-    - [ ] Fija, con vistas al interior del puente
+    - [X] Fija, con vistas al interior del puente
     - [ ] Primera persona (debe poder moverse sobre el terreno con el teclado y el mouse)
 * [X] Texturas
 * [ ] Iluminación
