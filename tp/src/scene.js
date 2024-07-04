@@ -217,8 +217,8 @@ function setupFirstPersonControls() {
 	const firstPersonCamera = new THREE.PerspectiveCamera(
 		50, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-	firstPersonCamera.position.set(0, 5, 0);
-	firstPersonCamera.lookAt(1000, 0, 0);
+	firstPersonCamera.position.set(5, 5, 40);
+	firstPersonCamera.lookAt(-10, 5, 0);
 	firstPersonCamera.name = "firstPersonCamera"
 	cameras.push(firstPersonCamera);
 
