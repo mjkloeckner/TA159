@@ -281,9 +281,9 @@ export function generateBridge(arcCount=1, arcRadius=3,
 	const bridgeCage = new THREE.Mesh(cageGeometry, cageMaterial);
 	bridge.add(bridgeCage);
 
-	const roadwayFloorGeometry = new THREE.PlaneGeometry(
-		bridgeWidth+bridgeWallThickness,
-		bridgeLen);
+	const roadwayFloorGeometry = new THREE.BoxGeometry(
+		bridgeWidth+bridgeWallThickness+0.01,
+		bridgeLen+0.01, 0.10);
 
 	roadwayFloorGeometry.rotateZ(Math.PI/2)
 	roadwayFloorGeometry.rotateX(Math.PI/2)

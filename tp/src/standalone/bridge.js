@@ -303,9 +303,9 @@ function generateBridge() {
 	const bridgeCage = new THREE.Mesh(cageGeometry, cageMaterial);
 	scene.add(bridgeCage);
 
-	const roadwayFloorGeometry = new THREE.PlaneGeometry(
+	const roadwayFloorGeometry = new THREE.BoxGeometry(
 		bridgeWidth+bridgeWallThickness,
-		bridgeLen);
+		bridgeLen, 0.5);
 
 	roadwayFloorGeometry.rotateZ(Math.PI/2)
 	roadwayFloorGeometry.rotateX(Math.PI/2)

@@ -335,7 +335,7 @@ function buildBridge() {
 	// bridge1.rotateY(-Math.PI*0.118);
 
 	bridge2.scale.set(0.5, 0.5, 0.5);
-	bridge2.position.set(-14, 0, -41);
+	bridge2.position.set(-14, -0.25, -41);
 	// bridge2.rotateY(-Math.PI*0.118);
 
 	const bridgeCamera = new THREE.PerspectiveCamera(
@@ -588,7 +588,7 @@ function mainLoop() {
 		raycaster = new THREE.Raycaster();
 		var raycasterPos = new THREE.Vector3();
 		raycasterPos.copy(firstPersonControls.getObject().position)
-		raycasterPos.y += 10;
+		raycasterPos.y += 2;
 		var raycasterDir = new THREE.Vector3(0, -1, 0);
 
 		raycaster.set(raycasterPos, raycasterDir);
