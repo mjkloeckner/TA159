@@ -120,10 +120,8 @@ function setupThreeJs() {
 				console.log("Toggling train animations");
 				settings.animationEnable = !settings.animationEnable;
 				if(gui != undefined) {
-					let controller = gui.__controllers.find(controller => controller.property === 'animationEnable');
-					if (controller) {
-						controller.updateDisplay();
-					}
+					// update gui 'Animations' checkbox
+					gui.__controllers[0].updateDisplay();
 				}
 				break
 		}
