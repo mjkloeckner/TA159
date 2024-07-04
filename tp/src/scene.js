@@ -246,11 +246,11 @@ function buildTerrain() {
 	scene.add(terrain);
 
 	console.log('Generating water');
-	const waterGeometry = new THREE.PlaneGeometry(width/2, height);
+	const waterGeometry = new THREE.PlaneGeometry(width/2, height-1.25);
 	const waterMaterial = new THREE.MeshPhongMaterial( {color: 0x12ABFF, side: THREE.DoubleSide} );
 	const water = new THREE.Mesh( waterGeometry, waterMaterial );
 	water.rotateX(Math.PI/2);
-	water.position.set(0, 0, 0);
+	water.position.set(0, 0, -0.65);
 	scene.add(water);
 }
 
