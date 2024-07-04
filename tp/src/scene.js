@@ -51,7 +51,7 @@ const amplitude       = 10;
 const amplitudeBottom = -2.10; // terrain offset
 
 const textures = {
-	sky:              { url: '/assets/sky_day.jpg', object: null },
+	sky:              { url: '/assets/sky_day_void.jpg', object: null },
 	roca:             { url: '/assets/roca.jpg', object: null },
 	pasto:            { url: '/assets/pasto.jpg', object: null },
 	tierra:           { url: '/assets/tierra.jpg', object: null },
