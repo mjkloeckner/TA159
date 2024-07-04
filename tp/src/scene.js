@@ -24,6 +24,7 @@ let firstPersonControls, orbitControls;
 
 let train, gui;
 let cameras = [];
+let objects = [];
 
 let settings = {
 	animationEnable: false,
@@ -31,6 +32,17 @@ let settings = {
 	currCameraIndex: 0,
 	trainSpeed: 1.00
 };
+
+let raycaster;
+
+let moveForward = false;
+let moveBackward = false;
+let moveLeft = false;
+let moveRight = false;
+
+let prevTime = performance.now();
+const velocity = new THREE.Vector3();
+const direction = new THREE.Vector3();
 
 // actualizar la variable global `amplitude` de '/src/track-map/'
 const widthSegments   = 150;
@@ -134,27 +146,71 @@ function firstPersonCameraHandler(eventName) {
 	}
 }
 
-function setupThreeJs() {
-	scene = new THREE.Scene();
-	// container = document.getElementById('mainContainer');
+function keyHandler(event) {
+	// console.log(event);
+	if(event.type == 'keydown') {
+		switch (event.code) {
+			case 'ArrowUp':
+			case 'KeyW':
+				moveForward = true;
+				break;
+			case 'ArrowLeft':
+			case 'KeyA':
+				moveLeft = true;
+				break;
+			case 'ArrowDown':
+			case 'KeyS':
+				moveBackward = true;
+				break;
+			case 'ArrowRight':
+			case 'KeyD':
+				moveRight = true;
+				break;
+			case "KeyC":
+				if(event.shiftKey) {
+					prevCamera();
+				} else {
+					nextCamera();
+				}
+				break;
+			case 'Space':
+				// if (firstPersonControls.isLocked === true) {
+				// 	console.log(canJump);
+				// 	velocity.y += 350;
+				// 	break;
+				// }
+				console.log("Toggling train animations");
+				settings.animationEnable = !settings.animationEnable;
+				if(gui != undefined) {
+					// update gui 'Animations' checkbox
+					gui.__controllers[0].updateDisplay();
+				}
+				break;
+		}
+	} else {
+		// key up
+		switch (event.code) {
+			case 'ArrowUp':
+			case 'KeyW':
+				moveForward = false;
+				break;
+			case 'ArrowLeft':
+			case 'KeyA':
+				moveLeft = false;
+				break;
+			case 'ArrowDown':
+			case 'KeyS':
+				moveBackward = false;
+				break;
+			case 'ArrowRight':
+			case 'KeyD':
+				moveRight = false;
+				break;
+		}
+	}
+}
 
-	renderer = new THREE.WebGLRenderer();
-	// renderer.setClearColor(0x606060);
-	// container.appendChild(renderer.domElement);
-	renderer.setPixelRatio( window.devicePixelRatio );
-	renderer.setSize( window.innerWidth, window.innerHeight );
-	document.body.appendChild( renderer.domElement );
-
-	const topView = new THREE.PerspectiveCamera(
-		35, window.innerWidth / window.innerHeight, 0.1, 1000);
-
-	topView.position.set(-50, 60, 50);
-	topView.lookAt(0, 0, 0);
-	topView.name = "topView"
-	cameras.push(topView);
-
-	orbitControls = new OrbitControls(topView, renderer.domElement);
-
+function setupFirstPersonControls() {
 	const firstPersonCamera = new THREE.PerspectiveCamera(
 		50, window.innerWidth / window.innerHeight, 0.1, 1000);
 
@@ -182,6 +238,32 @@ function setupThreeJs() {
 	});
 	scene.add(firstPersonControls.getObject());
 
+	window.addEventListener('keydown', (event) => {
+		keyHandler(event);
+	});
+
+	window.addEventListener('keyup', (event) => {
+		keyHandler(event);
+	});
+}
+
+function setupThreeJs() {
+	scene = new THREE.Scene();
+	renderer = new THREE.WebGLRenderer();
+	renderer.setPixelRatio( window.devicePixelRatio );
+	renderer.setSize( window.innerWidth, window.innerHeight );
+	document.body.appendChild( renderer.domElement );
+
+	const topView = new THREE.PerspectiveCamera(
+		35, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+	topView.position.set(-50, 60, 50);
+	topView.lookAt(0, 0, 0);
+	topView.name = "topView"
+	cameras.push(topView);
+
+	orbitControls = new OrbitControls(topView, renderer.domElement);
+
 	const ambientLight = new THREE.AmbientLight(0xFFFFFF);
 	scene.add(ambientLight);
 
@@ -206,25 +288,6 @@ function setupThreeJs() {
 
 	textures.sky.object.mapping = THREE.EquirectangularRefractionMapping;
 	scene.background = textures.sky.object;
-
-	window.addEventListener('keydown', (event) => {
-		switch (event.key) {
-			case "c":
-				nextCamera();
-				break;
-			case "C":
-				prevCamera();
-				break;
-			case ' ':
-				console.log("Toggling train animations");
-				settings.animationEnable = !settings.animationEnable;
-				if(gui != undefined) {
-					// update gui 'Animations' checkbox
-					gui.__controllers[0].updateDisplay();
-				}
-				break
-		}
-	});
 }
 
 function onTextureLoaded(key, texture) {
@@ -283,6 +346,9 @@ function buildBridge() {
 
 	scene.add(bridge1);
 	scene.add(bridge2);
+
+	objects.push(bridge1);
+	objects.push(bridge2);
 }
 
 // loco -> locomotora/locomotive
@@ -401,6 +467,8 @@ function buildTerrain() {
 	terrain.position.set(0, amplitudeBottom, 0);
 	scene.add(terrain);
 
+	objects.push(terrain);
+
 	console.log('Generating water');
 	const waterGeometry = new THREE.PlaneGeometry(width/2, height-1.25);
 	const waterMaterial = new THREE.MeshPhongMaterial( {color: 0x12ABFF, side: THREE.DoubleSide} );
@@ -504,22 +572,65 @@ function mainLoop() {
 		updateTrainCrankPosition(time*100);
 		const trainPos = getRailsPathPosAt(time);
 		const railsData = getRailsPathPosAt(time);
-		// [railsPath.getPointAt(t), railsPath.getTangentAt(t)]
 
 		let x = railsData[0].x;
 		let z = railsData[0].z;
 
-		// translationMatrix.makeTranslation(trainPos);
-		// rotMatrix.identity();
-
-		// translationMatrix.makeTranslation(trainPos);
-		// train.position.set(0, 0, 0);
-		// train.position.set(time*10, 1.9, 0);
 		train.position.set(-1+x, 2.25, -1+z);
-		// railsFoundation.position.set(-1, 1.25, -1);
 		train.lookAt(railsData[1].x*1000, 1.9, railsData[1].z*1000);
-		// train.lookAt(0, 1.9, 0);
 	}
+
+	let time2 = performance.now();
+	const firstPersonCameraHeight = 1.90;
+	if (firstPersonControls.isLocked === true) {
+		raycaster = new THREE.Raycaster();
+		var raycasterPos = new THREE.Vector3();
+		raycasterPos.copy(firstPersonControls.getObject().position)
+		raycasterPos.y += 10;
+		var raycasterDir = new THREE.Vector3(0, -1, 0);
+
+		raycaster.set(raycasterPos, raycasterDir);
+		const intersections = raycaster.intersectObjects(objects);
+		let positionY;
+		if((intersections == undefined) || (intersections[0] == undefined)) {
+			positionY = 0.0;
+		} else {
+			positionY = intersections[0].point.y;
+		}
+
+		const delta = (time2 - prevTime) / 1000;
+
+		velocity.x -= velocity.x * 11.0 * delta;
+		velocity.z -= velocity.z * 11.0 * delta;
+		velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
+
+		direction.z = Number( moveForward ) - Number( moveBackward );
+		direction.x = Number( moveRight ) - Number( moveLeft );
+		direction.normalize(); // this ensures consistent movements in all directions
+
+		if (moveForward || moveBackward) {
+			velocity.z -= direction.z * 100.0 * delta;
+		}
+
+		if (moveLeft || moveRight) {
+			velocity.x -= direction.x * 100.0 * delta;
+		}
+
+		// TODO: terrain limits
+		firstPersonControls.moveRight(-velocity.x * delta);
+		firstPersonControls.moveForward(-velocity.z * delta);
+
+		firstPersonControls.getObject().position.y =
+			positionY < 0.0 ? firstPersonCameraHeight : positionY + firstPersonCameraHeight;
+
+
+		if (firstPersonControls.getObject().position.y < (positionY + firstPersonCameraHeight)) {
+			velocity.y = 0;
+			firstPersonControls.getObject().position.y = firstPersonCameraHeight;
+			// canJump = true;
+		}
+	}
+	prevTime = time2;
 }
 
 function main() {
