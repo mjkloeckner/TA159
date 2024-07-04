@@ -560,7 +560,6 @@ function mainLoop() {
 			break;
 	}
 
-
 	requestAnimationFrame(mainLoop);
 	renderer.render(scene, currCamera);
 
@@ -636,6 +635,7 @@ function mainLoop() {
 
 function main() {
 	setupThreeJs();
+	setupFirstPersonControls();
 	time = 0.00;
 	buildScene();
 	createMenu();
