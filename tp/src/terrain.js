@@ -1,8 +1,6 @@
 import * as THREE from 'three';
 import { vertexShader, fragmentShader } from '/assets/shaders.js';
 
-let terrainMaterial, terrainGeometry, terrain;
-
 const widthSegments   = 100;
 const heightSegments  = 100;
 const amplitude       = 8;

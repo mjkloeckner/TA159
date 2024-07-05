@@ -301,9 +301,16 @@ function buildScene() {
 		fragmentShader: fragmentShader,
 		side: THREE.DoubleSide,
 	});
-	terrainMaterial.needsUpdate = true;
-
 	terrain = new THREE.Mesh(terrainGeometry, terrainMaterial);
+
+	terrainMaterial.onBeforeRender = (renderer, scene, camera, geometry, terrain) => {
+		let m = terrain.matrixWorld.clone();
+		m = m.transpose().invert();
+		terrain.material.uniforms.worldNormalMatrix.value = m;
+	};
+	terrainMaterial.needsUpdate = true;
+	scene.add(terrain);
+
 	terrain.position.set(0, amplitudeBottom, 0);
 	scene.add(terrain);
 
