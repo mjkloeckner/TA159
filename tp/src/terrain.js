@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { vertexShader, fragmentShader } from '/assets/shaders.js';
+import { vertexShader, fragmentShader } from '/src/shaders.js';
 
 const widthSegments   = 100;
 const heightSegments  = 100;

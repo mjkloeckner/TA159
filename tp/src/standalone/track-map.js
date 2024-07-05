@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import * as dat from 'dat.gui';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { vertexShader, fragmentShader } from '/assets/shaders.js';
+import { vertexShader, fragmentShader } from '/src/shaders.js';
 
 let scene, camera, renderer, container, terrainMaterial, terrainGeometry, terrain;
 let treesForbiddenMapData, treesForbiddenMap, elevationMap, elevationMapData;
