@@ -16,10 +16,10 @@ export const railsFoundationShape = new THREE.CatmullRomCurve3([
 
 
 const textures = {
-	tierra:     { url: '/assets/tierra.jpg', object: null },
-	roca:       { url: '/assets/roca.jpg', object: null },
-	pasto:      { url: '/assets/pasto.jpg', object: null },
-	durmientes: { url: '/assets/durmientes.jpg', object: null },
+	tierra:     { url: '/tierra.jpg', object: null },
+	roca:       { url: '/roca.jpg', object: null },
+	pasto:      { url: '/pasto.jpg', object: null },
+	durmientes: { url: '/durmientes.jpg', object: null },
 };
 
 export function getRailsPathPosAt(t) {

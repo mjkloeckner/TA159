@@ -6,9 +6,9 @@ import { vertexShader, fragmentShader } from '/assets/treesShaders.js';
 let scene, camera, renderer, container, terrainMaterial, instancedTrees;
 
 const textures = {
-	tierra: { url: '/assets/tierra.jpg', object: null },
-	roca: { url: '/assets/roca.jpg', object: null },
-	pasto: { url: '/assets/pasto.jpg', object: null },
+	tierra: { url: '/tierra.jpg', object: null },
+	roca:   { url: '/roca.jpg', object: null },
+	pasto:  { url: '/pasto.jpg', object: null },
 };
 
 function onResize() {

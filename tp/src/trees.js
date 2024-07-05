@@ -3,8 +3,8 @@ import * as THREE from 'three';
 let treesForbiddenMapData, treesForbiddenMap, elevationMap, elevationMapData;
 
 const textures = {
-	elevationMap:     { url: '/assets/elevation_map2.png', object: null },
-	treeForbiddenMap: { url: '/assets/tree_forbidden_zone_map.png', object: null }
+	elevationMap:     { url: '/elevation_map2.png', object: null },
+	treeForbiddenMap: { url: '/tree_forbidden_zone_map.png', object: null }
 };
 
 const widthSegments   = 100;

@@ -6,8 +6,8 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 let scene, camera, renderer, container;
 
 const textures = {
-	tierra:     { url: '/assets/tierraSeca.jpg', object: null },
-	ladrillos:  { url: '/assets/pared-de-ladrillos.jpg', object: null },
+	tierra:     { url: '/tierraSeca.jpg', object: null },
+	ladrillos:  { url: '/pared-de-ladrillos.jpg', object: null },
 };
 
 function onResize() {

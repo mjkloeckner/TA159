@@ -5,7 +5,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 let scene, camera, renderer, container;
 
 const textures = {
-	madera: { url: '/assets/madera.jpg', object: null },
+	madera: { url: '/madera.jpg', object: null },
 };
 
 function onResize() {

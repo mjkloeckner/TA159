@@ -12,11 +12,11 @@ const amplitude       = 8;
 const amplitudeBottom = -1.00;
 
 const textures = {
-	tierra:           { url: '/assets/tierra.jpg', object: null },
-	roca:             { url: '/assets/roca.jpg', object: null },
-	pasto:            { url: '/assets/pasto.jpg', object: null },
-	elevationMap:     { url: '/assets/elevation_map2.png', object: null },
-	treeForbiddenMap: { url: '/assets/tree_forbidden_zone_map.png', object: null }
+	tierra:           { url: '/tierra.jpg', object: null },
+	roca:             { url: '/roca.jpg', object: null },
+	pasto:            { url: '/pasto.jpg', object: null },
+	elevationMap:     { url: '/elevation_map2.png', object: null },
+	treeForbiddenMap: { url: '/tree_forbidden_zone_map.png', object: null }
 };
 
 function onResize() {

@@ -51,14 +51,14 @@ const amplitude       = 10;
 const amplitudeBottom = -2.10; // terrain offset
 
 const textures = {
-	sky:              { url: '/assets/sky_day_void.jpg', object: null },
-	roca:             { url: '/assets/roca.jpg', object: null },
-	pasto:            { url: '/assets/pasto.jpg', object: null },
-	tierra:           { url: '/assets/tierra.jpg', object: null },
-	madera:           { url: '/assets/madera.jpg', object: null },
-	durmientes:       { url: '/assets/durmientes.jpg', object: null },
-	elevationMap:     { url: '/assets/elevation_map_wider_river.png', object: null },
-	treeForbiddenMap: { url: '/assets/tree_forbidden_zone_map_wider_path.png', object: null }
+	sky:              { url: '/sky_day_void.jpg', object: null },
+	roca:             { url: '/roca.jpg', object: null },
+	pasto:            { url: '/pasto.jpg', object: null },
+	tierra:           { url: '/tierra.jpg', object: null },
+	madera:           { url: '/madera.jpg', object: null },
+	durmientes:       { url: '/durmientes.jpg', object: null },
+	elevationMap:     { url: '/elevation_map_wider_river.png', object: null },
+	treeForbiddenMap: { url: '/tree_forbidden_zone_map_wider_path.png', object: null }
 };
 
 function onResize() {
