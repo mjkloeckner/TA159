@@ -25,12 +25,18 @@ let firstPersonControls, orbitControls;
 let train, gui;
 let cameras = [];
 let objects = [];
+let lights = {
+	ambient:     { object: null },
+	directional: { object: null },
+	hemisphere:  { object: null }
+};
 
 let settings = {
 	animationEnable: false,
 	showTrain: true,
 	currCameraIndex: 0,
-	trainSpeed: 1.00
+	nightMode: false,
+	showHelpers: false,
 };
 
 let raycaster;
@@ -52,7 +58,8 @@ const amplitude       = 10;
 const amplitudeBottom = -2.10; // terrain offset
 
 const textures = {
-	sky:              { url: '/sky_day_void.jpg', object: null },
+	sky_day:          { url: '/sky_day_void.jpg', object: null },
+	sky_night:        { url: '/sky_night.jpg', object: null },
 	roca:             { url: '/roca.jpg', object: null },
 	pasto:            { url: '/pasto.jpg', object: null },
 	tierra:           { url: '/tierra.jpg', object: null },
@@ -288,30 +295,36 @@ function setupThreeJs() {
 
 	orbitControls = new OrbitControls(topView, renderer.domElement);
 
-	const ambientLight = new THREE.AmbientLight(0xFFFFFF);
-	scene.add(ambientLight);
+	lights.ambient.object = new THREE.AmbientLight(0xffffff);
 
-	const hemisphereLight = new THREE.HemisphereLight(0xFFFFFF, 0x000000, 0.25);
-	scene.add(hemisphereLight);
+	lights.hemisphere.object = new THREE.HemisphereLight(0xFFFFFF, 0x000000, 0.25);
 
-	const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-	directionalLight.position.set(100, 100, 100);
-	scene.add(directionalLight);
+	lights.directional.object = new THREE.DirectionalLight(0xffffff, 1);
+	lights.directional.object.position.set(-100, 100, 100);
+	
+	scene.add(lights.ambient.object);
+	scene.add(lights.hemisphere.object);
+	scene.add(lights.directional.object);
+	
+	const helper = new THREE.HemisphereLightHelper(lights.hemisphere.object, 5);
+	if(settings.showHelpers) scene.add(helper) ;
 
-	const helper = new THREE.HemisphereLightHelper(hemisphereLight, 5);
-	// scene.add(helper) ;
+	const directinoalLightHelper = new THREE.DirectionalLightHelper( lights.directional.object, 5);
+	if(settings.showHelpers) scene.add(directinoalLightHelper);
 
 	const gridHelper = new THREE.GridHelper(200, 200);
-	// scene.add(gridHelper);
+	if(settings.showHelpers) scene.add(gridHelper);
 
 	const axesHelper = new THREE.AxesHelper(5);
-	// scene.add(axesHelper);
+	if(settings.showHelpers) scene.add(axesHelper);
 
 	window.addEventListener('resize', onResize);
 	onResize();
 
-	textures.sky.object.mapping = THREE.EquirectangularRefractionMapping;
-	scene.background = textures.sky.object;
+	textures.sky_day.object.mapping = THREE.EquirectangularRefractionMapping;
+	textures.sky_night.object.mapping = THREE.EquirectangularRefractionMapping;
+
+	scene.background = textures.sky_day.object;
 }
 
 function onTextureLoaded(key, texture) {
@@ -707,13 +720,33 @@ function buildTrees(count = 50) {
 	scene.add(treeLeaves);
 }
 
+function toggleNightMode() {
+	console.log("Toggling night mode");
+	console.log(settings.nightMode);
+	if(settings.nightMode == true) {
+		lights.ambient.object.visible = false;
+		lights.hemisphere.object.intensity = 0;
+		lights.directional.object.color.setHex(0xcdddfe); // 0x090254; 0xa8a1fd
+		scene.background = textures.sky_night.object;
+		lights.directional.object.position.set(100, 100, 100); // math the skybox texture moon light
+	} else {
+		lights.ambient.object.visible = true;
+		lights.hemisphere.object.intensity = 1;
+		lights.directional.object.intensity = 1;
+		lights.directional.object.color.setHex(0xFFFFFF);
+		scene.background = textures.sky_day.object;
+		lights.directional.object.position.set(-100, 100, 100);
+	}
+}
+
 function createMenu() {
 	gui = new dat.GUI({ width: 250 });
 	gui.add(settings, 'animationEnable', true).name('Animations enabled');
-	gui.add(settings, 'showTrain', false).name('Show train').onChange(
+	gui.add(settings, 'showTrain').name('Show train').onChange(
 		function () {
 			train.visible = !train.visible;
 		});
+	gui.add(settings, 'nightMode', false).name('Modo noche').onChange(toggleNightMode);
 }
 
 function buildScene() {
