@@ -30,7 +30,7 @@ function isForbbidenPosition(position) {
 	const z = Math.floor(position.z);
 
 	// TODO: estos valores deberian depender de la posicion del terreno
-	if((y > 5.8) || (y < 3.25)) {
+	if((y > 6.8) || (y < 3.25)) {
 		// console.log("(" + position.x + ", " + position.y + ", " + position.z + ") is not valid ");
 		return true;
 	}
