@@ -782,7 +782,7 @@ function toggleNightMode() {
 
 function createMenu() {
 	gui = new dat.GUI({ width: 250 });
-	gui.add(settings, 'animationEnable', true).name('Activar animaciones');
+	gui.add(settings, 'animationEnable', true).name('Animaciones');
 	gui.add(settings, 'showTrain').name('Mostrar tren').onChange(
 		function () {
 			train.visible = !train.visible;
