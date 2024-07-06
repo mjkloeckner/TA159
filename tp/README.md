@@ -49,23 +49,22 @@ $ vite
 * [ ] Locomotora
     - [X] Chassis, cabina, ruedas, caldera
     - [ ] Hacer que las ruedas roten sobre su eje
-    - [ ] Aplicar textura a las ruedas (?)
 * [X] Puente
     - [X] Base de ladrillos
     - [X] Estructura de Hierro
 * [X] Túnel
-* [ ] Cámaras
+* [X] Cámaras
     - [X] Orbital general
     - [X] Fija, locomotora frontal (desde la cabina hacia adelante)
     - [X] Fija, locomotora trasera (desde la cabina hacia atrás)
     - [X] Fija, con vistas al interior del túnel
     - [X] Fija, con vistas al interior del puente
-    - [ ] Primera persona (debe poder moverse sobre el terreno con el teclado y el mouse)
+    - [X] Primera persona (debe poder moverse sobre el terreno con el teclado y el mouse)
 * [X] Texturas
 * [ ] Iluminación
-    - [ ] Modo noche/día
+    - [X] Modo noche/día
+    - [X] Luz en el frente del tren
     - [ ] Lamparas en posiciones aleatorias del mapa
-    - [ ] Luz en el frente del tren
 
 ## Como se generan los elementos de la escena
 
