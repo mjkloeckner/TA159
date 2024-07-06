@@ -438,6 +438,27 @@ function buildLoco() {
 	trainBackCamera.name = "trainBackCamera";
 	cameras.push(trainBackCamera);
 
+	// SpotLight(color: Int, intensity: Float, distance: Float, angle: Radians, penumbra: Float, decay: Float)
+	const trainLight = new THREE.SpotLight(0xffffff, 100.0, 2000.0, Math.PI/3, 0.5, 0.5);
+	train.add(trainLight.target);
+	train.add(trainLight);
+	trainLight.position.set(0, 2, 15);
+	trainLight.target.position.set(0, -100, 100);
+	trainLight.target.updateMatrixWorld();
+
+	const trainLight2 = new THREE.SpotLight(0xffffff, 10.0, 4.0, Math.PI/2, 0.5, 0.5);
+	train.add(trainLight2.target);
+	train.add(trainLight2);
+	trainLight2.position.set(0, 5, 20);
+	trainLight2.target.position.set(0, 0, -100);
+	trainLight2.target.updateMatrixWorld();
+
+	const trainLight3 = new THREE.SpotLight(0xffffff, 10.0, 10.0, Math.PI/2, 0.5, 0.5);
+	train.add(trainLight3.target);
+	train.add(trainLight3);
+	trainLight3.position.set(0, 5, 10);
+	trainLight3.target.position.set(0, 0, 100);
+	trainLight3.target.updateMatrixWorld();
 
 	train.scale.set(0.145, 0.145, 0.145);
 	train.visible = settings.showTrain;

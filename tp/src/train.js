@@ -294,6 +294,23 @@ export function buildTrain() {
 	// chassis.translateY(-wheelOffset);
 	updateTrainCrankPosition();
 
+	const lightRad = 1.10;
+	const lightGeometry = new THREE.CylinderGeometry(lightRad, lightRad, 1, 32);
+	lightGeometry.rotateX(Math.PI/2);
+
+	const lightMaterial = new THREE.MeshPhongMaterial({
+		color: 0x393939, 
+		side: THREE.DoubleSide,
+		shininess: 100.0,
+		emissive: 0xf6d32d
+	});
+
+	const trainLightLamp = new THREE.Mesh(lightGeometry, lightMaterial);
+	train.add(trainLightLamp)
+	trainLightLamp.position.set(0,
+		steamChamberRad+chassisOffset-lightRad/2-.30,
+		(steamChamberLen+steamChamberEndLen)/2-.3);
+
 	train.position.set(0, 2, 0);
 	return train;
 }
