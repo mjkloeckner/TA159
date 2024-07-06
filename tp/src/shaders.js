@@ -56,8 +56,6 @@ export const fragmentShader = `
         vec2 uv = vUv*8.0;
         vec2 uv2 = vUv*scale;
 
-        float verticallity = 1.0-max(0.0,vNormal.y);
-        float flatness = 1.0-verticallity;
         float heightFactor = vWorldPos.y - terrainAmplitudeBottom;
         float heightFactorNormalized = normalize(heightFactor, 0.0, terrainAmplitude);
 

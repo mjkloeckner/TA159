@@ -35,7 +35,7 @@ let settings = {
 	animationEnable: false,
 	showTrain: true,
 	currCameraIndex: 0,
-	nightMode: false,
+	nightMode: true,
 	showHelpers: false,
 };
 
@@ -305,6 +305,21 @@ function setupThreeJs() {
 	scene.add(lights.ambient.object);
 	scene.add(lights.hemisphere.object);
 	scene.add(lights.directional.object);
+
+	if(settings.nightMode == true) {
+		lights.ambient.object.visible = false;
+		lights.hemisphere.object.intensity = 0;
+		lights.directional.object.color.setHex(0xcdddfe); // 0x090254; 0xa8a1fd
+		scene.background = textures.sky_night.object;
+		lights.directional.object.position.set(100, 100, 100); // math the skybox texture moon light
+	} else {
+		lights.ambient.object.visible = true;
+		lights.hemisphere.object.intensity = 1;
+		lights.directional.object.intensity = 1;
+		lights.directional.object.color.setHex(0xFFFFFF);
+		scene.background = textures.sky_day.object;
+		lights.directional.object.position.set(-100, 100, 100);
+	}
 	
 	const helper = new THREE.HemisphereLightHelper(lights.hemisphere.object, 5);
 	if(settings.showHelpers) scene.add(helper) ;
@@ -324,7 +339,11 @@ function setupThreeJs() {
 	textures.sky_day.object.mapping = THREE.EquirectangularRefractionMapping;
 	textures.sky_night.object.mapping = THREE.EquirectangularRefractionMapping;
 
-	scene.background = textures.sky_day.object;
+	if(settings.nightMode == true) {
+		scene.background = textures.sky_night.object;
+	} else {
+		scene.background = textures.sky_day.object;
+	}
 }
 
 function onTextureLoaded(key, texture) {
