@@ -1,29 +1,29 @@
 import * as THREE from 'three';
 import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
 
-const steamChamberLen = 20;
-const steamChamberRad = 5;
-const steamChamberEndRad = steamChamberRad+0.75;
-const steamChamberEndLen = 5;
-const cabinLen = 10;
-const cabinHeight = 11;
-const cabinRoofHeight = 8;
-const cabinWallThickness = 0.75;
-const wheelRad = 2.75;
-const chassisHeight = 5;
-const wheelThickness = 0.85;
-const chassisOffset = 2.49;
-const wheelOffset = -0.70;
-const steamCylindersLen = 8;
-const crankLen = 22;
-const crankOffset = 3.750;
-const crankWidth = 0.5;
+const steamChamberLen = 10;
+const steamChamberRad = 2.50;
+const steamChamberEndRad = steamChamberRad+0.375;
+const steamChamberEndLen = 2.50;
+const cabinLen = 5;
+const cabinHeight = 6;
+const cabinRoofHeight = 3;
+const cabinWallThickness = 0.375;
+const wheelRad = 1.475;
+const chassisHeight = 2.5;
+const wheelThickness = 0.425;
+const chassisOffset = 1.245;
+const wheelOffset = -0.45;
+const steamCylindersLen = 4;
+const crankLen = 10;
+const crankOffset = 0.60;
+const crankWidth = 0.25;
 
 let crankLeft, crankRight;
 
 function buildCabinRoof() {
 	console.log('Building train cabin roof');
-	const geometry = new THREE.BoxGeometry(12, cabinWallThickness, 12);
+	const geometry = new THREE.BoxGeometry(6, cabinWallThickness, 6);
 	return geometry;
 }
 
@@ -134,11 +134,9 @@ function buildChamber() {
 	floor.translate(0, -steamChamberEndLen/2, steamChamberRad);
 	geometries.push(floor);
 
-	const chamberPipeLen = 8;
-	const chamberPipe = new THREE.CylinderGeometry(0.75, 0.75, chamberPipeLen, 32);
-
-	chamberPipe.translate(0,
-		-(steamChamberRad + chamberPipeLen/2)+1.0,
+	const chamberPipeLen = 4;
+	const chamberPipe = new THREE.CylinderGeometry(0.55, 0.55, chamberPipeLen, 32);
+	chamberPipe.translate(0, -(steamChamberRad + chamberPipeLen/2)+1.0,
 		-(steamChamberLen+steamChamberEndLen)/2);
 
 	chamberPipe.rotateX(Math.PI/2);
@@ -146,7 +144,7 @@ function buildChamber() {
 
 	const geometry = BufferGeometryUtils.mergeGeometries(geometries);
 	geometry.rotateX(Math.PI/2);
-	geometry.translate(0, steamChamberRad, 0);
+	geometry.translate(0, steamChamberRad+0.25, 0);
 	return geometry;
 }
 
@@ -167,7 +165,7 @@ function buildTrainWheel() {
 }
 
 function buildTrainAxe(material) {
-	const axeGeometry = new THREE.CylinderGeometry(0.65, 0.65, 10);
+	const axeGeometry = new THREE.CylinderGeometry(0.325, 0.325, 5);
 	axeGeometry.rotateZ(Math.PI/2);
 
 	const axeMaterial = new THREE.MeshPhongMaterial({
@@ -180,7 +178,7 @@ function buildTrainAxe(material) {
 }
 
 function buildTrainChassis() {
-	const chassis = new THREE.BoxGeometry(7, 5, steamChamberLen+steamChamberEndLen+cabinLen);
+	const chassis = new THREE.BoxGeometry(3.5, 2.5, steamChamberLen+steamChamberEndLen+cabinLen);
 	return chassis;
 }
 
@@ -236,17 +234,17 @@ export function buildTrain() {
 	const a3 = buildTrainAxe(chassisMaterial);
 	chassis.add(a3);
 
-	a1.position.set(0, wheelOffset, 0);
-	a2.position.set(0, wheelOffset, wheelRad*2.5);
-	a3.position.set(0, wheelOffset, -wheelRad*2.5);
+	a1.position.set(0, wheelOffset, -0.60);
+	a2.position.set(0, wheelOffset, -0.60+wheelRad*2.5);
+	a3.position.set(0, wheelOffset, -0.60-wheelRad*2.5);
 
-	const cylinderLeft = new THREE.CylinderGeometry(2.25, 2.5, steamCylindersLen);
+	const cylinderLeft = new THREE.CylinderGeometry(1.25, 1.5, steamCylindersLen);
 	cylinderLeft.rotateX(Math.PI/2);
-	cylinderLeft.translate(steamChamberRad-0.25, 0, steamChamberLen-steamCylindersLen/1.5);
+	cylinderLeft.translate(steamChamberRad-0.25, -.25, steamChamberLen-steamCylindersLen/1.5);
 
-	const cylinderRight = new THREE.CylinderGeometry(2.25, 2.5, steamCylindersLen);
+	const cylinderRight = new THREE.CylinderGeometry(1.25, 1.5, steamCylindersLen);
 	cylinderRight.rotateX(Math.PI/2);
-	cylinderRight.translate(-steamChamberRad+0.25, 0, steamChamberLen-steamCylindersLen/1.5);
+	cylinderRight.translate(-steamChamberRad+0.25, -.25, steamChamberLen-steamCylindersLen/1.5);
 
 	const cylindersGeometry = BufferGeometryUtils.mergeGeometries([cylinderRight, cylinderLeft]);
 	const cylindersMaterial = new THREE.MeshPhongMaterial({
@@ -282,7 +280,7 @@ export function buildTrain() {
 	w6.position.set(-steamChamberRad+wheelThickness/2.1,0,0);
 	a3.add(w6);
 
-	const crankGeometry = new THREE.BoxGeometry(crankWidth, 1.0, crankLen);
+	const crankGeometry = new THREE.BoxGeometry(crankWidth, 0.5, crankLen);
 
 	crankRight = new THREE.Mesh(crankGeometry, chassisMaterial);
 	//crankRight.position.set(steamChamberRad, wheelOffset, crankOffset);
@@ -296,16 +294,16 @@ export function buildTrain() {
 	// chassis.translateY(-wheelOffset);
 	updateTrainCrankPosition();
 
-	train.position.set(0, 1.9, 0);
+	train.position.set(0, 2, 0);
 	return train;
 }
 
 export function updateTrainCrankPosition(time = 0.0) {
 	crankLeft.position.set(-steamChamberRad-crankWidth/2,
-		wheelOffset+1.00*(Math.sin(time*Math.PI*2)),
-		crankOffset - 1.00*(Math.cos(time*Math.PI*2)));
+		wheelOffset + 1.00*(Math.sin(time*Math.PI/2)),
+		crankOffset - 1.00*(Math.cos(time*Math.PI/2)));
 
 	crankRight.position.set(steamChamberRad+crankWidth/2,
-		wheelOffset+1.00*(Math.sin(time*Math.PI*2)),
-		crankOffset - 1.00*(Math.cos(time*Math.PI*2)));
+		wheelOffset + 1.00*(Math.sin(time*Math.PI/2)),
+		crankOffset - 1.00*(Math.cos(time*Math.PI/2)));
 }

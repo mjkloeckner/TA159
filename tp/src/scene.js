@@ -404,8 +404,8 @@ function buildLoco() {
 	const trainCamera = new THREE.PerspectiveCamera(
 		55, window.innerWidth / window.innerHeight, 0.1, 10000);
 
-	trainCamera.position.set(-22, 12, -26);
-	trainCamera.lookAt(0, 10, 20);
+	trainCamera.position.set(-12, 6, -20);
+	trainCamera.lookAt(0, 10, 15);
 	train.add(trainCamera);
 	trainCamera.name = `trainCamera`;
 	cameras.push(trainCamera);
@@ -419,7 +419,8 @@ function buildLoco() {
 	trainBackCamera.name = "trainBackCamera";
 	cameras.push(trainBackCamera);
 
-	train.scale.set(0.075, 0.10, 0.09);
+
+	train.scale.set(0.145, 0.145, 0.145);
 	train.visible = settings.showTrain;
 	scene.add(train);
 }
@@ -787,19 +788,19 @@ function mainLoop() {
 	}
 
 	if(train.visible) {
-		updateTrainCrankPosition(time*100);
+		updateTrainCrankPosition(time*200);
 		const trainPos = getRailsPathPosAt(time);
 		const railsData = getRailsPathPosAt(time);
 
 		let x = railsData[0].x;
 		let z = railsData[0].z;
 
-		train.position.set(-1+x, 2.25, -1+z);
+		train.position.set(-1+x, 2.30, -1+z);
 		train.lookAt(railsData[1].x*1000, 1.9, railsData[1].z*1000);
 	}
 
 	let time2 = performance.now();
-	const firstPersonCameraHeight = 1.90;
+	const firstPersonCameraHeight = 1.60;
 	if (firstPersonControls.isLocked === true) {
 		raycaster = new THREE.Raycaster();
 		var raycasterPos = new THREE.Vector3();
