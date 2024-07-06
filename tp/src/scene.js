@@ -131,7 +131,6 @@ function firstPersonCameraHandler(eventName) {
 	// 	return;
 	// }
 
-	// console.log(eventName);
 	switch(eventName) {
 		case 'click':
 			console.log('click');
@@ -151,7 +150,6 @@ function firstPersonCameraHandler(eventName) {
 }
 
 function keyHandler(event) {
-	// console.log(event);
 	if(event.type == 'keydown') {
 		switch (event.code) {
 			case 'ArrowUp':
@@ -460,6 +458,162 @@ function buildRails() {
 	scene.add(rails);
 }
 
+function buildTerrainCustomMaterial() {
+	const customMaterial = new THREE.MeshPhongMaterial({
+		color: 0xffffff,
+		specular: 0x333333,
+		shininess: 10,
+		side: THREE.DoubleSide,
+		reflectivity: 1
+	});
+
+	// definos las variables uniformes adicionales que necesitamos
+	let additionalUniforms = {
+		// grassTexture: { value: grassTexture, type: 't' },
+		// rockTexture: { value: rockTexture, type: 't' },
+
+		dirtSampler: { type: 't', value: textures.tierra.object },
+		rockSampler: { type: 't', value: textures.roca.object },
+		grassSampler: { type: 't', value: textures.pasto.object },
+		scale: { type: 'f', value: 3.0 },
+		terrainAmplitude: { type: 'f', value: amplitude },
+		terrainAmplitudeBottom: { type: 'f', value: amplitudeBottom },
+		worldNormalMatrix: { type: 'm4', value: null },
+		dirtStepWidth: { type: 'f', value: 0.20 },
+		rockStepWidth: { type: 'f', value: 0.15 },
+	};
+	// le decimos al material que vamos a usar UVs para que incluya las coordenadas UV en el shader
+	customMaterial.defines = { USE_UV: true };
+
+	// Este callback se ejecuta antes de compilar el shader
+	// Hay que ver como referencia el archivo
+	// node_modules/three/src/renderers/shaders/ShaderLib/meshphong.glsl.js
+	// para saber que chunks podemos reemplazar
+
+	customMaterial.onBeforeCompile = function (shader) {
+		// le agregamos las variables uniformes adicionales al shader
+		shader.uniforms.dirtSampler = additionalUniforms.dirtSampler;
+		shader.uniforms.rockSampler = additionalUniforms.rockSampler;
+		shader.uniforms.grassSampler = additionalUniforms.grassSampler;
+		shader.uniforms.scale = additionalUniforms.scale;
+		shader.uniforms.terrainAmplitude = additionalUniforms.terrainAmplitude;
+		shader.uniforms.terrainAmplitudeBottom = additionalUniforms.terrainAmplitudeBottom;
+		shader.uniforms.worldNormalMatrix = additionalUniforms.worldNormalMatrix;
+		shader.uniforms.dirtStepWidth = additionalUniforms.dirtStepWidth;
+		shader.uniforms.rockStepWidth = additionalUniforms.rockStepWidth;
+
+		// hacemos un search and replace en el vertex shader
+		// buscamos la linea que dice
+		// vViewPosition = - mvPosition.xyz;
+		// y le agregamos una linea mas que guarde la posicion del vertice en el espacio del mundo
+		shader.vertexShader = shader.vertexShader.replace(
+			'vViewPosition = - mvPosition.xyz;',
+			`vViewPosition = - mvPosition.xyz;
+			 vWorldPosition = (modelMatrix*vec4(transformed,1.0)).xyz;`
+		);
+
+		// agregamos una variable varying al comienzo del vertex shader
+		// para pasar la posicion del vertice en coordenadas del mundo al fragment shader
+		shader.vertexShader =
+			`varying vec3 vWorldPosition;
+		` + shader.vertexShader;
+
+		// agregamos las variables uniformes y varying al fragment shader
+		// Siempre hay que tener cuidado con los nombres de las variables que definimos
+		// no deben coincidir con las variables que usa Three.js
+
+		shader.fragmentShader = `
+uniform float scale;
+uniform float terrainAmplitude;
+uniform float terrainAmplitudeBottom;
+uniform float dirtStepWidth;
+uniform float rockStepWidth;
+
+uniform sampler2D dirtSampler;
+uniform sampler2D rockSampler;
+uniform sampler2D grassSampler;
+varying vec3 vWorldPosition;
+
+` + shader.fragmentShader;
+
+		shader.fragmentShader = shader.fragmentShader.replace(
+			'void main() {',
+			`
+float myNormalizeFunc(float inputValue, float minValue, float maxValue) {
+	return (inputValue - minValue) / (maxValue - minValue);
+}
+
+void main () {
+	float heightFactor = vWorldPosition.y - terrainAmplitudeBottom;
+	float heightFactorNormalized = myNormalizeFunc(heightFactor, 0.0, terrainAmplitude);
+`);
+
+		// reemplazamos el include del chunk map_fragment por nuestro propio codigo
+		shader.fragmentShader = shader.fragmentShader.replace(
+			'#include <map_fragment>',
+			`// calculamos las coordenadas UV en base a las coordenadas de mundo
+vec2 uvCoords=vWorldPosition.xz/100.0;
+vec2 myUV  = uvCoords*8.0;
+vec2 myUV2 = uvCoords*scale;
+
+vec3 grass = texture2D(grassSampler, uvCoords).xyz;
+vec3 dirt  = texture2D(dirtSampler, uvCoords*4.0).xyz;
+vec3 rock  = texture2D(rockSampler, uvCoords).xyz;
+
+// si quisieramos podriamos usar la variabl vUv tambien que son las coordenadas UV del vertice
+
+// muestreo de pasto a diferentes escalas, luego se combina con \`mix()\`
+vec3 grass1 = texture2D(grassSampler, myUV2*1.00).xyz;
+vec3 grass2 = texture2D(grassSampler, myUV2*3.13).xyz;
+vec3 grass3 = texture2D(grassSampler, myUV2*2.37).xyz;
+vec3 colorGrass = mix(mix(grass1,grass2,0.5),grass3,0.3);
+
+// lo mismo para la textura de tierra
+vec3 dirt1 = texture2D(dirtSampler, myUV2*3.77).xyz;
+vec3 dirt2 = texture2D(dirtSampler, myUV2*1.58).xyz;
+vec3 dirt3 = texture2D(dirtSampler, myUV2*1.00).xyz;
+vec3 colorDirt = mix(mix(dirt1, dirt2, 0.5), dirt3, 0.3);
+
+// lo mismo para la textura de roca
+vec3 rock1 = texture2D(rockSampler,myUV2*0.40).xyz;
+vec3 rock2 = texture2D(rockSampler,myUV2*2.38).xyz;
+vec3 rock3 = texture2D(rockSampler,myUV2*3.08).xyz;
+vec3 colorRock = mix(mix(rock1, rock2, 0.5), rock3,0.5);
+
+float u = heightFactorNormalized;
+
+float width2 = rockStepWidth;
+float rockFactor = 2.00 - smoothstep(0.0, width2, u) - smoothstep(1.0, 1.00 - width2, u);
+
+float width = dirtStepWidth;
+float s1 = smoothstep(0.00, width, u);
+float s2 = smoothstep(width, width*2.0, u);
+float s3 = smoothstep(0.50, 0.50 + width, u);
+float s4 = smoothstep(0.50 + width, 0.50 + width*2.0, u);
+float dirtFactor = (s1 - s2) + (s3 - s4);
+
+float grassFactor = smoothstep(0.0, 0.35, u) - smoothstep(0.35, 1.00, u);
+
+vec3 colorDirtGrass = mix(colorDirt, colorGrass, grassFactor);
+vec3 colorDirtGrassDirt = mix(colorDirtGrass, colorDirt, dirtFactor);
+vec3 color = mix(colorDirtGrassDirt, colorRock, rockFactor);
+
+diffuseColor = vec4(color, 1.0);
+
+// leemos los colores de las texturas
+// vec4 grassColor = texture2D(grassSampler,uvCoords);
+// vec4 rockColor = texture2D(rockSampler,uvCoords);
+
+// mezclamos los colores en base a la altura del vertice
+// diffuseColor = mix(grassColor, rockColor, smoothstep(0.0,5.0,vWorldPosition.y));`);
+
+		// imprimimos el shader para debuggear
+		console.log(shader.vertexShader);
+		console.log(shader.fragmentShader);
+	};
+	return customMaterial;
+}
+
 function buildTerrain() {
 	const width = 100;
 	const height = 100;
@@ -471,12 +625,13 @@ function buildTerrain() {
 		textures.elevationMap.object);
 
 	console.log('Applying textures');
+
 	terrainMaterial = new THREE.RawShaderMaterial({
 		uniforms: {
 			dirtSampler: { type: 't', value: textures.tierra.object },
 			rockSampler: { type: 't', value: textures.roca.object },
 			grassSampler: { type: 't', value: textures.pasto.object },
-			scale: { type: 'f', value: 3.0 },
+			scale: { type: 'f', value: 2.5 },
 			terrainAmplitude: { type: 'f', value: amplitude },
 			terrainAmplitudeBottom: { type: 'f', value: amplitudeBottom },
 			worldNormalMatrix: { type: 'm4', value: null },
@@ -487,7 +642,8 @@ function buildTerrain() {
 		fragmentShader: fragmentShader,
 		side: THREE.DoubleSide,
 	});
-	terrain = new THREE.Mesh(terrainGeometry, terrainMaterial);
+	const customMaterial = buildTerrainCustomMaterial();
+	terrain = new THREE.Mesh(terrainGeometry, customMaterial );
 
 	terrainMaterial.onBeforeRender = (renderer, scene, camera, geometry, terrain) => {
 		let m = terrain.matrixWorld.clone();
@@ -532,7 +688,6 @@ function buildTunnel() {
 	const trainPathPos = getRailsPathPosAt(0.32);
 	tunnel.position.set(trainPathPos[0].x, 0, trainPathPos[0].z);
 	tunnel.lookAt(trainPathPos[1].x*1000, 0, trainPathPos[1].z*1000);
-	console.log(trainPathPos);
 
 	scene.add(tunnel);
 
