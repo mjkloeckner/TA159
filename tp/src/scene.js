@@ -902,6 +902,7 @@ function main() {
 	time = 0.00;
 	buildScene();
 	createMenu();
+	nextCamera();
 	mainLoop();
 }
 
