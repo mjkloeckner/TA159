@@ -793,7 +793,7 @@ function createMenu() {
 function buildScene() {
 	console.log('Building scene');
 	buildTunnel();
-	buildTrees(100);
+	buildTrees(350);
 	buildTerrain();
 	buildRailsFoundation();
 	buildRails();
