@@ -82,9 +82,14 @@ se utiliza la función Ruido de Perlin para obtener valores pseudo-aleatorios.
 
 ### Arboles
 
-Los arboles se generan de manera aleatoria en todo el mapa, y se utiliza el mapa
-de elevación para verificar que no caiga en un punto muy bajo o muy alto, como
-puede ser montaña o rió, de acuerdo a un parámetro fijo
+Los arboles se generan de manera aleatoria en todo el mapa, y se utiliza un mapa
+similar al mapa de elevación para verificar que no caiga en un punto muy bajo o
+muy alto, o una zona prohibida.
+
+La cantidad de arboles en el mapa se puede cambiar mediante la modificación del
+argumento del llamado a la función `buildTrees` en la función `buildScene` del
+archivo `/src/scene.js`, hay que tener en cuenta que si bien queda mejor con
+mas arboles en la escena, cuantos mas arboles haya peor será la performance.
 
 ### Terraplén y Vías de Tren
 
@@ -105,16 +110,40 @@ Para realizar cada objeto de la locomotora se utilizan funciones primitivas de `
 [`CylinderGeometry`](https://threejs.org/docs/index.html?q=cylin#api/en/geometries/CylinderGeometry),
 las cuales generan cubos y cilindros, respectivamente.
 
-### Puente
-
 ### Túnel
 
-### Cámaras
+El túnel se genera con la función `ExtrudeGeometry()` utilizando como forma una
+curva predefinida.
 
-### Texturas
+### Puente
+
+El puente se genera por partes, siendo las partes principales las paredes y los
+soportes de metal (o `cage` como se define en el código), las paredes se generan
+de manera similar al túnel, extruyendo una curva, a diferencia que la curva que
+define la forma se define en base a parámetros definidos por el
+usuario, de esta manera se puede reutilizar el mismo código para ambos puentes.
+
+Para los soportes de metal del puente se utilizan cilindros para formar un cubo,
+luego se repite el cubo en base a parámetros especificados por el usuario.
 
 ### Iluminación
+
+La iluminación depende del modo (noche/día), en caso de estar en modo día se
+muestran 3 luces: ambiente, direccional y puntual, esta ultima imitando al sol,
+posicionándose de manera tal que coincida con el sol de la textura del cielo.
+
+En modo noche se oculta la luz ambiente y se cambia el color de la luz
+direccional por un tono más azulado, además se cambia la posición de la luz
+puntual para que coincida con la posición de la luna de la textura del cielo
+
+En cuanto a las luces del tren, solo se muestran cuando el modo noche esta
+activo, en modo día se oculta.
 
 ## Recursos Consultados
 
 * [Documentación de Three.js](https://threejs.org/docs/index.html#manual/en/introduction/Creating-a-scene)
+
+## Licencia
+
+[MIT](./LICENSE)
+
