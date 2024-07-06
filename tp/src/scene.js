@@ -245,7 +245,7 @@ function setupFirstPersonControls() {
 	const firstPersonCamera = new THREE.PerspectiveCamera(
 		50, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-	firstPersonCamera.position.set(5, 5, 40);
+	firstPersonCamera.position.set(0, 5, 20);
 	firstPersonCamera.lookAt(-10, 5, 0);
 	firstPersonCamera.name = "firstPersonCamera"
 	cameras.push(firstPersonCamera);
@@ -899,7 +899,7 @@ function mainLoop() {
 function main() {
 	setupThreeJs();
 	setupFirstPersonControls();
-	time = 0.00;
+	time = 0.90;
 	buildScene();
 	createMenu();
 	nextCamera();
