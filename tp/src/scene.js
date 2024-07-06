@@ -414,7 +414,7 @@ function buildLoco() {
 	const trainConductorCamera = new THREE.PerspectiveCamera(
 		55, window.innerWidth / window.innerHeight, 0.1, 10000);
 
-	trainConductorCamera.position.set(0, 16, -20);
+	trainConductorCamera.position.set(0, 7, -11);
 	trainConductorCamera.lookAt(0, 20, 100);
 	train.add(trainConductorCamera);
 	trainConductorCamera.name = "trainConductorCamera";
@@ -494,6 +494,9 @@ function buildRailsFoundation() {
 	railsFoundation.position.set(-1, 1.25, -1);
 	railsFoundation.scale.set(1.00, 1.50, 1.00);
 	scene.add(railsFoundation);
+	// descomentando esto se tiene en cuenta la altura del terraplen de las vias
+	// para la camara en primera person pero resulta en muy baja performance
+	// objects.push(railsFoundation);
 }
 
 function buildRails() {
