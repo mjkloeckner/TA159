@@ -666,8 +666,8 @@ diffuseColor = vec4(color, 1.0);
 // diffuseColor = mix(grassColor, rockColor, smoothstep(0.0,5.0,vWorldPosition.y));`);
 
 		// imprimimos el shader para debuggear
-		console.log(shader.vertexShader);
-		console.log(shader.fragmentShader);
+		// console.log(shader.vertexShader);
+		// console.log(shader.fragmentShader);
 	};
 	return customMaterial;
 }
