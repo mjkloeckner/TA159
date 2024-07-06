@@ -36,6 +36,7 @@ let settings = {
 let raycaster;
 
 let moveForward = false;
+let moveForwardRunning = false;
 let moveBackward = false;
 let moveLeft = false;
 let moveRight = false;
@@ -156,6 +157,9 @@ function keyHandler(event) {
 			case 'ArrowUp':
 			case 'KeyW':
 				moveForward = true;
+				if(event.shiftKey) {
+					moveForwardRunning = true;
+				}
 				break;
 			case 'ArrowLeft':
 			case 'KeyA':
@@ -190,12 +194,22 @@ function keyHandler(event) {
 				}
 				break;
 		}
+		switch(event.key) {
+			case "Shift":
+				if(!moveForwardRunning) {
+					moveForwardRunning = true;
+				}
+				break;
+			default:
+				break;
+		}				
 	} else {
 		// key up
 		switch (event.code) {
 			case 'ArrowUp':
 			case 'KeyW':
 				moveForward = false;
+				moveForwardRunning = false;
 				break;
 			case 'ArrowLeft':
 			case 'KeyA':
@@ -208,6 +222,15 @@ function keyHandler(event) {
 			case 'ArrowRight':
 			case 'KeyD':
 				moveRight = false;
+				break;
+		}
+		switch(event.key) {
+			case "Shift":
+				if(moveForwardRunning) {
+					moveForwardRunning = false;
+				}
+				break;
+			default:
 				break;
 		}
 	}
@@ -616,7 +639,11 @@ function mainLoop() {
 		direction.normalize(); // this ensures consistent movements in all directions
 
 		if (moveForward || moveBackward) {
-			velocity.z -= direction.z * 100.0 * delta;
+			if(moveForwardRunning) {
+				velocity.z -= direction.z * 200.0 * delta;
+			} else {
+				velocity.z -= direction.z * 100.0 * delta;
+			}
 		}
 
 		if (moveLeft || moveRight) {
