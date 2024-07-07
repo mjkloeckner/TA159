@@ -11,11 +11,16 @@ let spherePath;
 let railsPath;
 let railsFoundationShape;
 
+import tierraUrl     from '../assets/tierra.jpg'
+import rocaUrl       from '../assets/roca.jpg'
+import pastoUrl      from '../assets/pasto.jpg'
+import durmientesUrl from '../assets/durmientes.jpg'
+
 const textures = {
-	tierra:     { url: '/tierra.jpg', object: null },
-	roca:       { url: '/roca.jpg', object: null },
-	pasto:      { url: '/pasto.jpg', object: null },
-	durmientes: { url: '/durmientes.jpg', object: null },
+	tierra:     { url: tierraUrl,     object: null },
+	roca:       { url: rocaUrl,       object: null },
+	pasto:      { url: pastoUrl,      object: null },
+	durmientes: { url: durmientesUrl, object: null },
 };
 
 function onResize() {

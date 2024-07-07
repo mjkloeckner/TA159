@@ -11,12 +11,18 @@ const heightSegments  = 100;
 const amplitude       = 8;
 const amplitudeBottom = -1.00;
 
+import tierraUrl           from '../assets/tierra.jpg'
+import rocaUrl             from '../assets/roca.jpg'
+import pastoUrl            from '../assets/pasto.jpg'
+import elevationMapUrl     from '../assets/elevation_map2.png'
+import treeForbiddenMapUrl from '../assets/tree_forbidden_zone_map.png'
+
 const textures = {
-	tierra:           { url: '/tierra.jpg', object: null },
-	roca:             { url: '/roca.jpg', object: null },
-	pasto:            { url: '/pasto.jpg', object: null },
-	elevationMap:     { url: '/elevation_map2.png', object: null },
-	treeForbiddenMap: { url: '/tree_forbidden_zone_map.png', object: null }
+	tierra:           { url: tierraUrl,           object: null },
+	roca:             { url: rocaUrl,             object: null },
+	pasto:            { url: pastoUrl,            object: null },
+	elevationMap:     { url: elevationMapUrl,     object: null },
+	treeForbiddenMap: { url: treeForbiddenMapUrl, object: null }
 };
 
 function onResize() {

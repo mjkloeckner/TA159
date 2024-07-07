@@ -1,9 +1,12 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
+import tierraSecaUrl from './assets/tierraSeca.jpg'
+import ladrillosUrl  from './assets/pared-de-ladrillos.jpg'
+
 const textures = {
-	tierra:     { url: '/tierraSeca.jpg', object: null },
-	ladrillos:  { url: '/pared-de-ladrillos.jpg', object: null },
+	tierra:     { url: tierraSecaUrl, object: null },
+	ladrillos:  { url: ladrillosUrl, object: null },
 };
 
 function onTextureLoaded(key, texture) {

@@ -3,12 +3,15 @@ import * as dat from 'dat.gui';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
-let scene, camera, renderer, container;
+import tierraSecaUrl from '../assets/tierraSeca.jpg'
+import ladrillosUrl  from '../assets/pared-de-ladrillos.jpg'
 
 const textures = {
-	tierra:     { url: '/tierraSeca.jpg', object: null },
-	ladrillos:  { url: '/pared-de-ladrillos.jpg', object: null },
+	tierra:     { url: tierraSecaUrl, object: null },
+	ladrillos:  { url: ladrillosUrl, object: null },
 };
+
+let scene, camera, renderer, container;
 
 function onResize() {
 	camera.aspect = container.offsetWidth / container.offsetHeight;

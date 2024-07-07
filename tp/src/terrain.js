@@ -6,11 +6,16 @@ const heightSegments  = 100;
 const amplitude       = 8;
 const amplitudeBottom = -1.00;
 
+import rocaUrl             from './assets/roca.jpg'
+import pastoUrl            from './assets/pasto.jpg'
+import tierraUrl           from './assets/tierra.jpg'
+import elevationMapUrl     from './assets/elevation_map2.png'
+
 const textures = {
-	tierra:       { url: '/tierra.jpg', object: null },
-	roca:         { url: '/roca.jpg', object: null },
-	pasto:        { url: '/pasto.jpg', object: null },
-	elevationMap: { url: '/elevation_map2.png', object: null },
+	tierra:       { url: tierraUrl,       object: null },
+	roca:         { url: rocaUrl,         object: null },
+	pasto:        { url: pastoUrl,        object: null },
+	elevationMap: { url: elevationMapUrl, object: null },
 };
 
 // La funcion devuelve una geometria de Three.js

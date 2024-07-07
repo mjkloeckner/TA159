@@ -2,9 +2,12 @@ import * as THREE from 'three';
 
 let treesForbiddenMapData, treesForbiddenMap, elevationMap, elevationMapData;
 
+import elevationMapUrl     from './assets/elevation_map2.png'
+import treeForbiddenMapUrl from './assets/tree_forbidden_zone_map.png'
+
 const textures = {
-	elevationMap:     { url: '/elevation_map2.png', object: null },
-	treeForbiddenMap: { url: '/tree_forbidden_zone_map.png', object: null }
+	elevationMap:     { url: elevationMapUrl, object: null },
+	treeForbiddenMap: { url: treeForbiddenMapUrl, object: null }
 };
 
 const widthSegments   = 100;

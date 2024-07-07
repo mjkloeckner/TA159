@@ -4,8 +4,10 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 let scene, camera, renderer, container;
 
+import maderaUrl from '../assets/madera.jpg'
+
 const textures = {
-	madera: { url: '/madera.jpg', object: null },
+	madera: { url: maderaUrl, object: null },
 };
 
 function onResize() {

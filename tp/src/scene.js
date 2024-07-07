@@ -58,16 +58,38 @@ const heightSegments  = 150;
 const amplitude       = 10;
 const amplitudeBottom = -2.10; // terrain offset
 
+import skyDayUrl           from './assets/sky_day_void.jpg'
+import skyNightUrl         from './assets/sky_night.jpg'
+import rocaUrl             from './assets/roca.jpg'
+import pastoUrl            from './assets/pasto.jpg'
+import tierraUrl           from './assets/tierra.jpg'
+import maderaUrl           from './assets/madera.jpg'
+import durmientesUrl       from './assets/durmientes.jpg'
+import elevationMapUrl     from './assets/elevation_map_wider_river.png'
+import treeForbiddenMapUrl from './assets/tree_forbidden_zone_map_wider_path.png'
+
+// const textures = {
+// 	sky_day:          { url: '/sky_day_void.jpg', object: null },
+// 	sky_night:        { url: '/sky_night.jpg', object: null },
+// 	roca:             { url: '/roca.jpg', object: null },
+// 	pasto:            { url: '/pasto.jpg', object: null },
+// 	tierra:           { url: '/tierra.jpg', object: null },
+// 	madera:           { url: '/madera.jpg', object: null },
+// 	durmientes:       { url: '/durmientes.jpg', object: null },
+// 	elevationMap:     { url: '/elevation_map_wider_river.png', object: null },
+// 	treeForbiddenMap: { url: '/tree_forbidden_zone_map_wider_path.png', object: null }
+// };
+
 const textures = {
-	sky_day:          { url: '/sky_day_void.jpg', object: null },
-	sky_night:        { url: '/sky_night.jpg', object: null },
-	roca:             { url: '/roca.jpg', object: null },
-	pasto:            { url: '/pasto.jpg', object: null },
-	tierra:           { url: '/tierra.jpg', object: null },
-	madera:           { url: '/madera.jpg', object: null },
-	durmientes:       { url: '/durmientes.jpg', object: null },
-	elevationMap:     { url: '/elevation_map_wider_river.png', object: null },
-	treeForbiddenMap: { url: '/tree_forbidden_zone_map_wider_path.png', object: null }
+	skyDay:           { url: skyDayUrl, object: null },
+	skyNight:         { url: skyNightUrl, object: null },
+	roca:             { url: rocaUrl, object: null },
+	pasto:            { url: pastoUrl, object: null },
+	tierra:           { url: tierraUrl, object: null },
+	madera:           { url: maderaUrl, object: null },
+	durmientes:       { url: durmientesUrl, object: null },
+	elevationMap:     { url: elevationMapUrl, object: null },
+	treeForbiddenMap: { url: treeForbiddenMapUrl, object: null }
 };
 
 function onResize() {
@@ -311,14 +333,14 @@ function setupThreeJs() {
 		lights.ambient.object.visible = false;
 		lights.hemisphere.object.intensity = 0;
 		lights.directional.object.color.setHex(0xcdddfe); // 0x090254; 0xa8a1fd
-		scene.background = textures.sky_night.object;
+		scene.background = textures.skyNight.object;
 		lights.directional.object.position.set(100, 100, 100); // math the skybox texture moon light
 	} else {
 		lights.ambient.object.visible = true;
 		lights.hemisphere.object.intensity = 1;
 		lights.directional.object.intensity = 1;
 		lights.directional.object.color.setHex(0xFFFFFF);
-		scene.background = textures.sky_day.object;
+		scene.background = textures.skyDay.object;
 		lights.directional.object.position.set(-100, 100, 100);
 	}
 	
@@ -337,13 +359,13 @@ function setupThreeJs() {
 	window.addEventListener('resize', onResize);
 	onResize();
 
-	textures.sky_day.object.mapping = THREE.EquirectangularRefractionMapping;
-	textures.sky_night.object.mapping = THREE.EquirectangularRefractionMapping;
+	textures.skyDay.object.mapping = THREE.EquirectangularRefractionMapping;
+	textures.skyNight.object.mapping = THREE.EquirectangularRefractionMapping;
 
 	if(settings.nightMode == true) {
-		scene.background = textures.sky_night.object;
+		scene.background = textures.skyNight.object;
 	} else {
-		scene.background = textures.sky_day.object;
+		scene.background = textures.skyDay.object;
 	}
 }
 
@@ -772,7 +794,7 @@ function toggleNightMode() {
 		lights.ambient.object.visible = false;
 		lights.hemisphere.object.intensity = 0;
 		lights.directional.object.color.setHex(0xcdddfe); // 0x090254; 0xa8a1fd
-		scene.background = textures.sky_night.object;
+		scene.background = textures.skyNight.object;
 		lights.directional.object.position.set(100, 100, 100); // math the skybox texture moon light
 		trainLight.visible = true;
 		trainLight2.visible = true;
@@ -782,7 +804,7 @@ function toggleNightMode() {
 		lights.hemisphere.object.intensity = 1;
 		lights.directional.object.intensity = 1;
 		lights.directional.object.color.setHex(0xFFFFFF);
-		scene.background = textures.sky_day.object;
+		scene.background = textures.skyDay.object;
 		lights.directional.object.position.set(-100, 100, 100);
 		trainLight.visible = false;
 		trainLight2.visible = false;
