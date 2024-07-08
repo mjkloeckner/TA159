@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 
 import { ParametricGeometry } from 'three/addons/geometries/ParametricGeometry.js';
-import { ParametricGeometries } from 'three/examples/jsm/geometries/ParametricGeometries.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 let railsPath;
@@ -13,19 +12,6 @@ export const railsFoundationShape = new THREE.CatmullRomCurve3([
 	new THREE.Vector3(  1.00, 0.00, 0.50),
 	new THREE.Vector3(  2.00, 0.00, 0.00),
 ], false);
-
-
-import tierraUrl     from './assets/tierra.jpg'
-import rocaUrl       from './assets/roca.jpg'
-import pastoUrl      from './assets/pasto.jpg'
-import durmientesUrl from './assets/durmientes.jpg'
-
-const textures = {
-	tierra:     { url: tierraUrl,     object: null },
-	roca:       { url: rocaUrl,       object: null },
-	pasto:      { url: pastoUrl,      object: null },
-	durmientes: { url: durmientesUrl, object: null },
-};
 
 export function getRailsPathPosAt(t) {
 	if(railsPath == undefined) {
@@ -152,35 +138,6 @@ export function buildRailsGeometry(railsRadius = 0.35) {
 	return railsGeometry;
 }
 
-function onTextureLoaded(key, texture) {
-	texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-	textures[key].object = texture;
-	console.log('Texture `' + key + '` loaded');
-}
-
-function loadTextures(callback) {
-	const loadingManager = new THREE.LoadingManager();
-
-	loadingManager.onLoad = () => {
-		console.log('All textures loaded');
-		callback();
-	};
-
-	for (const key in textures) {
-		console.log("Loading textures");
-		const loader = new THREE.TextureLoader(loadingManager);
-		const texture = textures[key];
-		texture.object = loader.load(
-			texture.url,
-			onTextureLoaded.bind(this, key),
-			null,
-			(error) => {
-				console.error(error);
-			}
-		);
-	}
-}
-
 function main() {
 	railsPath = new THREE.CatmullRomCurve3([
 		// bridge1 side
@@ -211,4 +168,4 @@ function main() {
 }
 
 // setupThreeJs();
-loadTextures(main);
+main();

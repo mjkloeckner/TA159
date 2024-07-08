@@ -203,7 +203,7 @@ export function generateBridge(arcCount=1, arcRadius=3,
 	const bridgeLen    = arcCount*(columnWidth+arcWidth)+columnWidth+startPadding+endPadding;
 	const squareTubeRadius = 0.30;
 
-	const bridge       = new THREE.Object3D();
+	const bridge = new THREE.Object3D();
 
 	const leftWallGeometry = generateBridgeWallGeometry(
 		arcCount, arcRadius, columnWidth, columnHeight, padding);
