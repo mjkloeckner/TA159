@@ -14,8 +14,8 @@ const amplitudeBottom = -1.00;
 import tierraUrl           from '../assets/tierra.jpg'
 import rocaUrl             from '../assets/roca.jpg'
 import pastoUrl            from '../assets/pasto.jpg'
-import elevationMapUrl     from '../assets/elevation_map2.png'
-import treeForbiddenMapUrl from '../assets/tree_forbidden_zone_map.png'
+import elevationMapUrl     from '../assets/elevation_map_wider_river.png'
+import treeForbiddenMapUrl from '../assets/tree_forbidden_zone_map_wider_path.png'
 
 const textures = {
 	tierra:           { url: tierraUrl,           object: null },
@@ -92,12 +92,10 @@ function isForbbidenPosition(position) {
 	const y = position.y;
 	const z = Math.floor(position.z);
 
-	/*
 	if((y > 5.0) || (y < 2.65)){
 		console.log("(" + position.x + ", " + position.y + ", " + position.z + ") is not valid ");
 		return true;
 	}
-	*/
 	
 	let pixelArray = getPixelXY(treesForbiddenMap, x, z);
 	const R = pixelArray[0]; // Red
