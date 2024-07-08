@@ -149,8 +149,8 @@ function buildChamber() {
 }
 
 function buildTrainWheel() {
-	const wheel = new THREE.CylinderGeometry(wheelRad, wheelRad, wheelThickness);
-	wheel.rotateZ(Math.PI/2);
+	const wheelGeometry = new THREE.CylinderGeometry(wheelRad, wheelRad, wheelThickness);
+	wheelGeometry.rotateZ(Math.PI/2);
 
 	const wheelBolt = new THREE.CylinderGeometry(wheelRad, wheelRad, wheelThickness);
 	wheelBolt.rotateZ(Math.PI/2);
@@ -161,7 +161,10 @@ function buildTrainWheel() {
 		shininess: 100.0
 	});
 
-	return new THREE.Mesh(wheel, wheelsMaterial)
+	const wheel = new THREE.Mesh(wheelGeometry, wheelsMaterial);
+	wheel.castShadow = true;
+	wheel.receiveShadow = true;
+	return wheel;
 }
 
 function buildTrainAxe(material) {
@@ -194,6 +197,8 @@ export function buildTrain() {
 	});
 
 	const chassis = new THREE.Mesh(chassisGeometry, chassisMaterial);
+	chassis.castShadow = true;
+	chassis.receiveShadow = true;
 	train.add(chassis);
 
 	const chamberGeometry = buildChamber();
@@ -204,11 +209,15 @@ export function buildTrain() {
 	});
 
 	const chamber = new THREE.Mesh(chamberGeometry, chamberMaterial);
+	chamber.castShadow = true;
+	chamber.receive    = true;
 	chassis.add(chamber);
 	chamber.position.set(0, (chassisHeight + cabinWallThickness)/2, chassisOffset);
 
 	const cabinGeometry = buildCabin();
 	const cabin = new THREE.Mesh(cabinGeometry, chamberMaterial);
+	cabin.castShadow = true;
+	cabin.receive = true;
 	chassis.add(cabin);
 	cabin.position.set(0,
 		(chassisHeight + cabinWallThickness)/2,
@@ -222,6 +231,8 @@ export function buildTrain() {
 	});
 
 	const cabinRoof = new THREE.Mesh(cabinRoofGeometry, roofMaterial);
+	cabinRoof.castShadow = true;
+	cabinRoof.receive = true;
 	cabin.add(cabinRoof);
 	cabinRoof.position.set(0, cabinHeight+cabinRoofHeight+cabinWallThickness/2, 0);
 
@@ -253,7 +264,10 @@ export function buildTrain() {
 		shininess: 100.0
 	});
 
-	chassis.add(new THREE.Mesh(cylindersGeometry, cylindersMaterial));
+	const cylinders = new THREE.Mesh(cylindersGeometry, cylindersMaterial)
+	cylinders.castShadow = true;
+	cylinders.receiveShadow = true;
+	chassis.add(cylinders);
 	chassis.position.set(0,-2,-2.75);
 
 	const w1 = buildTrainWheel();

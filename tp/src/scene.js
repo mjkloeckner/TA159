@@ -24,6 +24,7 @@ let firstPersonControls, orbitControls;
 
 let train, trainLight, trainLight2, trainLight3;
 
+let helpers = [];
 let cameras = [];
 let objects = [];
 let lights = {
@@ -294,7 +295,10 @@ function setupThreeJs() {
 	renderer = new THREE.WebGLRenderer();
 	renderer.setPixelRatio( window.devicePixelRatio );
 	renderer.setSize( window.innerWidth, window.innerHeight );
-	document.body.appendChild( renderer.domElement );
+	renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
+	renderer.shadowMap.enabled = true;
+
+	document.body.appendChild(renderer.domElement);
 
 	const topView = new THREE.PerspectiveCamera(
 		35, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -312,7 +316,19 @@ function setupThreeJs() {
 
 	lights.directional.object = new THREE.DirectionalLight(0xffffff, 1);
 	lights.directional.object.position.set(-100, 100, 100);
-	
+	// Set up shadow properties for the light
+	lights.directional.object.castShadow            = true; // default false
+	lights.directional.object.shadow.mapSize.width  = 512;  // default
+	lights.directional.object.shadow.mapSize.height = 512;  // default
+
+	lights.directional.object.shadow.camera = new THREE.OrthographicCamera(
+		-65, 65, 65, -40, 0.5, 225); 
+
+	const directionalLightShadowsHelper = new THREE.CameraHelper(lights.directional.object.shadow.camera);
+	directionalLightShadowsHelper.visible = settings.showHelpers;
+	scene.add(directionalLightShadowsHelper);
+	helpers.push(directionalLightShadowsHelper);
+
 	scene.add(lights.ambient.object);
 	scene.add(lights.hemisphere.object);
 	scene.add(lights.directional.object);
@@ -332,17 +348,22 @@ function setupThreeJs() {
 		lights.directional.object.position.set(-100, 100, 100);
 	}
 	
-	const helper = new THREE.HemisphereLightHelper(lights.hemisphere.object, 5);
-	if(settings.showHelpers) scene.add(helper) ;
+	const hemisphereLightHelper = new THREE.HemisphereLightHelper(lights.hemisphere.object, 5);
+	helpers.push(hemisphereLightHelper);
 
-	const directinoalLightHelper = new THREE.DirectionalLightHelper( lights.directional.object, 5);
-	if(settings.showHelpers) scene.add(directinoalLightHelper);
+	const directionalLightHelper = new THREE.DirectionalLightHelper(lights.directional.object, 5);
+	helpers.push(directionalLightHelper);
 
 	const gridHelper = new THREE.GridHelper(200, 200);
-	if(settings.showHelpers) scene.add(gridHelper);
+	helpers.push(gridHelper);
 
 	const axesHelper = new THREE.AxesHelper(5);
-	if(settings.showHelpers) scene.add(axesHelper);
+	helpers.push(axesHelper);
+
+	for(let i = 0; i < helpers.length; ++i) {
+		helpers[i].visible = settings.showHelpers;
+		scene.add(helpers[i]);
+	}
 
 	window.addEventListener('resize', onResize);
 	onResize();
@@ -411,6 +432,11 @@ function buildBridge() {
 	bridgeCamera.name = "bridgeCamera";
 	cameras.push(bridgeCamera);
 
+	bridge1.castShadow    = true;
+	bridge1.receiveShadow = true;
+	bridge2.castShadow    = true;
+	bridge2.receiveShadow = true;
+
 	scene.add(bridge1);
 	scene.add(bridge2);
 
@@ -450,26 +476,53 @@ function buildLoco() {
 	cameras.push(trainBackCamera);
 
 	// SpotLight(color: Int, intensity: Float, distance: Float, angle: Radians, penumbra: Float, decay: Float)
-	trainLight = new THREE.SpotLight(0xffffff, 100.0, 2000.0, Math.PI/3, 0.5, 0.5);
+	trainLight = new THREE.SpotLight(0xffffff, 200.0, 100.0, Math.PI/6, 0.5, 1.0);
 	train.add(trainLight.target);
 	train.add(trainLight);
-	trainLight.position.set(0, 2, 15);
-	trainLight.target.position.set(0, -100, 100);
+	trainLight.position.set(0, 4, 5);
+	trainLight.target.position.set(0, -100, 1000);
 	trainLight.target.updateMatrixWorld();
 
-	trainLight2 = new THREE.SpotLight(0xffffff, 10.0, 4.0, Math.PI/2, 0.5, 0.5);
-	train.add(trainLight2.target);
-	train.add(trainLight2);
-	trainLight2.position.set(0, 5, 20);
+	trainLight2 = new THREE.SpotLight(0xffffff, 10.0, 3.0, Math.PI/6, 0.5, 0.5);
+	// train.add(trainLight2.target);
+	// train.add(trainLight2);
+	trainLight2.position.set(0, 3.25, 15);
 	trainLight2.target.position.set(0, 0, -100);
 	trainLight2.target.updateMatrixWorld();
 
-	trainLight3 = new THREE.SpotLight(0xffffff, 10.0, 10.0, Math.PI/2, 0.5, 0.5);
+	trainLight3 = new THREE.SpotLight(0xffffff, 10.0, 16.0, Math.PI/3, 0.5, 0.5);
 	train.add(trainLight3.target);
 	train.add(trainLight3);
-	trainLight3.position.set(0, 5, 10);
-	trainLight3.target.position.set(0, 0, 100);
+	trainLight3.position.set(0, 5, 5);
+	trainLight3.target.position.set(0, -25, 100);
 	trainLight3.target.updateMatrixWorld();
+
+	//Set up shadow properties for the light
+	trainLight.castShadow            = true; // default false
+	trainLight.shadow.mapSize.width  = 128; // default
+	trainLight.shadow.mapSize.height = 128; // default
+	trainLight.shadow.camera.near    = 0.5; // default
+	trainLight.shadow.camera.far     = 40; // default
+	trainLight.shadow.focus          = 1; // default
+
+	trainLight3.castShadow            = true; // default false
+	trainLight3.shadow.mapSize.width  = 512; // default
+	trainLight3.shadow.mapSize.height = 512; // default
+	trainLight3.shadow.camera.near    = 0.5; // default
+	trainLight3.shadow.camera.far     = 100; // default
+	trainLight3.shadow.focus          = 1; // default
+
+	const trainLightHelper = new THREE.CameraHelper(trainLight.shadow.camera);
+	const trainLight2Helper = new THREE.CameraHelper(trainLight2.shadow.camera);
+	const trainLight3Helper = new THREE.CameraHelper(trainLight3.shadow.camera);
+
+	trainLightHelper.visible  = settings.showHelpers;
+	trainLight2Helper.visible = settings.showHelpers;
+	trainLight3Helper.visible = settings.showHelpers;
+
+	helpers.push(trainLightHelper);
+	helpers.push(trainLight2Helper);
+	helpers.push(trainLight3Helper);
 
 	train.scale.set(0.145, 0.145, 0.145);
 	train.visible = settings.showTrain;
@@ -485,11 +538,11 @@ function buildRailsFoundation() {
 	textures.durmientes.object.anisotropy = 16;
 
 	// load into `map` the example texture
-	const map = new THREE.TextureLoader().load(
-		'https://threejs.org/examples/textures/uv_grid_opengl.jpg');
-	map.wrapS = map.wrapT = THREE.RepeatWrapping;
-	map.repeat.set(1, 80);
-	map.anisotropy = 16;
+	// const map = new THREE.TextureLoader().load(
+	// 	'https://threejs.org/examples/textures/uv_grid_opengl.jpg');
+	// map.wrapS = map.wrapT = THREE.RepeatWrapping;
+	// map.repeat.set(1, 80);
+	// map.anisotropy = 16;
 	// map.rotation = Math.PI/2;
 
 	const railsFoundationMaterial = new THREE.MeshPhongMaterial({
@@ -502,6 +555,8 @@ function buildRailsFoundation() {
 	});
 
 	const railsFoundation = new THREE.Mesh(railsFoundationGeometry, railsFoundationMaterial);
+	railsFoundation.receiveShadow = true;
+	railsFoundation.castShadow    = true;
 	railsFoundation.position.set(-1, 1.25, -1);
 	railsFoundation.scale.set(1.00, 1.50, 1.00);
 	scene.add(railsFoundation);
@@ -521,6 +576,8 @@ function buildRails() {
 	});
 
 	const rails = new THREE.Mesh(railsGeometry, railsMaterial);
+	rails.castShadow = true;
+	rails.receiveShadow = true;
 	rails.position.set(-1, 1.25, -1);
 	rails.scale.set(1.00, 1.50, 1.00);
 	scene.add(rails);
@@ -697,6 +754,8 @@ function buildTerrain() {
 	const customMaterial = buildTerrainCustomMaterial();
 	terrain = new THREE.Mesh(terrainGeometry, customMaterial);
 
+	terrain.receiveShadow = true;
+
 	scene.add(terrain);
 
 	terrain.position.set(0, amplitudeBottom, 0);
@@ -708,6 +767,9 @@ function buildTerrain() {
 	const water = new THREE.Mesh( waterGeometry, waterMaterial );
 	water.rotateX(Math.PI/2);
 	water.position.set(0, 0, -0.65);
+
+	water.castShadow    = false;
+	water.receiveShadow = true;
 	scene.add(water);
 }
 
@@ -729,6 +791,8 @@ function buildTunnel() {
 	});
 
 	const tunnel = new THREE.Mesh(tunnelGeometry, tunnelMaterial) ;
+	tunnel.castShadow = true;
+	tunnel.receiveShadow = true;
 	tunnel.scale.set(0.5, 0.5, 0.5);
 
 	const trainPathPos = getRailsPathPosAt(0.32);
@@ -751,6 +815,11 @@ function buildTrees(count = 50) {
 	const [treeLogs, treeLeaves] = createInstancedTrees(count);
 	scene.add(treeLogs);
 	scene.add(treeLeaves);
+
+	treeLogs.castShadow    = true;
+	treeLogs.receiveShadow = true;
+	treeLeaves.castShadow    = true;
+	treeLeaves.receiveShadow = true;
 }
 
 function toggleNightMode() {
@@ -761,7 +830,7 @@ function toggleNightMode() {
 		lights.hemisphere.object.intensity = 0;
 		lights.directional.object.color.setHex(0xcdddfe); // 0x090254; 0xa8a1fd
 		scene.background = textures.skyNight.object;
-		lights.directional.object.position.set(100, 100, 100); // math the skybox texture moon light
+		lights.directional.object.position.set(100, 100, 100); // match the skybox texture moon light
 		trainLight.visible = true;
 		trainLight2.visible = true;
 		trainLight3.visible = true;
@@ -786,6 +855,13 @@ function createMenu() {
 			train.visible = !train.visible;
 		});
 	gui.add(settings, 'nightMode', false).name('Modo noche').onChange(toggleNightMode);
+	gui.add(settings, 'showHelpers', true).name('Mostrar Guias').onChange(
+		function() {
+			for(let i = 0; i < helpers.length; ++i) {
+				helpers[i].visible = settings.showHelpers;
+				scene.add(helpers[i]);
+			}
+		});
 }
 
 function buildScene() {
@@ -806,14 +882,35 @@ function mainLoop() {
 			orbitControls.enabled = true;
 			blocker.style.display = 'none';
 			instructions.style.display = 'none';
+			if(settings.nightMode == true) {
+				trainLight.intensity = 200;
+				trainLight.distance = 100;
+			}
 			break;
 		case "firstPersonCamera":
 			orbitControls.enabled = false;
+			if(settings.nightMode == true) {
+				trainLight.intensity = 200;
+				trainLight.distance = 100;
+			}
+			break;
+		case "trainCamera":
+		case "trainConductorCamera":
+			// por alguna razon cuando la camara es `trainConductorCamera`
+			// la luz principal del tren se ve mas tenue
+			if(settings.nightMode == true) {
+				trainLight.intensity = 1000;
+				trainLight.distance = 1000;
+			}
 			break;
 		default:
 			orbitControls.enabled = false;
 			blocker.style.display = 'none';
 			instructions.style.display = 'none';
+			if(settings.nightMode == true) {
+				trainLight.intensity = 200;
+				trainLight.distance = 100;
+			}
 			break;
 	}
 

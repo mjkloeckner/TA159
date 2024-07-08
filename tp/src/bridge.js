@@ -258,6 +258,9 @@ export function generateBridge(arcCount=1, arcRadius=3,
 	*/
 
 	const bridgeColumns = new THREE.Mesh(bridgeColumnsGeometry, bridgeMaterial);
+	bridgeColumns.castShadow    = true;
+	bridgeColumns.receiveShadow = true;
+
 	bridge.add(bridgeColumns);
 
 	// para reutilizar la textura de ladrillos usada en los arcos se escalan las
@@ -269,6 +272,9 @@ export function generateBridge(arcCount=1, arcRadius=3,
 
 	const bridgeRoadway = new THREE.Mesh(bridgeRoadwayGeometry, bridgeMaterial);
 	bridge.add(bridgeRoadway);
+
+	bridgeRoadway.castShadow    = true;
+	bridgeRoadway.receiveShadow = true;
 
 	const cageGeometry = generateBridgeCage(squaresCount)
 	cageGeometry.translate(0, bridgeHeight+roadwayHeight-squareTubeRadius*2, 0);
@@ -282,6 +288,10 @@ export function generateBridge(arcCount=1, arcRadius=3,
 	});
 
 	const bridgeCage = new THREE.Mesh(cageGeometry, cageMaterial);
+
+	bridgeCage.castShadow    = true;
+	bridgeCage.receiveShadow = true;
+
 	bridge.add(bridgeCage);
 
 	const roadwayFloorGeometry = new THREE.BoxGeometry(
@@ -306,6 +316,9 @@ export function generateBridge(arcCount=1, arcRadius=3,
 	});
 
 	const roadwayFloor = new THREE.Mesh(roadwayFloorGeometry, roadwayFloorMaterial);
+	roadwayFloor.receiveShadow = true;
+	roadwayFloor.castShadow = false;
+
 	bridge.add(roadwayFloor)
 	return bridge;
 }
