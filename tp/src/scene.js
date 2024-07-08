@@ -40,7 +40,7 @@ let settings = {
 	showTrain: true,
 	currCameraIndex: 0,
 	nightMode: true,
-	showHelpers: false,
+	showHelpers: true,
 };
 
 let raycaster;
@@ -326,8 +326,8 @@ function setupThreeJs() {
 
 	// Set up shadow properties for the light
 	lights.directional.object.castShadow            = true;
-	lights.directional.object.shadow.mapSize.width  = 1024;
-	lights.directional.object.shadow.mapSize.height = 1024;
+	lights.directional.object.shadow.mapSize.width  = 512;
+	lights.directional.object.shadow.mapSize.height = 512;
 
 	lights.directional.object.shadow.camera = new THREE.OrthographicCamera(
 		-65, 65, 65, -40, 0.5, 225); 
@@ -507,17 +507,17 @@ function buildLoco() {
 
 	//Set up shadow properties for the light
 	trainLight.castShadow            = true; // default false
-	trainLight.shadow.mapSize.width  = 512; // default
-	trainLight.shadow.mapSize.height = 512; // default
+	trainLight.shadow.mapSize.width  = 256; // default
+	trainLight.shadow.mapSize.height = 256; // default
 	trainLight.shadow.camera.near    = 0.5; // default
 	trainLight.shadow.camera.far     = 40; // default
 	trainLight.shadow.focus          = 1; // default
 
 	trainLight3.castShadow            = true; // default false
-	trainLight3.shadow.mapSize.width  = 512; // default
-	trainLight3.shadow.mapSize.height = 512; // default
+	trainLight3.shadow.mapSize.width  = 256; // default
+	trainLight3.shadow.mapSize.height = 256; // default
 	trainLight3.shadow.camera.near    = 0.5; // default
-	trainLight3.shadow.camera.far     = 100; // default
+	trainLight3.shadow.camera.far     = 50; // default
 	trainLight3.shadow.focus          = 1; // default
 
 	const trainLightHelper = new THREE.CameraHelper(trainLight.shadow.camera);
@@ -871,7 +871,7 @@ function createMenu() {
 function buildScene() {
 	console.log('Building scene');
 	buildTunnel();
-	buildTrees(350);
+	buildTrees(100);
 	buildTerrain();
 	buildRailsFoundation();
 	buildRails();
