@@ -228,13 +228,10 @@ export function generateBridge(arcCount=1, arcRadius=3,
 	textures.ladrillos.object.wrapS = THREE.RepeatWrapping;
 	textures.ladrillos.object.wrapT = THREE.RepeatWrapping;
 	textures.ladrillos.object.repeat.set(0.75*0.15, 0.75*0.35);
-	textures.ladrillos.object.anisotropy = 16;
+	// textures.ladrillos.object.anisotropy = 16;
 
 	const bridgeMaterial = new THREE.MeshPhongMaterial({
-		side: THREE.DoubleSide,
-		transparent: false,
-		opacity: 1.0,
-		shininess: 10,
+		side: THREE.FrontSide,
 		map: textures.ladrillos.object
 	});
 
@@ -280,7 +277,7 @@ export function generateBridge(arcCount=1, arcRadius=3,
 	cageGeometry.translate(0, bridgeHeight+roadwayHeight-squareTubeRadius*2, 0);
 
 	const cageMaterial = new THREE.MeshPhongMaterial({
-		side: THREE.DoubleSide,
+		side: THREE.FrontSide,
 		transparent: false,
 		opacity: 1.0,
 		shininess: 10,
@@ -308,10 +305,7 @@ export function generateBridge(arcCount=1, arcRadius=3,
 	textures.tierra.object.anisotropy = 16;
 
 	const roadwayFloorMaterial = new THREE.MeshPhongMaterial({
-		side: THREE.DoubleSide,
-		transparent: false,
-		opacity: 1.0,
-		shininess: 10,
+		side: THREE.FrontSide,
 		map: textures.tierra.object
 	});
 

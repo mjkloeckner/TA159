@@ -80,7 +80,7 @@ export function createInstancedTrees(count) {
 	treeLogGeometry.translate(0, logHeight/2.0, 0);
 	const instancedTreeLogGeometry = new THREE.InstancedBufferGeometry();
 	instancedTreeLogGeometry.copy(treeLogGeometry);
-	const treeLogMaterial   = new THREE.MeshPhongMaterial({color: 0x7c3f00});
+	const treeLogMaterial   = new THREE.MeshPhongMaterial({color: 0x7c3f00, side: THREE.FrontSide});
 	const instancedTreeLogs = new THREE.InstancedMesh(
 		instancedTreeLogGeometry,
 		treeLogMaterial,

@@ -316,10 +316,11 @@ function setupThreeJs() {
 
 	lights.directional.object = new THREE.DirectionalLight(0xffffff, 1);
 	lights.directional.object.position.set(-100, 100, 100);
+
 	// Set up shadow properties for the light
-	lights.directional.object.castShadow            = true; // default false
-	lights.directional.object.shadow.mapSize.width  = 512;  // default
-	lights.directional.object.shadow.mapSize.height = 512;  // default
+	lights.directional.object.castShadow            = true;
+	lights.directional.object.shadow.mapSize.width  = 1024;
+	lights.directional.object.shadow.mapSize.height = 1024;
 
 	lights.directional.object.shadow.camera = new THREE.OrthographicCamera(
 		-65, 65, 65, -40, 0.5, 225); 
@@ -499,8 +500,8 @@ function buildLoco() {
 
 	//Set up shadow properties for the light
 	trainLight.castShadow            = true; // default false
-	trainLight.shadow.mapSize.width  = 128; // default
-	trainLight.shadow.mapSize.height = 128; // default
+	trainLight.shadow.mapSize.width  = 512; // default
+	trainLight.shadow.mapSize.height = 512; // default
 	trainLight.shadow.camera.near    = 0.5; // default
 	trainLight.shadow.camera.far     = 40; // default
 	trainLight.shadow.focus          = 1; // default
@@ -546,10 +547,7 @@ function buildRailsFoundation() {
 	// map.rotation = Math.PI/2;
 
 	const railsFoundationMaterial = new THREE.MeshPhongMaterial({
-		side: THREE.DoubleSide,
-		transparent: false,
-		opacity: 1.0,
-		shininess: 10,
+		side: THREE.FrontSide,
 		map: textures.durmientes.object
 		// map: map
 	});
@@ -568,10 +566,7 @@ function buildRailsFoundation() {
 function buildRails() {
 	const railsGeometry = buildRailsGeometry();
 	const railsMaterial = new THREE.MeshPhongMaterial({
-		side: THREE.DoubleSide,
-		transparent: false,
-		opacity: 1.0,
-		shininess: 10,
+		side: THREE.BackSide,
 		color: 0xFFFFFF
 	});
 
@@ -587,9 +582,7 @@ function buildTerrainCustomMaterial() {
 	const customMaterial = new THREE.MeshPhongMaterial({
 		color: 0xffffff,
 		specular: 0x333333,
-		shininess: 10,
-		side: THREE.DoubleSide,
-		reflectivity: 1
+		side: THREE.FrontSide,
 	});
 
 	// definos las variables uniformes adicionales que necesitamos
@@ -754,6 +747,7 @@ function buildTerrain() {
 	const customMaterial = buildTerrainCustomMaterial();
 	terrain = new THREE.Mesh(terrainGeometry, customMaterial);
 
+	terrain.castShadow = true;
 	terrain.receiveShadow = true;
 
 	scene.add(terrain);
@@ -763,7 +757,7 @@ function buildTerrain() {
 
 	console.log('Generating water');
 	const waterGeometry = new THREE.PlaneGeometry(width/2, height-1.25);
-	const waterMaterial = new THREE.MeshPhongMaterial( {color: 0x12ABFF, side: THREE.DoubleSide} );
+	const waterMaterial = new THREE.MeshPhongMaterial( {color: 0x12ABFF, side: THREE.BackSide} );
 	const water = new THREE.Mesh( waterGeometry, waterMaterial );
 	water.rotateX(Math.PI/2);
 	water.position.set(0, 0, -0.65);
@@ -783,10 +777,7 @@ function buildTunnel() {
 	textures.madera.object.anisotropy = 16;
 
 	const tunnelMaterial = new THREE.MeshPhongMaterial({
-		side: THREE.DoubleSide,
-		transparent: false,
-		opacity: 1.0,
-		shininess: 10,
+		side: THREE.FrontSide,
 		map: textures.madera.object
 	});
 

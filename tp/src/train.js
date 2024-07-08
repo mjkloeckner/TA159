@@ -157,7 +157,7 @@ function buildTrainWheel() {
 
 	const wheelsMaterial = new THREE.MeshPhongMaterial({
 		color: 0x393939, 
-		side: THREE.DoubleSide,
+		side: THREE.FrontSide,
 		shininess: 100.0
 	});
 
@@ -173,7 +173,7 @@ function buildTrainAxe(material) {
 
 	const axeMaterial = new THREE.MeshPhongMaterial({
 		color: 0x7A7F80, 
-		side: THREE.DoubleSide,
+		side: THREE.FrontSide,
 		shininess: 100.0
 	});
 
@@ -192,7 +192,7 @@ export function buildTrain() {
 	const chassisGeometry = buildTrainChassis();
 	const chassisMaterial = new THREE.MeshPhongMaterial({
 		color: 0x7A7F80, 
-		side: THREE.DoubleSide,
+		side: THREE.FrontSide,
 		shininess: 100.0
 	});
 
@@ -204,7 +204,7 @@ export function buildTrain() {
 	const chamberGeometry = buildChamber();
 	const chamberMaterial = new THREE.MeshPhongMaterial({
 		color: 0xFA1A09, 
-		side: THREE.DoubleSide,
+		side: THREE.FrontSide,
 		shininess: 100.0
 	});
 
@@ -226,7 +226,7 @@ export function buildTrain() {
 	const cabinRoofGeometry = buildCabinRoof();
 	const roofMaterial = new THREE.MeshPhongMaterial({
 		color: 0xFBEC50, 
-		side: THREE.DoubleSide,
+		side: THREE.FrontSide,
 		shininess: 100.0
 	});
 
@@ -260,7 +260,7 @@ export function buildTrain() {
 	const cylindersGeometry = BufferGeometryUtils.mergeGeometries([cylinderRight, cylinderLeft]);
 	const cylindersMaterial = new THREE.MeshPhongMaterial({
 		color: 0x393939, 
-		side: THREE.DoubleSide,
+		side: THREE.FrontSide,
 		shininess: 100.0
 	});
 
@@ -314,7 +314,7 @@ export function buildTrain() {
 
 	const lightMaterial = new THREE.MeshPhongMaterial({
 		color: 0x393939, 
-		side: THREE.DoubleSide,
+		side: THREE.FrontSide,
 		shininess: 100.0,
 		emissive: 0xf6d32d
 	});
