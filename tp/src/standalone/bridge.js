@@ -4,7 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 import tierraSecaUrl from '../assets/tierra_seca.jpg'
-import ladrillosUrl  from '../assets/pared_de_ladrillos.jpg'
+import ladrillosUrl  from '../assets/pared_de_ladrillo.jpg'
 
 const textures = {
 	tierra:     { url: tierraSecaUrl, object: null },
