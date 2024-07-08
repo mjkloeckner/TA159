@@ -17,7 +17,7 @@ import { buildTrain } from '/src/train.js';
 import { generateBridge } from '/src/bridge.js';
 import { updateTrainCrankPosition } from '/src/train.js';
 
-let scene, camera, renderer, terrainMaterial, terrainGeometry, terrain, time, gui;
+let scene, camera, renderer, terrainGeometry, terrain, time, gui;
 let treesForbiddenMapData, treesForbiddenMap, elevationMap, elevationMapData;
 
 let firstPersonControls, orbitControls;
@@ -67,18 +67,6 @@ import maderaUrl           from './assets/madera.jpg'
 import durmientesUrl       from './assets/durmientes.jpg'
 import elevationMapUrl     from './assets/elevation_map_wider_river.png'
 import treeForbiddenMapUrl from './assets/tree_forbidden_zone_map_wider_path.png'
-
-// const textures = {
-// 	sky_day:          { url: '/sky_day_void.jpg', object: null },
-// 	sky_night:        { url: '/sky_night.jpg', object: null },
-// 	roca:             { url: '/roca.jpg', object: null },
-// 	pasto:            { url: '/pasto.jpg', object: null },
-// 	tierra:           { url: '/tierra.jpg', object: null },
-// 	madera:           { url: '/madera.jpg', object: null },
-// 	durmientes:       { url: '/durmientes.jpg', object: null },
-// 	elevationMap:     { url: '/elevation_map_wider_river.png', object: null },
-// 	treeForbiddenMap: { url: '/tree_forbidden_zone_map_wider_path.png', object: null }
-// };
 
 const textures = {
 	skyDay:           { url: skyDayUrl, object: null },
@@ -706,31 +694,9 @@ function buildTerrain() {
 
 	console.log('Applying textures');
 
-	terrainMaterial = new THREE.RawShaderMaterial({
-		uniforms: {
-			dirtSampler: { type: 't', value: textures.tierra.object },
-			rockSampler: { type: 't', value: textures.roca.object },
-			grassSampler: { type: 't', value: textures.pasto.object },
-			scale: { type: 'f', value: 2.5 },
-			terrainAmplitude: { type: 'f', value: amplitude },
-			terrainAmplitudeBottom: { type: 'f', value: amplitudeBottom },
-			worldNormalMatrix: { type: 'm4', value: null },
-			dirtStepWidth: { type: 'f', value: 0.20 },
-			rockStepWidth: { type: 'f', value: 0.15 },
-		},
-		vertexShader: vertexShader,
-		fragmentShader: fragmentShader,
-		side: THREE.DoubleSide,
-	});
 	const customMaterial = buildTerrainCustomMaterial();
-	terrain = new THREE.Mesh(terrainGeometry, customMaterial );
+	terrain = new THREE.Mesh(terrainGeometry, customMaterial);
 
-	terrainMaterial.onBeforeRender = (renderer, scene, camera, geometry, terrain) => {
-		let m = terrain.matrixWorld.clone();
-		m = m.transpose().invert();
-		terrain.material.uniforms.worldNormalMatrix.value = m;
-	};
-	terrainMaterial.needsUpdate = true;
 	scene.add(terrain);
 
 	terrain.position.set(0, amplitudeBottom, 0);
