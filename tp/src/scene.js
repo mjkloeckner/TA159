@@ -484,8 +484,8 @@ function buildLoco() {
 	trainLight.target.updateMatrixWorld();
 
 	trainLight2 = new THREE.SpotLight(0xffffff, 10.0, 3.0, Math.PI/6, 0.5, 0.5);
-	// train.add(trainLight2.target);
-	// train.add(trainLight2);
+	train.add(trainLight2.target);
+	train.add(trainLight2);
 	trainLight2.position.set(0, 3.25, 15);
 	trainLight2.target.position.set(0, 0, -100);
 	trainLight2.target.updateMatrixWorld();
