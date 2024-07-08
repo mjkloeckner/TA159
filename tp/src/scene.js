@@ -5,6 +5,8 @@ import { FirstPersonControls } from 'three/addons/controls/FirstPersonControls.j
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 import { vertexShader, fragmentShader } from '/src/shaders.js';
 
+import Stats from 'three/examples/jsm/libs/stats.module.js';
+
 import { generateTunnelGeometry } from '/src/tunnel.js';
 import { createInstancedTrees } from '/src/trees.js';
 import { elevationGeometry } from '/src/terrain.js';
@@ -17,7 +19,7 @@ import { buildTrain } from '/src/train.js';
 import { generateBridge } from '/src/bridge.js';
 import { updateTrainCrankPosition } from '/src/train.js';
 
-let scene, camera, renderer, terrainGeometry, terrain, time, gui;
+let scene, camera, renderer, terrainGeometry, terrain, time, gui, stats;
 let treesForbiddenMapData, treesForbiddenMap, elevationMap, elevationMapData;
 
 let firstPersonControls, orbitControls;
@@ -300,6 +302,11 @@ function setupThreeJs() {
 
 	document.body.appendChild(renderer.domElement);
 
+	stats = new Stats();
+	if(settings.showHelpers == true) {
+		document.body.appendChild(stats.dom);
+	}
+
 	const topView = new THREE.PerspectiveCamera(
 		35, window.innerWidth / window.innerHeight, 0.1, 1000);
 
@@ -355,7 +362,7 @@ function setupThreeJs() {
 	const directionalLightHelper = new THREE.DirectionalLightHelper(lights.directional.object, 5);
 	helpers.push(directionalLightHelper);
 
-	const gridHelper = new THREE.GridHelper(200, 200);
+	const gridHelper = new THREE.GridHelper(100, 100);
 	helpers.push(gridHelper);
 
 	const axesHelper = new THREE.AxesHelper(5);
@@ -852,6 +859,12 @@ function createMenu() {
 				helpers[i].visible = settings.showHelpers;
 				scene.add(helpers[i]);
 			}
+			if(settings.showHelpers == true) {
+				document.body.appendChild(stats.dom);
+			} else {
+				document.body.removeChild(stats.dom);
+			}
+
 		});
 }
 
@@ -867,6 +880,9 @@ function buildScene() {
 }
 
 function mainLoop() {
+	requestAnimationFrame(mainLoop);
+	stats.begin();
+
 	let currCamera = cameras[settings.currCameraIndex];
 	switch(currCamera.name) {
 		case "topView":
@@ -904,10 +920,6 @@ function mainLoop() {
 			}
 			break;
 	}
-
-	requestAnimationFrame(mainLoop);
-	renderer.render(scene, currCamera);
-
 	const dt = 0.001;
 	if(settings.animationEnable) {
 		time = (time < 1.0-dt) ? (time + dt) : 0.00;
@@ -980,6 +992,9 @@ function mainLoop() {
 		}
 	}
 	prevTime = time2;
+
+	renderer.render(scene, currCamera);
+	stats.end();
 }
 
 function main() {
@@ -988,7 +1003,10 @@ function main() {
 	time = 0.90;
 	buildScene();
 	createMenu();
-	nextCamera();
+	if(settings.showHelpers != true) {
+		// if not 'debug' mode set first camera to first person 
+		nextCamera();
+	}
 	mainLoop();
 }
 
