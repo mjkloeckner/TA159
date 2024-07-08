@@ -2,8 +2,8 @@ import * as THREE from 'three';
 
 let treesForbiddenMapData, treesForbiddenMap, elevationMap, elevationMapData;
 
-import elevationMapUrl     from './assets/elevation_map2.png'
-import treeForbiddenMapUrl from './assets/tree_forbidden_zone_map.png'
+import elevationMapUrl     from './assets/elevation_map_wider_river.png'
+import treeForbiddenMapUrl from './assets/tree_forbidden_zone_map_wider_path.png'
 
 const textures = {
 	elevationMap:     { url: elevationMapUrl, object: null },

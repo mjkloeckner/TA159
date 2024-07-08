@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { vertexShader, fragmentShader } from '/src/shaders.js';
 
 const widthSegments   = 100;
 const heightSegments  = 100;
@@ -9,7 +8,7 @@ const amplitudeBottom = -1.00;
 import rocaUrl             from './assets/roca.jpg'
 import pastoUrl            from './assets/pasto.jpg'
 import tierraUrl           from './assets/tierra.jpg'
-import elevationMapUrl     from './assets/elevation_map2.png'
+import elevationMapUrl     from './assets/elevation_map_wider_river.png'
 
 const textures = {
 	tierra:       { url: tierraUrl,       object: null },

@@ -3,7 +3,6 @@ import * as dat from 'dat.gui';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { FirstPersonControls } from 'three/addons/controls/FirstPersonControls.js';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
-import { vertexShader, fragmentShader } from '/src/shaders.js';
 
 import Stats from 'three/examples/jsm/libs/stats.module.js';
 
