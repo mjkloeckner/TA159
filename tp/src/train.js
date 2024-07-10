@@ -15,8 +15,8 @@ const wheelThickness = 0.425;
 const chassisOffset = 1.245;
 const wheelOffset = -0.45;
 const steamCylindersLen = 4;
-const crankLen = 10;
-const crankOffset = 0.60;
+const crankLen = 12;
+const crankOffset = 1.50;
 const crankWidth = 0.25;
 
 let crankLeft, crankRight;
@@ -317,10 +317,10 @@ export function buildTrain() {
 
 export function updateTrainCrankPosition(time = 0.0) {
 	crankLeft.position.set(-steamChamberRad-crankWidth/2,
-		wheelOffset + 1.00*(Math.sin(time*Math.PI/2)),
-		crankOffset - 1.00*(Math.cos(time*Math.PI/2)));
+		wheelOffset + 0.70*(Math.sin(time*Math.PI/2)),
+		crankOffset - 0.70*(Math.cos(time*Math.PI/2)));
 
 	crankRight.position.set(steamChamberRad+crankWidth/2,
-		wheelOffset + 1.00*(Math.sin(time*Math.PI/2)),
-		crankOffset - 1.00*(Math.cos(time*Math.PI/2)));
+		wheelOffset + 0.70*(Math.sin(time*Math.PI/2)),
+		crankOffset - 0.70*(Math.cos(time*Math.PI/2)));
 }
