@@ -27,6 +27,7 @@ let train, trainLight, trainLight2, trainLight3;
 
 let helpers = [];
 let cameras = [];
+let camerasName = [];
 let objects = [];
 let lights = {
 	ambient:     { object: null },
@@ -41,6 +42,7 @@ let settings = {
 	nightMode: true,
 	showHelpers: false,
 	showFps: true,
+	camera: "topView",
 };
 
 let raycaster;
@@ -263,6 +265,7 @@ function setupFirstPersonControls() {
 	firstPersonCamera.lookAt(-10, 5, 0);
 	firstPersonCamera.name = "firstPersonCamera"
 	cameras.push(firstPersonCamera);
+	camerasName.push("Primera Persona");
 
 	firstPersonControls = new PointerLockControls(firstPersonCamera, document.body);
 
@@ -314,6 +317,7 @@ function setupThreeJs() {
 	topView.lookAt(0, 0, 0);
 	topView.name = "topView"
 	cameras.push(topView);
+	camerasName.push("Vista Global");
 
 	orbitControls = new OrbitControls(topView, renderer.domElement);
 
@@ -439,6 +443,7 @@ function buildBridge() {
 	bridge2.add(bridgeCamera);
 	bridgeCamera.name = "bridgeCamera";
 	cameras.push(bridgeCamera);
+	camerasName.push("Vista del Puente");
 
 	bridge1.castShadow    = true;
 	bridge1.receiveShadow = true;
@@ -464,6 +469,7 @@ function buildLoco() {
 	train.add(trainConductorCamera);
 	trainConductorCamera.name = "trainConductorCamera";
 	cameras.push(trainConductorCamera);
+	camerasName.push("Cabina del Tren");
 
 	const trainCamera = new THREE.PerspectiveCamera(
 		55, window.innerWidth / window.innerHeight, 0.1, 10000);
@@ -473,6 +479,7 @@ function buildLoco() {
 	train.add(trainCamera);
 	trainCamera.name = `trainCamera`;
 	cameras.push(trainCamera);
+	camerasName.push("Costado del Tren");
 
 	const trainBackCamera = new THREE.PerspectiveCamera(
 		55, window.innerWidth / window.innerHeight, 0.1, 10000);
@@ -482,6 +489,7 @@ function buildLoco() {
 	train.add(trainBackCamera);
 	trainBackCamera.name = "trainBackCamera";
 	cameras.push(trainBackCamera);
+	camerasName.push("Vista hacia atras desde la Cabina del Tren");
 
 	// SpotLight(color: Int, intensity: Float, distance: Float, angle: Radians, penumbra: Float, decay: Float)
 	trainLight = new THREE.SpotLight(0xffffff, 200.0, 100.0, Math.PI/6, 0.5, 1.0);
@@ -807,6 +815,7 @@ function buildTunnel() {
 	tunnelCamera.name = "tunnelCamera";
 	tunnel.add(tunnelCamera);
 	cameras.push(tunnelCamera);
+	camerasName.push("Camara del Tunel");
 }
 
 function buildTrees(count = 50) {
@@ -869,6 +878,18 @@ function createMenu() {
 				document.body.removeChild(stats.dom);
 			}
 		});
+	gui.add(settings, "camera", camerasName).name('Camara').setValue(camerasName[settings.currCameraIndex]).onChange(
+		function() {
+			console.log(settings.camera);
+			settings.currCameraIndex = camerasName.indexOf(settings.camera);
+
+			if(cameras[settings.currCameraIndex].name == "firstPersonCamera") {
+				firstPersonControls.unlock();
+				blocker.style.display = 'block';
+				instructions.style.display = 'flex';
+			}
+		}
+	);
 }
 
 function buildScene() {
@@ -1006,10 +1027,6 @@ function main() {
 	time = 0.90;
 	buildScene();
 	createMenu();
-	if(settings.showHelpers != true) {
-		// if not 'debug' mode set first camera to first person 
-		nextCamera();
-	}
 	mainLoop();
 }
 
