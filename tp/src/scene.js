@@ -39,7 +39,8 @@ let settings = {
 	showTrain: true,
 	currCameraIndex: 0,
 	nightMode: true,
-	showHelpers: true,
+	showHelpers: false,
+	showFps: true,
 };
 
 let raycaster;
@@ -302,7 +303,7 @@ function setupThreeJs() {
 	document.body.appendChild(renderer.domElement);
 
 	stats = new Stats();
-	if(settings.showHelpers == true) {
+	if(settings.showFps == true) {
 		document.body.appendChild(stats.dom);
 	}
 
@@ -858,12 +859,15 @@ function createMenu() {
 				helpers[i].visible = settings.showHelpers;
 				scene.add(helpers[i]);
 			}
-			if(settings.showHelpers == true) {
+		}
+	);
+	gui.add(settings, 'showFps', true).name('Mostrar FPS').onChange(
+		function() {
+			if(settings.showFps == true) {
 				document.body.appendChild(stats.dom);
 			} else {
 				document.body.removeChild(stats.dom);
 			}
-
 		});
 }
 
