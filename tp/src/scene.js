@@ -43,6 +43,7 @@ let settings = {
 	showHelpers: false,
 	showFps: true,
 	camera: "topView",
+	shadows: false
 };
 
 let raycaster;
@@ -301,7 +302,7 @@ function setupThreeJs() {
 	renderer.setPixelRatio( window.devicePixelRatio );
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
-	renderer.shadowMap.enabled = true;
+	renderer.shadowMap.enabled = settings.shadows;
 
 	document.body.appendChild(renderer.domElement);
 
@@ -877,7 +878,19 @@ function createMenu() {
 			} else {
 				document.body.removeChild(stats.dom);
 			}
-		});
+		}
+	);
+	gui.add(settings, 'shadows', true).name('Sombras').onChange(
+		function() {
+			console.log(settings.shadows);
+			renderer.shadowMap.enabled = settings.shadows;
+			scene.traverse(function (child) {
+				if (child.material) {
+					child.material.needsUpdate = true
+				}
+			})
+		}
+	);
 	gui.add(settings, "camera", camerasName).name('Camara').setValue(camerasName[settings.currCameraIndex]).onChange(
 		function() {
 			console.log(settings.camera);
@@ -895,7 +908,7 @@ function createMenu() {
 function buildScene() {
 	console.log('Building scene');
 	buildTunnel();
-	buildTrees(100);
+	buildTrees(200);
 	buildTerrain();
 	buildRailsFoundation();
 	buildRails();
