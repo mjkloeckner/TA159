@@ -4,7 +4,7 @@ El trabajo practico consiste en implementar una escena en 3D en
 [WebGL](https://www.khronos.org/webgl/) utilizando la librería de JavaScript
 [Three.js](https://threejs.org/)
 
-![main_night](https://github.com/mjkloeckner/86.43-tp/assets/64109770/7c6c5819-63ce-485b-8b1c-766ff1cca611)
+![screenshot](https://github.com/mjkloeckner/86.43-tp/assets/64109770/95ee0b32-0092-4627-bfe9-f45becda354a)
 
 ## Inicio Rápido
 
