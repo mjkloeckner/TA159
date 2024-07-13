@@ -96,14 +96,36 @@ function onResize() {
 }
 
 function updateCamera() {
-	if(cameras[settings.currCameraIndex].name == "firstPersonCamera") {
-		firstPersonControls.unlock();
-		blocker.style.display = 'block';
-		instructions.style.display = 'flex';
-	} else {
-		firstPersonControls.unlock();
-		blocker.style.display = 'none';
-		instructions.style.display = 'flex';
+	orbitControls.enabled = false;
+	blocker.style.display = 'none';
+	instructions.style.display = 'none';
+	if(settings.nightMode == true) {
+		trainLight.intensity = 200;
+		trainLight.distance = 100;
+	}
+
+	firstPersonControls.unlock();
+
+	let currCamera = cameras[settings.currCameraIndex];
+	switch(currCamera.name) {
+		case "topView":
+			orbitControls.enabled = true;
+			break;
+		case "firstPersonCamera":
+			blocker.style.display = 'block';
+			instructions.style.display = 'flex';
+			break;
+		case "trainCamera":
+		case "trainConductorCamera":
+			// por alguna razon cuando la camara es `trainConductorCamera`
+			// o `trainCamera` la luz principal del tren se ve mas tenue
+			if(settings.nightMode == true) {
+				trainLight.intensity = 1000;
+				trainLight.distance = 1000;
+			}
+			break;
+		default:
+			break;
 	}
 	onResize();
 	settings.currCameraName = camerasName[settings.currCameraIndex];
@@ -511,10 +533,10 @@ function buildLoco() {
 	trainLight.shadow.focus          = 1;
 
 	trainLight3.castShadow            = true;
-	trainLight3.shadow.mapSize.width  = 256;
-	trainLight3.shadow.mapSize.height = 256;
+	trainLight3.shadow.mapSize.width  = 128;
+	trainLight3.shadow.mapSize.height = 128;
 	trainLight3.shadow.camera.near    = 0.5;
-	trainLight3.shadow.camera.far     = 50;
+	trainLight3.shadow.camera.far     = 25;
 	trainLight3.shadow.focus          = 1;
 
 	const trainLightHelper = new THREE.CameraHelper(trainLight.shadow.camera);
@@ -899,43 +921,6 @@ function mainLoop() {
 	requestAnimationFrame(mainLoop);
 	stats.begin();
 
-	let currCamera = cameras[settings.currCameraIndex];
-	switch(currCamera.name) {
-		case "topView":
-			orbitControls.enabled = true;
-			blocker.style.display = 'none';
-			instructions.style.display = 'none';
-			if(settings.nightMode == true) {
-				trainLight.intensity = 200;
-				trainLight.distance = 100;
-			}
-			break;
-		case "firstPersonCamera":
-			orbitControls.enabled = false;
-			if(settings.nightMode == true) {
-				trainLight.intensity = 200;
-				trainLight.distance = 100;
-			}
-			break;
-		case "trainCamera":
-		case "trainConductorCamera":
-			// por alguna razon cuando la camara es `trainConductorCamera`
-			// la luz principal del tren se ve mas tenue
-			if(settings.nightMode == true) {
-				trainLight.intensity = 1000;
-				trainLight.distance = 1000;
-			}
-			break;
-		default:
-			orbitControls.enabled = false;
-			blocker.style.display = 'none';
-			instructions.style.display = 'none';
-			if(settings.nightMode == true) {
-				trainLight.intensity = 200;
-				trainLight.distance = 100;
-			}
-			break;
-	}
 	const dt = 0.001;
 	if(settings.animationEnable) {
 		time = (time < 1.0-dt) ? (time + dt) : 0.00;
@@ -1007,9 +992,9 @@ function mainLoop() {
 			// canJump = true;
 		}
 	}
-	prevTime = time2;
 
-	renderer.render(scene, currCamera);
+	prevTime = time2;
+	renderer.render(scene, cameras[settings.currCameraIndex]);
 	stats.end();
 }
 
@@ -1020,6 +1005,7 @@ function main() {
 	prevTime = performance.now();
 	buildScene();
 	createMenu();
+	updateCamera();
 	mainLoop();
 }
 
