@@ -337,7 +337,7 @@ function setupThreeJs() {
 	lights.hemisphere.object = new THREE.HemisphereLight(0xFFFFFF, 0x000000, 0.25);
 
 	lights.directional.object = new THREE.DirectionalLight(0xffffff, 1);
-	lights.directional.object.position.set(-100, 100, 100);
+	lights.directional.object.position.set(-35, 35, 35);
 
 	// Set up shadow properties for the light
 	lights.directional.object.castShadow            = true;
@@ -345,7 +345,7 @@ function setupThreeJs() {
 	lights.directional.object.shadow.mapSize.height = 512;
 
 	lights.directional.object.shadow.camera = new THREE.OrthographicCamera(
-		-65, 65, 65, -40, 0.5, 225); 
+		-65, 65, 45, -35, 1.0, 112);
 
 	const directionalLightShadowsHelper = new THREE.CameraHelper(lights.directional.object.shadow.camera);
 	directionalLightShadowsHelper.visible = settings.showHelpers;
@@ -361,14 +361,14 @@ function setupThreeJs() {
 		lights.hemisphere.object.intensity = 0;
 		lights.directional.object.color.setHex(0xcdddfe); // 0x090254; 0xa8a1fd
 		scene.background = textures.skyNight.object;
-		lights.directional.object.position.set(100, 100, 100); // match the skybox texture moon light position
+		lights.directional.object.position.set(35, 35, 35); // match the skybox texture moon light position
 	} else {
 		lights.ambient.object.visible = true;
 		lights.hemisphere.object.intensity = 1;
 		lights.directional.object.intensity = 1;
 		lights.directional.object.color.setHex(0xFFFFFF);
 		scene.background = textures.skyDay.object;
-		lights.directional.object.position.set(-100, 100, 100);
+		lights.directional.object.position.set(-35, 35, 35);
 	}
 	
 	const hemisphereLightHelper = new THREE.HemisphereLightHelper(lights.hemisphere.object, 5);
@@ -541,6 +541,10 @@ function buildLoco() {
 
 	const trainLightHelper = new THREE.CameraHelper(trainLight.shadow.camera);
 	const trainLight3Helper = new THREE.CameraHelper(trainLight3.shadow.camera);
+
+    trainLight.visible = settings.nightMode;
+    trainLight2.visible = settings.nightMode;
+    trainLight3.visible = settings.nightMode;
 
 	trainLightHelper.visible  = settings.showHelpers;
 	trainLight3Helper.visible = settings.showHelpers;
@@ -845,7 +849,7 @@ function toggleNightMode() {
 		lights.hemisphere.object.intensity = 0;
 		lights.directional.object.color.setHex(0xcdddfe); // 0x090254; 0xa8a1fd
 		scene.background = textures.skyNight.object;
-		lights.directional.object.position.set(100, 100, 100); // match the skybox texture moon light
+		lights.directional.object.position.set(35, 35, 35); // match the skybox texture moon light
 		trainLight.visible = true;
 		trainLight2.visible = true;
 		trainLight3.visible = true;
@@ -855,7 +859,7 @@ function toggleNightMode() {
 		lights.directional.object.intensity = 1;
 		lights.directional.object.color.setHex(0xFFFFFF);
 		scene.background = textures.skyDay.object;
-		lights.directional.object.position.set(-100, 100, 100);
+		lights.directional.object.position.set(-35, 35, 35);
 		trainLight.visible = false;
 		trainLight2.visible = false;
 		trainLight3.visible = false;
