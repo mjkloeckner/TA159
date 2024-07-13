@@ -518,15 +518,12 @@ function buildLoco() {
 	trainLight3.shadow.focus          = 1;
 
 	const trainLightHelper = new THREE.CameraHelper(trainLight.shadow.camera);
-	const trainLight2Helper = new THREE.CameraHelper(trainLight2.shadow.camera);
 	const trainLight3Helper = new THREE.CameraHelper(trainLight3.shadow.camera);
 
 	trainLightHelper.visible  = settings.showHelpers;
-	trainLight2Helper.visible = settings.showHelpers;
 	trainLight3Helper.visible = settings.showHelpers;
 
 	helpers.push(trainLightHelper);
-	helpers.push(trainLight2Helper);
 	helpers.push(trainLight3Helper);
 
 	train.scale.set(0.145, 0.145, 0.145);
@@ -876,7 +873,7 @@ function createMenu() {
 				if (child.material) {
 					child.material.needsUpdate = true
 				}
-			})
+			});
 		}
 	);
 	gui.add(settings, "currCameraName", camerasName).name('Camara').setValue(camerasName[settings.currCameraIndex]).onChange(
