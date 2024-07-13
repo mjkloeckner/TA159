@@ -149,19 +149,22 @@ function buildChamber() {
 }
 
 function buildTrainWheel() {
-	const wheel = new THREE.CylinderGeometry(wheelRad, wheelRad, wheelThickness);
-	wheel.rotateZ(Math.PI/2);
+	const wheelGeometry = new THREE.CylinderGeometry(wheelRad, wheelRad, wheelThickness);
+	wheelGeometry.rotateZ(Math.PI/2);
 
 	const wheelBolt = new THREE.CylinderGeometry(wheelRad, wheelRad, wheelThickness);
 	wheelBolt.rotateZ(Math.PI/2);
 
 	const wheelsMaterial = new THREE.MeshPhongMaterial({
 		color: 0x393939, 
-		side: THREE.DoubleSide,
+		side: THREE.FrontSide,
 		shininess: 100.0
 	});
 
-	return new THREE.Mesh(wheel, wheelsMaterial)
+	const wheel = new THREE.Mesh(wheelGeometry, wheelsMaterial);
+	wheel.castShadow = true;
+	wheel.receiveShadow = true;
+	return wheel;
 }
 
 function buildTrainAxe(material) {
@@ -170,7 +173,7 @@ function buildTrainAxe(material) {
 
 	const axeMaterial = new THREE.MeshPhongMaterial({
 		color: 0x7A7F80, 
-		side: THREE.DoubleSide,
+		side: THREE.FrontSide,
 		shininess: 100.0
 	});
 
@@ -189,26 +192,32 @@ export function buildTrain() {
 	const chassisGeometry = buildTrainChassis();
 	const chassisMaterial = new THREE.MeshPhongMaterial({
 		color: 0x7A7F80, 
-		side: THREE.DoubleSide,
+		side: THREE.FrontSide,
 		shininess: 100.0
 	});
 
 	const chassis = new THREE.Mesh(chassisGeometry, chassisMaterial);
+	chassis.castShadow = true;
+	chassis.receiveShadow = true;
 	train.add(chassis);
 
 	const chamberGeometry = buildChamber();
 	const chamberMaterial = new THREE.MeshPhongMaterial({
 		color: 0xFA1A09, 
-		side: THREE.DoubleSide,
+		side: THREE.FrontSide,
 		shininess: 100.0
 	});
 
 	const chamber = new THREE.Mesh(chamberGeometry, chamberMaterial);
+	chamber.castShadow = true;
+	chamber.receive    = true;
 	chassis.add(chamber);
 	chamber.position.set(0, (chassisHeight + cabinWallThickness)/2, chassisOffset);
 
 	const cabinGeometry = buildCabin();
 	const cabin = new THREE.Mesh(cabinGeometry, chamberMaterial);
+	cabin.castShadow = true;
+	cabin.receive = true;
 	chassis.add(cabin);
 	cabin.position.set(0,
 		(chassisHeight + cabinWallThickness)/2,
@@ -217,11 +226,13 @@ export function buildTrain() {
 	const cabinRoofGeometry = buildCabinRoof();
 	const roofMaterial = new THREE.MeshPhongMaterial({
 		color: 0xFBEC50, 
-		side: THREE.DoubleSide,
+		side: THREE.FrontSide,
 		shininess: 100.0
 	});
 
 	const cabinRoof = new THREE.Mesh(cabinRoofGeometry, roofMaterial);
+	cabinRoof.castShadow = true;
+	cabinRoof.receive = true;
 	cabin.add(cabinRoof);
 	cabinRoof.position.set(0, cabinHeight+cabinRoofHeight+cabinWallThickness/2, 0);
 
@@ -249,11 +260,14 @@ export function buildTrain() {
 	const cylindersGeometry = BufferGeometryUtils.mergeGeometries([cylinderRight, cylinderLeft]);
 	const cylindersMaterial = new THREE.MeshPhongMaterial({
 		color: 0x393939, 
-		side: THREE.DoubleSide,
+		side: THREE.FrontSide,
 		shininess: 100.0
 	});
 
-	chassis.add(new THREE.Mesh(cylindersGeometry, cylindersMaterial));
+	const cylinders = new THREE.Mesh(cylindersGeometry, cylindersMaterial)
+	cylinders.castShadow = true;
+	cylinders.receiveShadow = true;
+	chassis.add(cylinders);
 	chassis.position.set(0,-2,-2.75);
 
 	const w1 = buildTrainWheel();
@@ -269,7 +283,7 @@ export function buildTrain() {
 	a2.add(w3);
 
 	const w4 = buildTrainWheel();
-	w4.position.set(-steamChamberRad+wheelThickness/2.1,0,);
+	w4.position.set(-steamChamberRad+wheelThickness/2.1,0,0);
 	a2.add(w4);
 
 	const w5 = buildTrainWheel();
@@ -300,7 +314,7 @@ export function buildTrain() {
 
 	const lightMaterial = new THREE.MeshPhongMaterial({
 		color: 0x393939, 
-		side: THREE.DoubleSide,
+		side: THREE.FrontSide,
 		shininess: 100.0,
 		emissive: 0xf6d32d
 	});

@@ -172,6 +172,8 @@ export function buildRailsFoundation() {
 		map: textures.durmientes.object
 	});
 	const pMesh = new THREE.Mesh(pGeometry, pMaterial);
+	pMesh.receiveShadow = true;
+	pMesh.castShadow = true;
 	scene.add(pMesh);
 }
 
@@ -245,6 +247,7 @@ function buildRails() {
 
 	const railsGeometry = mergeGeometries(railsGeometries);
 	const rails = new THREE.Mesh(railsGeometry, railsMaterial);
+	rails.castShadow = true;
 	scene.add(rails);
 }
 
