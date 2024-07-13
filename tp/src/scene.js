@@ -3,26 +3,22 @@ import * as dat from 'dat.gui';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { FirstPersonControls } from 'three/addons/controls/FirstPersonControls.js';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
-
 import Stats from 'three/examples/jsm/libs/stats.module.js';
-
+import { updateTrainCrankPosition } from '/src/train.js';
 import { generateTunnelGeometry } from '/src/tunnel.js';
 import { createInstancedTrees } from '/src/trees.js';
 import { elevationGeometry } from '/src/terrain.js';
+import { generateBridge } from '/src/bridge.js';
+import { buildTrain } from '/src/train.js';
 import {
 	getRailsPathPosAt,
 	buildRailsGeometry,
 	buildRailsFoundationGeometry
 } from '/src/rails.js';
-import { buildTrain } from '/src/train.js';
-import { generateBridge } from '/src/bridge.js';
-import { updateTrainCrankPosition } from '/src/train.js';
 
-let scene, camera, renderer, terrainGeometry, terrain, time, gui, stats;
-let treesForbiddenMapData, treesForbiddenMap, elevationMap, elevationMapData;
-
+let scene, camera, renderer, time, prevTime, gui, stats;
+let terrainGeometry, terrain, treesForbiddenMapData, treesForbiddenMap, elevationMap, elevationMapData;
 let firstPersonControls, orbitControls;
-
 let train, trainLight, trainLight2, trainLight3;
 
 let helpers = [];
@@ -42,7 +38,7 @@ let settings = {
 	nightMode: true,
 	showHelpers: false,
 	showFps: true,
-	camera: "topView",
+	currCameraName: "",
 	shadows: false
 };
 
@@ -54,7 +50,6 @@ let moveBackward = false;
 let moveLeft = false;
 let moveRight = false;
 
-let prevTime = performance.now();
 const velocity = new THREE.Vector3();
 const direction = new THREE.Vector3();
 
@@ -100,37 +95,33 @@ function onResize() {
 	renderer.setSize( window.innerWidth, window.innerHeight );
 }
 
-function prevCamera() {
-	const camerasCount = cameras.length;
-
+function updateCamera() {
 	if(cameras[settings.currCameraIndex].name == "firstPersonCamera") {
+		firstPersonControls.unlock();
+		blocker.style.display = 'block';
+		instructions.style.display = 'flex';
+	} else {
 		firstPersonControls.unlock();
 		blocker.style.display = 'none';
 		instructions.style.display = 'flex';
 	}
+	onResize();
+	settings.currCameraName = camerasName[settings.currCameraIndex];
+}
+
+function prevCamera() {
+	const camerasCount = cameras.length;
 
 	if(settings.currCameraIndex == 0) {
 		settings.currCameraIndex = (camerasCount - 1);
 	} else {
 		settings.currCameraIndex -= 1;
 	}
-
-	if(cameras[settings.currCameraIndex].name == "firstPersonCamera") {
-		firstPersonControls.unlock();
-		blocker.style.display = 'block';
-		instructions.style.display = 'flex';
-	}
-	onResize();
+	updateCamera();
 }
 
 function nextCamera() {
 	const camerasCount = cameras.length;
-
-	if(cameras[settings.currCameraIndex].name == "firstPersonCamera") {
-		firstPersonControls.unlock();
-		blocker.style.display = 'none';
-		instructions.style.display = 'flex';
-	}
 
 	if(settings.currCameraIndex == (camerasCount - 1)) {
 		settings.currCameraIndex = 0;
@@ -138,12 +129,7 @@ function nextCamera() {
 		settings.currCameraIndex += 1;
 	}
 
-	if(cameras[settings.currCameraIndex].name == "firstPersonCamera") {
-		firstPersonControls.unlock();
-		blocker.style.display = 'block';
-		instructions.style.display = 'flex';
-	}
-	onResize();
+	updateCamera();
 }
 
 const blocker = document.getElementById( 'blocker' );
@@ -201,6 +187,9 @@ function keyHandler(event) {
 				} else {
 					nextCamera();
 				}
+				if(gui != undefined) {
+					gui.__controllers[6].updateDisplay();
+				}
 				break;
 			case 'Space':
 				// if (firstPersonControls.isLocked === true) {
@@ -208,7 +197,6 @@ function keyHandler(event) {
 				// 	velocity.y += 350;
 				// 	break;
 				// }
-				console.log("Toggling train animations");
 				settings.animationEnable = !settings.animationEnable;
 				if(gui != undefined) {
 					// update gui 'Animations' checkbox
@@ -351,7 +339,7 @@ function setupThreeJs() {
 		lights.hemisphere.object.intensity = 0;
 		lights.directional.object.color.setHex(0xcdddfe); // 0x090254; 0xa8a1fd
 		scene.background = textures.skyNight.object;
-		lights.directional.object.position.set(100, 100, 100); // math the skybox texture moon light
+		lights.directional.object.position.set(100, 100, 100); // match the skybox texture moon light position
 	} else {
 		lights.ambient.object.visible = true;
 		lights.hemisphere.object.intensity = 1;
@@ -515,19 +503,19 @@ function buildLoco() {
 	trainLight3.target.updateMatrixWorld();
 
 	//Set up shadow properties for the light
-	trainLight.castShadow            = true; // default false
-	trainLight.shadow.mapSize.width  = 256; // default
-	trainLight.shadow.mapSize.height = 256; // default
-	trainLight.shadow.camera.near    = 0.5; // default
-	trainLight.shadow.camera.far     = 40; // default
-	trainLight.shadow.focus          = 1; // default
+	trainLight.castShadow            = true;
+	trainLight.shadow.mapSize.width  = 256;
+	trainLight.shadow.mapSize.height = 256;
+	trainLight.shadow.camera.near    = 0.5;
+	trainLight.shadow.camera.far     = 40;
+	trainLight.shadow.focus          = 1;
 
-	trainLight3.castShadow            = true; // default false
-	trainLight3.shadow.mapSize.width  = 256; // default
-	trainLight3.shadow.mapSize.height = 256; // default
-	trainLight3.shadow.camera.near    = 0.5; // default
-	trainLight3.shadow.camera.far     = 50; // default
-	trainLight3.shadow.focus          = 1; // default
+	trainLight3.castShadow            = true;
+	trainLight3.shadow.mapSize.width  = 256;
+	trainLight3.shadow.mapSize.height = 256;
+	trainLight3.shadow.camera.near    = 0.5;
+	trainLight3.shadow.camera.far     = 50;
+	trainLight3.shadow.focus          = 1;
 
 	const trainLightHelper = new THREE.CameraHelper(trainLight.shadow.camera);
 	const trainLight2Helper = new THREE.CameraHelper(trainLight2.shadow.camera);
@@ -861,7 +849,8 @@ function createMenu() {
 	gui.add(settings, 'showTrain').name('Mostrar tren').onChange(
 		function () {
 			train.visible = !train.visible;
-		});
+		}
+	);
 	gui.add(settings, 'nightMode', false).name('Modo noche').onChange(toggleNightMode);
 	gui.add(settings, 'showHelpers', true).name('Mostrar Guias').onChange(
 		function() {
@@ -882,7 +871,6 @@ function createMenu() {
 	);
 	gui.add(settings, 'shadows', true).name('Sombras').onChange(
 		function() {
-			console.log(settings.shadows);
 			renderer.shadowMap.enabled = settings.shadows;
 			scene.traverse(function (child) {
 				if (child.material) {
@@ -891,16 +879,10 @@ function createMenu() {
 			})
 		}
 	);
-	gui.add(settings, "camera", camerasName).name('Camara').setValue(camerasName[settings.currCameraIndex]).onChange(
+	gui.add(settings, "currCameraName", camerasName).name('Camara').setValue(camerasName[settings.currCameraIndex]).onChange(
 		function() {
-			console.log(settings.camera);
-			settings.currCameraIndex = camerasName.indexOf(settings.camera);
-
-			if(cameras[settings.currCameraIndex].name == "firstPersonCamera") {
-				firstPersonControls.unlock();
-				blocker.style.display = 'block';
-				instructions.style.display = 'flex';
-			}
+			settings.currCameraIndex = camerasName.indexOf(settings.currCameraName);
+			updateCamera();
 		}
 	);
 }
@@ -1038,6 +1020,7 @@ function main() {
 	setupThreeJs();
 	setupFirstPersonControls();
 	time = 0.90;
+	prevTime = performance.now();
 	buildScene();
 	createMenu();
 	mainLoop();
