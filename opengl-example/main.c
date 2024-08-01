@@ -220,20 +220,26 @@ int main (void) {
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
 
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
 	if(!new_program_from_shaders_source(&current_program, "main.vert", "main.frag")) {
 		glfwDestroyWindow(window);
 		glfwTerminate();
 		return -1;
 	}
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
+	float time;
+	int time_uniform = glGetUniformLocation(current_program, "time");
 	while(!glfwWindowShouldClose(window)) {
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		// glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		time = glfwGetTime();
 		glUseProgram(current_program);
+		glUniform1f(time_uniform, time);
+		
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		glfwSwapBuffers(window);
