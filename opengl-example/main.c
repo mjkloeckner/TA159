@@ -136,6 +136,24 @@ bool new_program_from_shaders_source(GLuint *shader_program,
 	return true;
 }
 
+GLuint current_program;
+
+bool reload_shaders(const char *vert_shader_file_path, const char *frag_shader_file_path) {
+	LOG_INFO("Reloading shaders");
+
+	GLuint new_program;
+	if(!new_program_from_shaders_source(&new_program,
+			vert_shader_file_path, frag_shader_file_path)) {
+
+		LOG_ERROR("Could not recompile shaders. Keeping previous version");
+		return false;
+	}
+	glDeleteProgram(current_program);
+	current_program = new_program;
+	LOG_INFO("Done reloading shaders");
+	return true;
+}
+
 // https://www.glfw.org/docs/3.3/group__keys.html
 static void key_handler(GLFWwindow *window,
 		int key, int scancode, int action, int mods) {
@@ -146,12 +164,14 @@ static void key_handler(GLFWwindow *window,
 			case GLFW_KEY_Q:
 				glfwSetWindowShouldClose(window, GLFW_TRUE);
 				break;
+			case GLFW_KEY_F5:
+				reload_shaders("main.vert", "main.frag");
+				break;
 			default:
 				break;
 		}
 	}
 }
-
 
 bool setup_glfw(GLFWwindow **window) {
 	glfwInit();
@@ -182,7 +202,6 @@ bool setup_glfw(GLFWwindow **window) {
 }
 
 int main (void) {
-	GLuint shader_program;
 	GLuint VBO, VAO; // Vertex Buffer Objects, Vertex Array Object
 	GLFWwindow *window;
 
@@ -201,7 +220,7 @@ int main (void) {
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
 
-	if(!new_program_from_shaders_source(&shader_program, "main.vert", "main.frag")) {
+	if(!new_program_from_shaders_source(&current_program, "main.vert", "main.frag")) {
 		glfwDestroyWindow(window);
 		glfwTerminate();
 		return -1;
@@ -209,11 +228,12 @@ int main (void) {
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	glUseProgram(shader_program);
 
 	while(!glfwWindowShouldClose(window)) {
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		glUseProgram(current_program);
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		glfwSwapBuffers(window);
@@ -221,7 +241,7 @@ int main (void) {
 	}
 
 	LOG_INFO("Freeing resources");
-	glDeleteProgram(shader_program);
+	glDeleteProgram(current_program);
 	glfwDestroyWindow(window);
 	glfwTerminate();
 	return 0;
