@@ -2,34 +2,21 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "glad.h"
 #include <GLFW/glfw3.h>
 
 #define WINDOW_TITLE "OpenGL Example"
 
-#define LOG_INFO(str) do {       \
-	printf("[LOG]: %s\n", str);  \
+#define LOG_INFO(str) do {    \
+	printf("[LOG]: %s\n", str);    \
 } while (0)
 
-#define LOG_ERROR(str) do {                 \
-	fprintf(stderr, "[ERROR]: %s\n", str);  \
+#define LOG_ERROR(str) do {   \
+	fprintf(stderr, "[ERROR]: ");   \
+	fprintf(stderr, "%s\n", str);  \
 } while (0)
-
-static void key_handler(GLFWwindow *window,
-		int key, int scancode, int action, int mods) {
-
-	if(action == GLFW_PRESS) {
-		switch(key) {
-			case GLFW_KEY_ESCAPE:
-			case GLFW_KEY_Q:
-				glfwSetWindowShouldClose(window, GLFW_TRUE);
-				break;
-			default:
-				break;
-		}
-	}
-}
 
 float min(float a, float b) {
 	return (a < b) ? a : b;
@@ -74,36 +61,130 @@ char *load_file(const char *file_path) {
 	return new_str;
 }
 
-int main (void) {
+bool new_shader_from_file_path(GLenum type, GLuint *shader, const char *file_path) {
+	const char *shader_source = load_file(file_path);
+
+	if(shader_source == NULL) {
+		return false;
+	}
+
+	*shader = glCreateShader(type);
+
+	int return_value;
+	char compile_log[512];
+
+	glShaderSource(*shader, 1, &shader_source, NULL);
+	LOG_INFO("Compiling shader");
+	glCompileShader(*shader);
+	glGetShaderiv(*shader, GL_COMPILE_STATUS, &return_value);
+	if(return_value == GL_FALSE) {
+		glGetShaderInfoLog(*shader, 512, NULL, compile_log);
+		*shader = 0;
+		LOG_ERROR("Compilation of shader failed");
+		// LOG_ERROR(strstr(compile_log, "error:") + 7);
+		fprintf(stderr, "%s", compile_log);
+		return false;
+	}
+
+	return true;
+}
+
+
+bool new_program_from_shaders(GLuint *shader_program,
+		GLuint *vertex_shader, GLuint *fragment_shader) {
+
+	int return_value;
+	char link_log[512];
+
+	// link both vertex and fragment shaders
+	*shader_program = glCreateProgram();
+
+	glAttachShader(*shader_program, *vertex_shader);
+	glAttachShader(*shader_program, *fragment_shader);
+	LOG_INFO("Linking `vertex_shader` and `fragment_shader`");
+	glLinkProgram(*shader_program);
+	glGetProgramiv(*shader_program, GL_LINK_STATUS, &return_value);
+	if(return_value == GL_FALSE) {
+		glGetProgramInfoLog(*shader_program, 512, NULL, link_log);
+		LOG_ERROR("Linking `vertex_shader` and `fragment_shader` failed");
+		LOG_ERROR(link_log + 7); // remove the `error: ` prefix of message
+	}
+}
+
+bool new_program_from_shaders_source(GLuint *shader_program,
+		const char *vert_shader_file_path, const char *frag_shader_file_path) {
+
+	GLuint vertex_shader, fragment_shader;
+
+	if(!new_shader_from_file_path(GL_VERTEX_SHADER,
+				&vertex_shader, vert_shader_file_path)) {
+
+		return false;
+	}
+
+	if(!new_shader_from_file_path(GL_FRAGMENT_SHADER,
+				&fragment_shader, frag_shader_file_path)) {
+
+		return false;
+	}
+
+	if(!new_program_from_shaders(shader_program, &vertex_shader, &fragment_shader)) {
+		return false;
+	}
+
+	// program with shaders compiled and linked properly
+	return true;
+}
+
+// https://www.glfw.org/docs/3.3/group__keys.html
+static void key_handler(GLFWwindow *window,
+		int key, int scancode, int action, int mods) {
+
+	if(action == GLFW_PRESS) {
+		switch(key) {
+			case GLFW_KEY_ESCAPE:
+			case GLFW_KEY_Q:
+				glfwSetWindowShouldClose(window, GLFW_TRUE);
+				break;
+			default:
+				break;
+		}
+	}
+}
+
+
+bool setup_glfw(GLFWwindow **window) {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow *window = glfwCreateWindow(800, 800, WINDOW_TITLE, NULL, NULL);
-	if (window == NULL) {
+	*window = glfwCreateWindow(800, 800, WINDOW_TITLE, NULL, NULL);
+	if (*window == NULL) {
 		LOG_ERROR("Failed to create GLFW window");
 		glfwTerminate();
-		return -1;
+		return false;
 	}
 
-	glfwMakeContextCurrent(window);
+	glfwMakeContextCurrent(*window);
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 		LOG_ERROR("Failed to initialize GLAD");
 		glfwTerminate();
-		return -1;
+		return false;
 	}
 
 	// bind key_hadler
-	glfwSetKeyCallback(window, key_handler);
+	glfwSetKeyCallback(*window, key_handler);
 
 	// bind the callback whiech sets the rendering context size on window resize
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetFramebufferSizeCallback(*window, framebuffer_size_callback);
+	return true;
+}
 
-	const char *vertex_shader_source, *fragment_shader_source;
-	unsigned int vertex_shader, fragment_shader, shader_program;
-	int return_value;
-	char infoLog[512];
+int main (void) {
+	GLuint shader_program;
+	GLuint VBO, VAO; // Vertex Buffer Objects, Vertex Array Object
+	GLFWwindow *window;
 
 	float vertices[] = {
 		-0.50f, -0.400f, 0.00f,
@@ -111,7 +192,8 @@ int main (void) {
 		 0.00f,  0.466f, 0.00f
 	};
 
-	unsigned int VBO, VAO; // Vertex Buffer Objects, Vertex Array Object
+	setup_glfw(&window);
+
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
@@ -119,61 +201,10 @@ int main (void) {
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
 
-	// fragment shader load and compile
-	vertex_shader_source = load_file("main.vert");
-	if(vertex_shader_source == NULL) {
+	if(!new_program_from_shaders_source(&shader_program, "main.vert", "main.frag")) {
+		glfwDestroyWindow(window);
+		glfwTerminate();
 		return -1;
-	}
-
-	// puts(vertex_shader_source);
-
-	vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-
-	glShaderSource(vertex_shader, 1, &vertex_shader_source, NULL);
-	LOG_INFO("Compiling `vertex_shader`");
-	glCompileShader(vertex_shader);
-
-	glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &return_value);
-
-	if(return_value == GL_FALSE) {
-		glGetShaderInfoLog(vertex_shader, 512, NULL, infoLog);
-		LOG_ERROR("Compilation of `vertex_shader` failed");
-		LOG_ERROR(infoLog);
-	}
-
-	// fragment shader load and compile
-	fragment_shader_source = load_file("main.frag");
-	if(fragment_shader_source == NULL) {
-		return -1;
-	}
-
-	// puts(fragment_shader_source);
-
-	fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-
-	glShaderSource(fragment_shader, 1, &fragment_shader_source, NULL);
-	LOG_INFO("Compiling `fragment_shader`");
-	glCompileShader(fragment_shader);
-	glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &return_value);
-	if(return_value == GL_FALSE) {
-		glGetShaderInfoLog(fragment_shader, 512, NULL, infoLog);
-		LOG_ERROR("Compilation of `fragment_shader` failed");
-		LOG_ERROR(infoLog);
-	}
-
-	// link both vertex and fragment shaders
-	shader_program = glCreateProgram();
-
-	glAttachShader(shader_program, vertex_shader);
-	glAttachShader(shader_program, fragment_shader);
-	LOG_INFO("Linking `vertex_shader` and `fragment_shader`");
-	glLinkProgram(shader_program);
-
-	glGetProgramiv(shader_program, GL_LINK_STATUS, &return_value);
-	if(return_value == GL_FALSE) {
-		glGetProgramInfoLog(shader_program, 512, NULL, infoLog);
-		LOG_ERROR("Linking `vertex_shader` and `fragment_shader` failed");
-		LOG_ERROR(infoLog + 7); // remove the `error: ` prefix of message
 	}
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
@@ -189,8 +220,8 @@ int main (void) {
 		glfwPollEvents();
 	}
 
-	glDeleteShader(vertex_shader);
-	glDeleteShader(fragment_shader);
+	LOG_INFO("Freeing resources");
+	glDeleteProgram(shader_program);
 	glfwDestroyWindow(window);
 	glfwTerminate();
 	return 0;
