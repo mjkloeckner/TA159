@@ -23,8 +23,6 @@ float min(float a, float b) {
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
-	char s[100];
-
 	float min_side = min((float)width, (float)height);
 
 	float x = ((float)width - min_side) / 2;
@@ -101,14 +99,17 @@ bool new_program_from_shaders(GLuint *shader_program,
 
 	glAttachShader(*shader_program, *vertex_shader);
 	glAttachShader(*shader_program, *fragment_shader);
-	LOG_INFO("Linking `vertex_shader` and `fragment_shader`");
+	LOG_INFO("Linking shaders");
 	glLinkProgram(*shader_program);
 	glGetProgramiv(*shader_program, GL_LINK_STATUS, &return_value);
 	if(return_value == GL_FALSE) {
 		glGetProgramInfoLog(*shader_program, 512, NULL, link_log);
-		LOG_ERROR("Linking `vertex_shader` and `fragment_shader` failed");
+		LOG_ERROR("Linking shaders failed");
 		LOG_ERROR(link_log + 7); // remove the `error: ` prefix of message
+		return false;
 	}
+
+	return true;
 }
 
 bool new_program_from_shaders_source(GLuint *shader_program,
@@ -139,7 +140,7 @@ bool new_program_from_shaders_source(GLuint *shader_program,
 GLuint current_program;
 
 bool reload_shaders(const char *vert_shader_file_path, const char *frag_shader_file_path) {
-	LOG_INFO("Reloading shaders");
+	LOG_INFO("Recompiling shaders");
 
 	GLuint new_program;
 	if(!new_program_from_shaders_source(&new_program,
