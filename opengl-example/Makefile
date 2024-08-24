@@ -1,6 +1,6 @@
 CC := gcc
-CLIBS := `pkg-config --libs glfw3` -lGL
-CFLAGS := # -Wall -Wshadow -pedantic -ansi -std=c99 -O3
+CLIBS := -lglfw -lGL
+CFLAGS := -Wall -Wshadow -ansi -std=c99 -O3
 SRCS := $(wildcard *.c)
 OBJS := $(SRCS:.c=.o)
 
@@ -11,11 +11,11 @@ TARGET := opengl-example
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CC) $(CLIBS) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) $^ -o $@ $(CLIBS) 
 	rm -f $(OBJS)
 
 %.o: %.c
-	$(CC) $(CLIBS) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@ 
 
 clean:
 	rm -f $(OBJS)
