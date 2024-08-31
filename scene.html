@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Trabajo Practico Sistemas Graficos | Martin Klöckner</title>
+		<link rel="icon" href="data:,"> <!-- Do not request favicon -->
+		<style>
+			html, body, #mainContainer {
+				padding: 0;
+				margin: 0;
+				height: 100%;
+
+			#blocker {
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				background-color: rgba(0,0,0,0.5);
+				backdrop-filter: blur(6px);
+			}
+
+			#instructions {
+				width: 100%;
+				height: 100%;
+
+				/* display: flex; */
+				display: none;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+
+				padding-top: 0;
+				text-align: center;
+				font-size: 22px;
+				cursor: pointer;
+
+				color: antiquewhite;
+				text-shadow: 1px 1px 3px black;
+			}
+
+			#click-to-play {
+				font-size: 42px;
+				padding: 0em;
+				margin: 0em;
+			}
+		</style>
+		<script type="module" crossorigin src="./assets/scene-B3uzeudt.js"></script>
+		<link rel="modulepreload" crossorigin href="./assets/OrbitControls-CgjfdclN.js">
+		<link rel="modulepreload" crossorigin href="./assets/BufferGeometryUtils-DQFymryo.js">
+		<link rel="modulepreload" crossorigin href="./assets/elevation_map_wider_river-Cbe3WljM.js">
+		<link rel="modulepreload" crossorigin href="./assets/tree_forbidden_zone_map_wider_path-Bzrj_VaQ.js">
+		<link rel="modulepreload" crossorigin href="./assets/pasto-JkRKC7jR.js">
+		<link rel="modulepreload" crossorigin href="./assets/pared_de_ladrillo-koNbRcn4.js">
+		<link rel="modulepreload" crossorigin href="./assets/durmientes-BJG45Nyc.js">
+		<link rel="modulepreload" crossorigin href="./assets/madera-BY2TwKea.js">
+	</head>
+	<body>
+		<div id="blocker">
+			<div id="instructions">
+				<p id="click-to-play">
+					Click para Activar Controles
+				</p>
+				<p>
+					Mover: WASD<br>
+					Mover Rápido: Shift+w<br>
+					Mirar: MOUSE<br>
+					Animación del Tren: SPACE<br>
+					Camara siguiente: c<br>
+					Camara anterior: C<br>
+				</p>
+			</div>
+		</div>
+	</body>
+</html>
