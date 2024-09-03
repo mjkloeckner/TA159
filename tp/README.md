@@ -11,28 +11,40 @@ El trabajo practico consiste en implementar una escena en 3D en
 Clone el repositorio con el siguiente comando:
 
 ```console
-$ git clone https://github.com/mjkloeckner/86.43.git
+$ git clone https://github.com/mjkloeckner/TA159.git
 ```
 
 Navegue al directorio del repositorio clonado y posteriormente a la carpeta del
 trabajo práctico
 
 ```console
-$ cd 86.43/tp/
+$ cd TA159/tp
 ```
 
-Instale las dependencias
+Instale las dependencias utilizando [npm](https://www.npmjs.com/)
 
 ```console
-$ npm i
+$ npm install
 ```
 
 Finalmente inicialice un servidor Web en el directorio del trabajo práctico y
-abra su navegador de internet preferido en la `url` especificada por `vite`
+posteriormente abra un navegador de internet en la correspondiente *URL*
+
+En caso de no contar con un servido web instalado, puede instalar
+[vite](https://vitejs.dev/) utilizando el siguiente comando de
+[npm](https://www.npmjs.com/):
+
+```console
+$ npm -g install vite
+```
+
+Instalado vite, inicialice el servidor con el siguiente comando:
 
 ```console
 $ vite
 ```
+
+Finalmente abra su navegador preferido en la *URL* especificado por vite.
 
 ## Dependencias
 
@@ -63,7 +75,7 @@ $ vite
     - [X] Fija, con vistas al interior del puente
     - [X] Primera persona (debe poder moverse sobre el terreno con el teclado y el mouse)
 * [X] Texturas
-* [ ] Iluminación
+* [X] Iluminación
     - [X] Modo noche/día
     - [X] Luz en el frente del tren
     - [ ] Lamparas en posiciones aleatorias del mapa
